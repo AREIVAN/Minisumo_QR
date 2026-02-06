@@ -524,6 +524,8 @@ Batería segura"></textarea>
                     </div>
                     <div class="btnRow">
                         <button class="btn" id="btnDownload">Descargar QR (PNG)</button>
+                        <button class="btn" id="btnOpen">Abrir link</button>
+
                         <button class="btn" id="btnCopy">Copiar payload</button>
                     </div>
                 </div>
@@ -708,7 +710,9 @@ Batería segura"></textarea>
         function payloadLink(robotObj) {
             const json = JSON.stringify(robotObj);
             const b64u = base64UrlEncode(json);
-            const base = location.href.split("#")[0];
+
+            // ✅ URL canónica de tu GitHub Pages (con slash final)
+            const base = "https://areivan.github.io/Minisumo_QR/";
             return base + "#view=" + b64u;
         }
 
@@ -865,6 +869,11 @@ Batería segura"></textarea>
                 ta.value = lastPayload; document.body.appendChild(ta);
                 ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
             }
+        };
+
+        btnOpen.onclick = () => {
+            if (!lastPayload) { alert("Primero genera un QR."); return; }
+            window.open(lastPayload, "_blank");
         };
 
         btnDownload.onclick = () => {
