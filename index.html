@@ -1,13 +1,11 @@
 <!doctype html>
 <html lang="es">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>APEX ROBOT ID QR</title>
-
-    <!-- Supabase JS (CDN) -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <!-- ✅ QR engine estable -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
@@ -141,7 +139,7 @@
         .panelHead .title {
             display: flex;
             flex-direction: column;
-            gap: 3px
+            gap: 3px;
         }
 
         .panelHead .title b {
@@ -180,12 +178,6 @@
         .btn.hot {
             border-color: rgba(255, 46, 136, .45);
             background: rgba(255, 46, 136, .10);
-        }
-
-        .btn[disabled] {
-            opacity: .55;
-            cursor: not-allowed;
-            filter: none !important;
         }
 
         .content {
@@ -397,7 +389,7 @@
             <div class="brand">
                 <div class="dot"></div><span>APEX ROBOT ID QR</span>
             </div>
-            <div class="badge"><b>Supabase</b> · QR con link público</div>
+            <div class="badge"><b>offline / 1 archivo</b> · Identificador (no competencia)</div>
         </div>
 
         <!-- GENERATOR -->
@@ -410,7 +402,8 @@
                         <b>Robot</b>
                     </div>
                     <div class="btnRow">
-                        <button class="btn primary" id="btnGenLink">Guardar y generar QR</button>
+                        <button class="btn primary" id="btnGenOffline">Generar QR</button>
+                        <button class="btn" id="btnGenLink">Generar QR (link)</button>
                     </div>
                 </div>
 
@@ -510,13 +503,15 @@ Batería segura"></textarea>
                     </div>
 
                     <div class="btnRow" style="margin-top:12px">
-                        <button class="btn" id="btnSaveLocal">Guardar en este navegador</button>
-                        <button class="btn" id="btnLoadLocal">Cargar guardado</button>
+                        <button class="btn" id="btnSave">Guardar en este navegador</button>
+                        <button class="btn" id="btnLoad">Cargar guardado</button>
                         <button class="btn hot" id="btnClear">Limpiar</button>
                     </div>
 
                     <div class="hint">
-                        Este flujo guarda el robot en <b>Supabase</b> y genera un QR con link público.
+                        Nota: <b>offline</b> mete los datos dentro del QR como JSON compacto. El modo <b>link</b> genera
+                        un QR que abre
+                        una credencial visual (requiere que el archivo esté alojado en una URL).
                     </div>
                 </div>
             </section>
@@ -531,7 +526,8 @@ Batería segura"></textarea>
                     <div class="btnRow">
                         <button class="btn" id="btnDownload">Descargar QR (PNG)</button>
                         <button class="btn" id="btnOpen">Abrir link</button>
-                        <button class="btn" id="btnCopy">Copiar link</button>
+
+                        <button class="btn" id="btnCopy">Copiar payload</button>
                     </div>
                 </div>
 
@@ -543,7 +539,7 @@ Batería segura"></textarea>
                     <div class="qrCard">
                         <div class="chipRow" id="chipRow"></div>
                         <div class="kv" id="previewKV" style="margin-top:10px"></div>
-                        <div class="mono" id="payloadPreview">Link (preview): —</div>
+                        <div class="mono" id="payloadPreview">Payload (preview): —</div>
                     </div>
 
                     <div class="hint" style="margin-top:10px">
@@ -605,44 +601,45 @@ Batería segura"></textarea>
     </div>
 
     <script>
-        /* ==========================
-          Supabase config (TU PROYECTO)
-        =========================== */
-        const SUPABASE_URL = "https://pddjulxliqlqoopveugh.supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_BgfIRiHsUgqPhCqZ4L8yEA_wjarKci0";
+        /* --------------------------
+           Compact payload + Base64URL
+        --------------------------- */
+        const SUPABASE_URL = "https://TU-PROYECTO.supabase.co";
+        const SUPABASE_ANON_KEY = "TU_ANON_KEY";
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        // Tu GitHub Pages (canónica)
-        const BASE_URL = "https://areivan.github.io/Minisumo_QR/";
-
-        const $ = (id) => document.getElementById(id);
         function cleanStr(s) { return (s || "").toString().trim(); }
+        function base64UrlEncode(str) {
+            const b64 = btoa(unescape(encodeURIComponent(str)));
+            return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+        function base64UrlDecode(b64u) {
+            let b64 = b64u.replace(/-/g, '+').replace(/_/g, '/');
+            while (b64.length % 4) b64 += '=';
+            return decodeURIComponent(escape(atob(b64)));
+        }
 
-        /* ==========================
-          Compact object build
-        =========================== */
         function buildRobotObj() {
-            const checklist = cleanStr($("inspeccion_checklist").value)
+            const checklist = cleanStr(document.getElementById("inspeccion_checklist").value)
                 .split("\n").map(s => s.trim()).filter(Boolean);
 
             const obj = {
                 v: 1,
-                i: cleanStr($("robot_id").value),
-                n: cleanStr($("robot_nombre").value),
-                c: cleanStr($("categoria").value),
-                t: cleanStr($("equipo").value),
-                p: cleanStr($("controlador").value),
-                s: cleanStr($("escuela").value),
+                i: cleanStr(robot_id.value),
+                n: cleanStr(robot_nombre.value),
+                c: cleanStr(categoria.value),
+                t: cleanStr(equipo.value),
+                p: cleanStr(controlador.value),
+                s: cleanStr(escuela.value),
             };
 
-            const peso = cleanStr($("peso_g").value);
-            const dim = cleanStr($("dimensiones_mm").value);
-            const type = cleanStr($("tipo_control").value);
-            const freq = cleanStr($("frecuencia_protocolo").value);
-            const cont = cleanStr($("contacto").value);
-            const ist = cleanStr($("inspeccion_estado").value);
-            const foto = cleanStr($("foto_url").value);
-            const logo = cleanStr($("logo_url").value);
+            const peso = cleanStr(peso_g.value);
+            const dim = cleanStr(dimensiones_mm.value);
+            const type = cleanStr(tipo_control.value);
+            const freq = cleanStr(frecuencia_protocolo.value);
+            const cont = cleanStr(contacto.value);
+            const ist = cleanStr(inspeccion_estado.value);
+            const foto = cleanStr(foto_url.value);
+            const logo = cleanStr(logo_url.value);
 
             if (peso) obj.w = Number(peso);
             if (dim) obj.d = dim;
@@ -677,80 +674,9 @@ Batería segura"></textarea>
             };
         }
 
-        /* ==========================
-          Supabase IO
-        =========================== */
-        async function saveToSupabase(compact) {
-            const o = prettyFromCompact(compact);
-
-            const { data, error } = await supabase
-                .from("robots")
-                .insert([{
-                    robot_id: o.robot_id,
-                    robot_nombre: o.robot_nombre,
-                    categoria: o.categoria || null,
-                    equipo: o.equipo || null,
-                    controlador: o.controlador || null,
-                    escuela: o.escuela || null,
-                    peso_g: (o.peso_g !== "" && o.peso_g != null) ? Number(o.peso_g) : null,
-                    dimensiones_mm: o.dimensiones_mm || null,
-                    tipo_control: o.tipo_control || null,
-                    frecuencia_protocolo: o.frecuencia_protocolo || null,
-                    contacto: o.contacto || null,
-                    inspeccion_estado: o.inspeccion_estado || "pendiente",
-                    inspeccion_checklist: o.inspeccion_checklist || [],
-                    foto_url: o.foto_url || null,
-                    logo_url: o.logo_url || null,
-                }])
-                .select("id")
-                .single();
-
-            if (error) throw error;
-            return data.id;
-        }
-
-        async function loadFromSupabase(id) {
-            const { data, error } = await supabase
-                .from("robots")
-                .select("*")
-                .eq("id", id)
-                .single();
-
-            if (error) throw error;
-            return data;
-        }
-
-        function dbRowToCompact(r) {
-            return {
-                v: 1,
-                i: r.robot_id,
-                n: r.robot_nombre,
-                c: r.categoria || "",
-                t: r.equipo || "",
-                p: r.controlador || "",
-                s: r.escuela || "",
-                w: (r.peso_g ?? undefined),
-                d: r.dimensiones_mm || "",
-                y: r.tipo_control || "",
-                f: r.frecuencia_protocolo || "",
-                k: r.contacto || "",
-                a: r.inspeccion_estado || "pendiente",
-                l: Array.isArray(r.inspeccion_checklist) ? r.inspeccion_checklist : [],
-                u: r.foto_url || "",
-                g: r.logo_url || ""
-            };
-        }
-
-        /* ==========================
-          Link payload
-        =========================== */
-        function payloadLinkById(id) {
-            return BASE_URL + "?id=" + encodeURIComponent(id);
-        }
-
-        /* ==========================
-          UI helpers
-        =========================== */
+        /* --------------------------
+           UI Helpers
+        --------------------------- */
         function setKV(container, rows) {
             container.innerHTML = "";
             for (const [k, v] of rows) {
@@ -760,7 +686,6 @@ Batería segura"></textarea>
                 container.appendChild(kEl); container.appendChild(vEl);
             }
         }
-
         function setChips(container, chips) {
             container.innerHTML = "";
             chips.forEach(ch => {
@@ -770,27 +695,45 @@ Batería segura"></textarea>
                 container.appendChild(el);
             });
         }
-
         function statusCls(state) {
             if (state === "aprobado") return "good";
             if (state === "rechazado") return "bad";
             return "warn";
         }
 
-        /* ==========================
-          QR render (canvas)
-        =========================== */
+        /* --------------------------
+           Generate QR payloads
+        --------------------------- */
+        const STORAGE_KEY = "apex_robot_qr_saved_v1";
         let lastPayload = "";
 
+        function payloadLink(robotObj) {
+            const json = JSON.stringify(robotObj);
+            const b64u = base64UrlEncode(json);
+
+            const base = "https://areivan.github.io/Minisumo_QR/";
+            return base + "#view=" + b64u;
+        }
+
+        function payloadLink(robotObj) {
+            const json = JSON.stringify(robotObj);
+            const b64u = base64UrlEncode(json);
+
+            // ✅ URL canónica de tu GitHub Pages (con slash final)
+            const base = "https://areivan.github.io/Minisumo_QR/";
+            return base + "#view=" + b64u;
+        }
+
+        /* ✅ QR render estable (ya no usa el engine recortado) */
         function drawQR(text) {
             try {
                 lastPayload = text;
 
-                const qr = qrcode(0, "Q"); // auto version, good EC
+                const qr = qrcode(0, "Q"); // 0=auto version, "Q" buena corrección
                 qr.addData(text);
                 qr.make();
 
-                const canvas = $("qrCanvas");
+                const canvas = document.getElementById("qrCanvas");
                 const ctx = canvas.getContext("2d");
 
                 const count = qr.getModuleCount();
@@ -811,22 +754,25 @@ Batería segura"></textarea>
                     }
                 }
 
-                $("payloadPreview").textContent = "Link (preview):\n" + text;
+                payloadPreview.textContent = "Payload (preview):\n" + text;
             } catch (err) {
-                $("payloadPreview").textContent = "ERROR QR: " + (err?.message || err);
+                payloadPreview.textContent = "ERROR QR: " + (err?.message || err);
                 console.error(err);
             }
         }
 
+        /* --------------------------
+           Preview Card (generator)
+        --------------------------- */
         function renderPreviewFromCompact(compact) {
             const o = prettyFromCompact(compact);
-            setChips($("chipRow"), [
+            setChips(chipRow, [
                 { text: o.categoria || "Categoría —" },
                 { text: "Control: " + (o.tipo_control || "—") },
                 { text: "Inspección: " + (o.inspeccion_estado || "—"), cls: statusCls(o.inspeccion_estado) }
             ]);
 
-            setKV($("previewKV"), [
+            setKV(previewKV, [
                 ["Robot ID", o.robot_id],
                 ["Nombre", o.robot_nombre],
                 ["Equipo", o.equipo],
@@ -839,27 +785,28 @@ Batería segura"></textarea>
             ]);
         }
 
-        /* ==========================
-          Viewer mode
-        =========================== */
+        /* --------------------------
+           Viewer mode (#view=...)
+        --------------------------- */
         function showViewer(compact) {
             const o = prettyFromCompact(compact);
 
-            $("generator").style.display = "none";
-            $("viewer").style.display = "block";
+            generator.style.display = "none";
+            viewer.style.display = "block";
 
-            $("v_name").textContent = o.robot_nombre || "Robot";
-            $("v_title").textContent = (o.robot_nombre || "—") + (o.robot_id ? ` · ${o.robot_id}` : "");
-            $("v_sub").textContent = `${o.categoria || "—"} · ${o.equipo || "—"} · ${o.escuela || "—"}`;
+            v_name.textContent = o.robot_nombre || "Robot";
+            v_title.textContent = (o.robot_nombre || "—") + (o.robot_id ? ` · ${o.robot_id}` : "");
+            v_sub.textContent = `${o.categoria || "—"} · ${o.equipo || "—"} · ${o.escuela || "—"}`;
 
-            setChips($("v_chips"), [
+            const chips = [
                 { text: o.categoria || "Categoría —" },
                 { text: "Equipo: " + (o.equipo || "—") },
                 { text: "Control: " + (o.tipo_control || "—") },
                 { text: "Inspección: " + (o.inspeccion_estado || "—"), cls: statusCls(o.inspeccion_estado) }
-            ]);
+            ];
+            setChips(v_chips, chips);
 
-            setKV($("v_kv"), [
+            setKV(v_kv, [
                 ["Robot ID", o.robot_id],
                 ["Nombre", o.robot_nombre],
                 ["Equipo", o.equipo],
@@ -874,33 +821,32 @@ Batería segura"></textarea>
             const lines = (o.inspeccion_checklist && o.inspeccion_checklist.length)
                 ? o.inspeccion_checklist.map(x => "• " + x).join("\n")
                 : "—";
-            $("v_check").textContent = lines;
+            v_check.textContent = lines;
 
             if (o.foto_url) {
-                $("v_photo").src = o.foto_url;
-                $("v_photo").style.display = "block";
-                $("v_photo_f").style.display = "none";
+                v_photo.src = o.foto_url;
+                v_photo.style.display = "block";
+                v_photo_f.style.display = "none";
             } else {
-                $("v_photo").style.display = "none";
-                $("v_photo_f").style.display = "block";
+                v_photo.style.display = "none";
+                v_photo_f.style.display = "block";
             }
-
             if (o.logo_url) {
-                $("v_logo").src = o.logo_url;
-                $("v_logo").style.display = "block";
-                $("v_logo_f").style.display = "none";
+                v_logo.src = o.logo_url;
+                v_logo.style.display = "block";
+                v_logo_f.style.display = "none";
             } else {
-                $("v_logo").style.display = "none";
-                $("v_logo_f").style.display = "block";
+                v_logo.style.display = "none";
+                v_logo_f.style.display = "block";
             }
         }
 
-        /* ==========================
-          Buttons
-        =========================== */
+        /* --------------------------
+           Buttons
+        --------------------------- */
         function validateBasic() {
-            const id = cleanStr($("robot_id").value);
-            const name = cleanStr($("robot_nombre").value);
+            const id = cleanStr(robot_id.value);
+            const name = cleanStr(robot_nombre.value);
             if (!id || !name) {
                 alert("Pon al menos Robot ID y Nombre del robot.");
                 return false;
@@ -908,149 +854,120 @@ Batería segura"></textarea>
             return true;
         }
 
-        const btnGenLink = $("btnGenLink");
-
-        btnGenLink.onclick = async () => {
+        btnGenOffline.onclick = () => {
             if (!validateBasic()) return;
-
             const compact = buildRobotObj();
             renderPreviewFromCompact(compact);
-
-            try {
-                btnGenLink.disabled = true;
-                btnGenLink.textContent = "Guardando...";
-
-                const id = await saveToSupabase(compact);
-                const url = payloadLinkById(id);
-
-                drawQR(url);
-            } catch (e) {
-                alert("Error guardando en Supabase:\n" + (e?.message || e));
-                console.error(e);
-            } finally {
-                btnGenLink.disabled = false;
-                btnGenLink.textContent = "Guardar y generar QR";
-            }
+            drawQR(payloadOffline(compact));
         };
 
-        $("btnCopy").onclick = async () => {
+        btnGenLink.onclick = () => {
+            if (!validateBasic()) return;
+            const compact = buildRobotObj();
+            renderPreviewFromCompact(compact);
+            drawQR(payloadLink(compact));   // ✅ SIEMPRE URL
+        };
+
+        btnCopy.onclick = async () => {
             if (!lastPayload) { alert("Primero genera un QR."); return; }
             try {
                 await navigator.clipboard.writeText(lastPayload);
-                alert("Link copiado.");
             } catch (e) {
                 const ta = document.createElement("textarea");
                 ta.value = lastPayload; document.body.appendChild(ta);
                 ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
-                alert("Link copiado.");
             }
         };
 
-        $("btnOpen").onclick = () => {
+        btnOpen.onclick = () => {
             if (!lastPayload) { alert("Primero genera un QR."); return; }
             window.open(lastPayload, "_blank");
         };
 
-        $("btnDownload").onclick = () => {
+        btnDownload.onclick = () => {
             const a = document.createElement("a");
             a.download = "apex_robot_qr.png";
-            a.href = $("qrCanvas").toDataURL("image/png");
+            a.href = qrCanvas.toDataURL("image/png");
             a.click();
         };
 
-        // Local draft (solo para no perder lo escrito)
-        const STORAGE_KEY = "apex_robot_form_draft_v1";
-
-        $("btnSaveLocal").onclick = () => {
+        btnSave.onclick = () => {
             const compact = buildRobotObj();
             localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
-            alert("Guardado en este navegador.");
+            alert("Guardado.");
         };
 
-        $("btnLoadLocal").onclick = () => {
+        btnLoad.onclick = () => {
             const raw = localStorage.getItem(STORAGE_KEY);
             if (!raw) { alert("No hay guardado."); return; }
             const o = JSON.parse(raw);
 
-            $("robot_id").value = o.i || "";
-            $("robot_nombre").value = o.n || "";
-            $("categoria").value = o.c || "";
-            $("equipo").value = o.t || "";
-            $("controlador").value = o.p || "";
-            $("escuela").value = o.s || "";
+            robot_id.value = o.i || "";
+            robot_nombre.value = o.n || "";
+            categoria.value = o.c || "";
+            equipo.value = o.t || "";
+            controlador.value = o.p || "";
+            escuela.value = o.s || "";
 
-            $("peso_g").value = (o.w ?? "");
-            $("dimensiones_mm").value = o.d || "";
-            $("tipo_control").value = o.y || "";
-            $("frecuencia_protocolo").value = o.f || "";
-            $("contacto").value = o.k || "";
-            $("inspeccion_estado").value = o.a || "pendiente";
-            $("inspeccion_checklist").value = (o.l || []).join("\n");
-            $("foto_url").value = o.u || "";
-            $("logo_url").value = o.g || "";
+            peso_g.value = (o.w ?? "");
+            dimensiones_mm.value = o.d || "";
+            tipo_control.value = o.y || "";
+            frecuencia_protocolo.value = o.f || "";
+            contacto.value = o.k || "";
+            inspeccion_estado.value = o.a || "pendiente";
+            inspeccion_checklist.value = (o.l || []).join("\n");
+            foto_url.value = o.u || "";
+            logo_url.value = o.g || "";
 
             renderPreviewFromCompact(o);
-            $("payloadPreview").textContent = "Link (preview): —";
-            lastPayload = "";
+            drawQR(payloadLink(o));
         };
 
-        $("btnClear").onclick = () => {
-            [
-                "robot_id", "robot_nombre", "categoria", "equipo", "controlador", "escuela",
+        btnClear.onclick = () => {
+            ["robot_id", "robot_nombre", "categoria", "equipo", "controlador", "escuela",
                 "peso_g", "dimensiones_mm", "tipo_control", "frecuencia_protocolo", "contacto",
                 "inspeccion_estado", "inspeccion_checklist", "foto_url", "logo_url"
-            ].forEach(id => $(id).value = "");
-
-            $("chipRow").innerHTML = "";
-            $("previewKV").innerHTML = "";
-            $("payloadPreview").textContent = "Link (preview): —";
-
-            const canvas = $("qrCanvas");
-            const ctx = canvas.getContext("2d");
-            ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ].forEach(id => document.getElementById(id).value = "");
+            chipRow.innerHTML = "";
+            previewKV.innerHTML = "";
+            payloadPreview.textContent = "Payload (preview): —";
+            const ctx = qrCanvas.getContext("2d");
+            ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, qrCanvas.width, qrCanvas.height);
             lastPayload = "";
         };
 
-        $("btnBack").onclick = () => {
-            // quitar ?id=... sin recargar
-            const url = new URL(location.href);
-            url.searchParams.delete("id");
-            history.replaceState(null, "", url.toString());
-
-            $("viewer").style.display = "none";
-            $("generator").style.display = "grid";
+        btnBack.onclick = () => {
+            location.hash = "";
+            viewer.style.display = "none";
+            generator.style.display = "grid";
         };
 
-        /* ==========================
-          Boot: if ?id=... load robot and show viewer
-        =========================== */
-        (async function boot() {
-            // blank canvas
-            const ctx = $("qrCanvas").getContext("2d");
-            ctx.fillStyle = "#fff";
-            ctx.fillRect(0, 0, $("qrCanvas").width, $("qrCanvas").height);
+        /* --------------------------
+           Boot: handle #view=
+        --------------------------- */
+        (function boot() {
+            const ctx = qrCanvas.getContext("2d");
+            ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, qrCanvas.width, qrCanvas.height);
 
-            const url = new URL(location.href);
-            const id = url.searchParams.get("id");
-
-            if (id) {
+            const hash = location.hash || "";
+            if (hash.startsWith("#view=")) {
+                const b64u = hash.slice(6);
                 try {
-                    const row = await loadFromSupabase(id);
-                    const compact = dbRowToCompact(row);
+                    const json = base64UrlDecode(b64u);
+                    const compact = JSON.parse(json);
                     showViewer(compact);
                     return;
-                } catch (e) {
-                    alert("No se pudo cargar este robot:\n" + (e?.message || e));
-                    console.error(e);
+                } catch (err) {
+                    console.warn(err);
                 }
             }
 
-            // Cargar draft local si existe
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
                 try {
                     const o = JSON.parse(saved);
                     renderPreviewFromCompact(o);
+                    drawQR(payloadLink(o));
                 } catch (_) { }
             }
         })();
