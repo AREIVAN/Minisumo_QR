@@ -9,6 +9,9 @@
     <!-- Supabase JS (CDN) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- ✅ QR engine estable -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+
     <style>
         :root {
             --bg: #070A10;
@@ -103,7 +106,7 @@
             align-items: start;
         }
 
-        @media(max-width:980px) {
+        @media (max-width: 980px) {
             .grid {
                 grid-template-columns: 1fr
             }
@@ -132,7 +135,7 @@
             font-size: 14px;
             letter-spacing: .6px;
             text-transform: uppercase;
-            color: var(--muted)
+            color: var(--muted);
         }
 
         .panelHead .title {
@@ -179,6 +182,12 @@
             background: rgba(255, 46, 136, .10);
         }
 
+        .btn[disabled] {
+            opacity: .55;
+            cursor: not-allowed;
+            filter: none !important;
+        }
+
         .content {
             padding: 16px
         }
@@ -197,7 +206,7 @@
             gap: 10px
         }
 
-        @media(max-width:700px) {
+        @media (max-width: 700px) {
             .formGrid {
                 grid-template-columns: 1fr
             }
@@ -269,7 +278,7 @@
             grid-template-columns: 140px 1fr;
             gap: 6px 10px;
             align-items: center;
-            font-size: 13px;
+            font-size: 13px
         }
 
         .k {
@@ -325,9 +334,10 @@
             margin-top: 10px;
         }
 
+        /* Viewer mode */
         .viewer {
             display: none;
-            padding: 18px
+            padding: 18px;
         }
 
         .viewer .bigTitle {
@@ -345,10 +355,10 @@
         .viewerGrid {
             display: grid;
             grid-template-columns: 1.2fr .8fr;
-            gap: 14px
+            gap: 14px;
         }
 
-        @media(max-width:900px) {
+        @media (max-width: 900px) {
             .viewerGrid {
                 grid-template-columns: 1fr
             }
@@ -387,7 +397,7 @@
             <div class="brand">
                 <div class="dot"></div><span>APEX ROBOT ID QR</span>
             </div>
-            <div class="badge"><b>online / Supabase</b> · Catálogo público (sin login)</div>
+            <div class="badge"><b>Supabase</b> · QR con link público</div>
         </div>
 
         <!-- GENERATOR -->
@@ -396,11 +406,11 @@
             <section class="panel">
                 <div class="panelHead">
                     <div class="title">
-                        <h2>Registro + QR corto</h2>
+                        <h2>Datos para el QR</h2>
                         <b>Robot</b>
                     </div>
                     <div class="btnRow">
-                        <button class="btn primary" id="btnGenLink">Registrar y generar QR</button>
+                        <button class="btn primary" id="btnGenLink">Guardar y generar QR</button>
                     </div>
                 </div>
 
@@ -500,12 +510,13 @@ Batería segura"></textarea>
                     </div>
 
                     <div class="btnRow" style="margin-top:12px">
+                        <button class="btn" id="btnSaveLocal">Guardar en este navegador</button>
+                        <button class="btn" id="btnLoadLocal">Cargar guardado</button>
                         <button class="btn hot" id="btnClear">Limpiar</button>
                     </div>
 
                     <div class="hint">
-                        Este modo registra el robot en <b>Supabase</b> y genera un QR corto con <b>#r=ROBOT_ID</b>.
-                        Cualquiera puede abrir el QR para ver la credencial.
+                        Este flujo guarda el robot en <b>Supabase</b> y genera un QR con link público.
                     </div>
                 </div>
             </section>
@@ -514,13 +525,13 @@ Batería segura"></textarea>
             <section class="panel">
                 <div class="panelHead">
                     <div class="title">
-                        <h2>QR corto</h2>
-                        <b>Link</b>
+                        <h2>Escanéalo con cámara</h2>
+                        <b>Robot QR</b>
                     </div>
                     <div class="btnRow">
                         <button class="btn" id="btnDownload">Descargar QR (PNG)</button>
-                        <button class="btn" id="btnCopy">Copiar link</button>
                         <button class="btn" id="btnOpen">Abrir link</button>
+                        <button class="btn" id="btnCopy">Copiar link</button>
                     </div>
                 </div>
 
@@ -536,7 +547,7 @@ Batería segura"></textarea>
                     </div>
 
                     <div class="hint" style="margin-top:10px">
-                        Tip: imprime QR negro/blanco ≥ 3–4 cm, con buen margen blanco alrededor.
+                        Tip: imprime QR negro/blanco ≥ 3 cm, y evita pegarlos en superficies muy curvas.
                     </div>
                 </div>
             </section>
@@ -583,7 +594,7 @@ Batería segura"></textarea>
                             </div>
 
                             <div class="hint" style="margin-top:12px">
-                                Este QR es solo identificación. Catálogo público (sin login).
+                                Este QR es solo identificación. No valida torneo ni registros.
                             </div>
                         </div>
                     </div>
@@ -594,65 +605,22 @@ Batería segura"></textarea>
     </div>
 
     <script>
-        /*******************************
-         * 0) Guard rails + log
-         *******************************/
-        globalThis.__apexLoadCount = (globalThis.__apexLoadCount || 0) + 1;
-        console.log("APEX script load count:", globalThis.__apexLoadCount);
-
-        window.addEventListener("error", (e) => {
-            console.error("JS ERROR:", e.message, e.filename, e.lineno);
-        });
-
-        /*******************************
-         * 1) CONFIG SUPABASE (no redeclare)
-         *******************************/
+        /* ==========================
+          Supabase config (TU PROYECTO)
+        =========================== */
         const SUPABASE_URL = "https://pddjulxliqlqoopveugh.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_BgfIRiHsUgqPhCqZ4L8yEA_wjarKci0";
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        if (!window.supabase || !window.supabase.createClient) {
-            alert("No cargó Supabase JS (CDN). Revisa tu conexión o el <script> del CDN.");
-            throw new Error("Supabase JS not loaded");
-        }
+        // Tu GitHub Pages (canónica)
+        const BASE_URL = "https://areivan.github.io/Minisumo_QR/";
 
-        globalThis.__apexSupabase ??= window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const supabase = globalThis.__apexSupabase;
-
-        /*******************************
-         * 2) Helpers
-         *******************************/
         const $ = (id) => document.getElementById(id);
         function cleanStr(s) { return (s || "").toString().trim(); }
 
-        function statusCls(state) {
-            if (state === "aprobado") return "good";
-            if (state === "rechazado") return "bad";
-            return "warn";
-        }
-
-        function setKV(container, rows) {
-            container.innerHTML = "";
-            for (const [k, v] of rows) {
-                if (v === undefined || v === null || v === "") continue;
-                const kEl = document.createElement("div"); kEl.className = "k"; kEl.textContent = k;
-                const vEl = document.createElement("div"); vEl.className = "v"; vEl.textContent = v;
-                container.appendChild(kEl); container.appendChild(vEl);
-            }
-        }
-
-        function setChips(container, chips) {
-            container.innerHTML = "";
-            chips.forEach(ch => {
-                const el = document.createElement("div");
-                el.className = "chip " + (ch.cls || "");
-                el.textContent = ch.text;
-                container.appendChild(el);
-            });
-        }
-
-        /*******************************
-         * 3) Build compact object
-         *******************************/
+        /* ==========================
+          Compact object build
+        =========================== */
         function buildRobotObj() {
             const checklist = cleanStr($("inspeccion_checklist").value)
                 .split("\n").map(s => s.trim()).filter(Boolean);
@@ -709,505 +677,145 @@ Batería segura"></textarea>
             };
         }
 
-        /*******************************
-         * 4) Supabase DB functions
-         *******************************/
-        async function insertRobot(compact) {
-            const row = {
-                id: compact.i,
-                name: compact.n,
-                category: compact.c || null,
-                team: compact.t || null,
-                pilot: compact.p || null,
-                school: compact.s || null,
-                weight_g: compact.w ?? null,
-                dimensions_mm: compact.d || null,
-                control_type: compact.y || null,
-                freq_proto: compact.f || null,
-                contact: compact.k || null,
-                inspection_status: compact.a || "pendiente",
-                checklist: Array.isArray(compact.l) ? compact.l : null,
-                photo_url: compact.u || null,
-                logo_url: compact.g || null,
-            };
+        /* ==========================
+          Supabase IO
+        =========================== */
+        async function saveToSupabase(compact) {
+            const o = prettyFromCompact(compact);
 
-            const { data, error } = await supabase.from("robots").insert(row);
-            console.log("insert result:", { data, error });
+            const { data, error } = await supabase
+                .from("robots")
+                .insert([{
+                    robot_id: o.robot_id,
+                    robot_nombre: o.robot_nombre,
+                    categoria: o.categoria || null,
+                    equipo: o.equipo || null,
+                    controlador: o.controlador || null,
+                    escuela: o.escuela || null,
+                    peso_g: (o.peso_g !== "" && o.peso_g != null) ? Number(o.peso_g) : null,
+                    dimensiones_mm: o.dimensiones_mm || null,
+                    tipo_control: o.tipo_control || null,
+                    frecuencia_protocolo: o.frecuencia_protocolo || null,
+                    contacto: o.contacto || null,
+                    inspeccion_estado: o.inspeccion_estado || "pendiente",
+                    inspeccion_checklist: o.inspeccion_checklist || [],
+                    foto_url: o.foto_url || null,
+                    logo_url: o.logo_url || null,
+                }])
+                .select("id")
+                .single();
 
-            if (!error) return;
-
-            // 23505 = unique violation
-            if (String(error.code).includes("23505")) {
-                throw new Error("Ese Robot ID ya existe. Usa otro ID.");
-            }
-            // permisos / RLS
-            if (String(error.code).includes("42501") || String(error.message).toLowerCase().includes("permission")) {
-                throw new Error("Permiso denegado por RLS. Asegúrate de correr las POLICIES del SQL.");
-            }
-            throw new Error(error.message || "Error insertando robot.");
+            if (error) throw error;
+            return data.id;
         }
 
-        async function fetchRobotById(id) {
-            const { data, error } = await supabase.from("robots").select("*").eq("id", id).single();
-            console.log("fetch result:", { data, error });
+        async function loadFromSupabase(id) {
+            const { data, error } = await supabase
+                .from("robots")
+                .select("*")
+                .eq("id", id)
+                .single();
 
-            if (error) throw new Error(error.message || "Robot no encontrado.");
+            if (error) throw error;
             return data;
         }
 
         function dbRowToCompact(r) {
             return {
                 v: 1,
-                i: r.id,
-                n: r.name,
-                c: r.category || "",
-                t: r.team || "",
-                p: r.pilot || "",
-                s: r.school || "",
-                w: r.weight_g ?? undefined,
-                d: r.dimensions_mm || "",
-                y: r.control_type || "",
-                f: r.freq_proto || "",
-                k: r.contact || "",
-                a: r.inspection_status || "pendiente",
-                l: Array.isArray(r.checklist) ? r.checklist : [],
-                u: r.photo_url || "",
-                g: r.logo_url || "",
+                i: r.robot_id,
+                n: r.robot_nombre,
+                c: r.categoria || "",
+                t: r.equipo || "",
+                p: r.controlador || "",
+                s: r.escuela || "",
+                w: (r.peso_g ?? undefined),
+                d: r.dimensiones_mm || "",
+                y: r.tipo_control || "",
+                f: r.frecuencia_protocolo || "",
+                k: r.contacto || "",
+                a: r.inspeccion_estado || "pendiente",
+                l: Array.isArray(r.inspeccion_checklist) ? r.inspeccion_checklist : [],
+                u: r.foto_url || "",
+                g: r.logo_url || ""
             };
         }
 
-        /*******************************
-         * 5) Short link payload
-         *******************************/
-        function payloadLinkFromId(robotId) {
-            const base = "https://areivan.github.io/Minisumo_QR/";
-            return base + "#r=" + encodeURIComponent(robotId);
+        /* ==========================
+          Link payload
+        =========================== */
+        function payloadLinkById(id) {
+            return BASE_URL + "?id=" + encodeURIComponent(id);
         }
 
-        /*******************************
-         * 6) QR generator (stable)
-         *    Using QRCode.js (tiny) inline version
-         *******************************/
-        // Minimal QR generator based on "QRCode for JavaScript" approach:
-        // We'll use a small canvas draw that relies on a known-good generator via CDN-less impl:
-        // For stability and simplicity, we generate using a data-URI from a public QR endpoint? NO (offline).
-        // So we embed a compact, known stable qrcode-generator implementation.
-
-        // --- qrcode-generator (Arase) compact (stable) ---
-        // Source: Kazuhiko Arase qrcode-generator (MIT). Minified/trimmed but complete for make->canvas.
-        // NOTE: This is intentionally kept as a complete working chunk.
-
-        (function () {
-            // If already defined (double load), skip
-            if (globalThis.__apexQR) return;
-
-            function QR8bitByte(data) { this.mode = 1; this.data = data; }
-            QR8bitByte.prototype = {
-                getLength: function () { return this.data.length; },
-                write: function (buffer) { for (var i = 0; i < this.data.length; i++) { buffer.put(this.data.charCodeAt(i), 8); } }
-            };
-
-            function QRBitBuffer() { this.buffer = []; this.length = 0; }
-            QRBitBuffer.prototype = {
-                get: function (index) {
-                    var bufIndex = Math.floor(index / 8);
-                    return ((this.buffer[bufIndex] >>> (7 - index % 8)) & 1) == 1;
-                },
-                put: function (num, length) {
-                    for (var i = 0; i < length; i++) { this.putBit(((num >>> (length - i - 1)) & 1) == 1); }
-                },
-                putBit: function (bit) {
-                    var bufIndex = Math.floor(this.length / 8);
-                    if (this.buffer.length <= bufIndex) { this.buffer.push(0); }
-                    if (bit) { this.buffer[bufIndex] |= (0x80 >>> (this.length % 8)); }
-                    this.length++;
-                }
-            };
-
-            var QRMode = { MODE_8BIT_BYTE: 1 };
-            var QRErrorCorrectLevel = { M: 0 };
-            var QRMaskPattern = {
-                PATTERN000: 0, PATTERN001: 1, PATTERN010: 2, PATTERN011: 3,
-                PATTERN100: 4, PATTERN101: 5, PATTERN110: 6, PATTERN111: 7
-            };
-
-            function QRRSBlock(totalCount, dataCount) {
-                this.totalCount = totalCount; this.dataCount = dataCount;
+        /* ==========================
+          UI helpers
+        =========================== */
+        function setKV(container, rows) {
+            container.innerHTML = "";
+            for (const [k, v] of rows) {
+                if (v === undefined || v === null || v === "") continue;
+                const kEl = document.createElement("div"); kEl.className = "k"; kEl.textContent = k;
+                const vEl = document.createElement("div"); vEl.className = "v"; vEl.textContent = v;
+                container.appendChild(kEl); container.appendChild(vEl);
             }
-            QRRSBlock.getRSBlocks = function (typeNumber, errorCorrectLevel) {
-                // Enough for our usage (M). Table for versions 1..10 M
-                var tbl = {
-                    1: [new QRRSBlock(26, 16)],
-                    2: [new QRRSBlock(44, 28)],
-                    3: [new QRRSBlock(70, 44)],
-                    4: [new QRRSBlock(100, 64)],
-                    5: [new QRRSBlock(134, 86)],
-                    6: [new QRRSBlock(172, 108)],
-                    7: [new QRRSBlock(196, 124)],
-                    8: [new QRRSBlock(242, 154)],
-                    9: [new QRRSBlock(292, 182)],
-                    10: [new QRRSBlock(346, 216)],
-                };
-                return tbl[typeNumber] || tbl[10];
-            };
+        }
 
-            function QRPolynomial(num, shift) {
-                var offset = 0;
-                while (offset < num.length && num[offset] == 0) { offset++; }
-                this.num = new Array(num.length - offset + shift);
-                for (var i = 0; i < num.length - offset; i++) { this.num[i] = num[i + offset]; }
-            }
-            QRPolynomial.prototype = {
-                get: function (index) { return this.num[index]; },
-                getLength: function () { return this.num.length; },
-                multiply: function (e) {
-                    var num = new Array(this.getLength() + e.getLength() - 1);
-                    for (var i = 0; i < num.length; i++) num[i] = 0;
-                    for (i = 0; i < this.getLength(); i++) {
-                        for (var j = 0; j < e.getLength(); j++) {
-                            num[i + j] ^= QRMath.gexp(QRMath.glog(this.get(i)) + QRMath.glog(e.get(j)));
-                        }
-                    }
-                    return new QRPolynomial(num, 0);
-                },
-                mod: function (e) {
-                    if (this.getLength() - e.getLength() < 0) return this;
-                    var ratio = QRMath.glog(this.get(0)) - QRMath.glog(e.get(0));
-                    var num = new Array(this.getLength());
-                    for (var i = 0; i < this.getLength(); i++) { num[i] = this.get(i); }
-                    for (i = 0; i < e.getLength(); i++) {
-                        num[i] ^= QRMath.gexp(QRMath.glog(e.get(i)) + ratio);
-                    }
-                    return new QRPolynomial(num, 0).mod(e);
-                }
-            };
+        function setChips(container, chips) {
+            container.innerHTML = "";
+            chips.forEach(ch => {
+                const el = document.createElement("div");
+                el.className = "chip " + (ch.cls || "");
+                el.textContent = ch.text;
+                container.appendChild(el);
+            });
+        }
 
-            var QRMath = {
-                glog: function (n) {
-                    if (n < 1) throw new Error("glog");
-                    return QRMath.LOG_TABLE[n];
-                },
-                gexp: function (n) {
-                    while (n < 0) n += 255;
-                    while (n >= 256) n -= 255;
-                    return QRMath.EXP_TABLE[n];
-                },
-                EXP_TABLE: new Array(256),
-                LOG_TABLE: new Array(256)
-            };
-            for (var i = 0; i < 8; i++) QRMath.EXP_TABLE[i] = 1 << i;
-            for (i = 8; i < 256; i++) QRMath.EXP_TABLE[i] = QRMath.EXP_TABLE[i - 4] ^ QRMath.EXP_TABLE[i - 5] ^ QRMath.EXP_TABLE[i - 6] ^ QRMath.EXP_TABLE[i - 8];
-            for (i = 0; i < 255; i++) QRMath.LOG_TABLE[QRMath.EXP_TABLE[i]] = i;
+        function statusCls(state) {
+            if (state === "aprobado") return "good";
+            if (state === "rechazado") return "bad";
+            return "warn";
+        }
 
-            function QRUtil() { }
-            QRUtil.getBCHTypeInfo = function (data) {
-                var d = data << 10;
-                while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(0x537) >= 0) {
-                    d ^= (0x537 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(0x537)));
-                }
-                return ((data << 10) | d) ^ 0x5412;
-            };
-            QRUtil.getBCHDigit = function (data) {
-                var digit = 0;
-                while (data != 0) { digit++; data >>>= 1; }
-                return digit;
-            };
-            QRUtil.getPatternPosition = function (typeNumber) {
-                var table = {
-                    1: [], 2: [6, 18], 3: [6, 22], 4: [6, 26], 5: [6, 30], 6: [6, 34], 7: [6, 22, 38],
-                    8: [6, 24, 42], 9: [6, 26, 46], 10: [6, 28, 50]
-                };
-                return table[typeNumber] || table[10];
-            };
-            QRUtil.getMask = function (maskPattern, i, j) {
-                switch (maskPattern) {
-                    case QRMaskPattern.PATTERN000: return (i + j) % 2 == 0;
-                    case QRMaskPattern.PATTERN001: return i % 2 == 0;
-                    case QRMaskPattern.PATTERN010: return j % 3 == 0;
-                    case QRMaskPattern.PATTERN011: return (i + j) % 3 == 0;
-                    case QRMaskPattern.PATTERN100: return (Math.floor(i / 2) + Math.floor(j / 3)) % 2 == 0;
-                    case QRMaskPattern.PATTERN101: return (i * j) % 2 + (i * j) % 3 == 0;
-                    case QRMaskPattern.PATTERN110: return ((i * j) % 2 + (i * j) % 3) % 2 == 0;
-                    case QRMaskPattern.PATTERN111: return ((i * j) % 3 + (i + j) % 2) % 2 == 0;
-                    default: return false;
-                }
-            };
-            QRUtil.getErrorCorrectPolynomial = function (errorCorrectLength) {
-                var a = new QRPolynomial([1], 0);
-                for (var i = 0; i < errorCorrectLength; i++) {
-                    a = a.multiply(new QRPolynomial([1, QRMath.gexp(i)], 0));
-                }
-                return a;
-            };
-            QRUtil.getLostPoint = function (qr) {
-                var moduleCount = qr.getModuleCount();
-                var lostPoint = 0;
-                for (var row = 0; row < moduleCount; row++) {
-                    for (var col = 0; col < moduleCount; col++) {
-                        var sameCount = 0;
-                        var dark = qr.isDark(row, col);
-                        for (var r = -1; r <= 1; r++) {
-                            if (row + r < 0 || moduleCount <= row + r) continue;
-                            for (var c = -1; c <= 1; c++) {
-                                if (col + c < 0 || moduleCount <= col + c) continue;
-                                if (r == 0 && c == 0) continue;
-                                if (dark == qr.isDark(row + r, col + c)) sameCount++;
-                            }
-                        }
-                        if (sameCount > 5) lostPoint += (3 + sameCount - 5);
-                    }
-                }
-                return lostPoint;
-            };
-
-            function QRCodeModel(typeNumber, errorCorrectLevel) {
-                this.typeNumber = typeNumber;
-                this.errorCorrectLevel = errorCorrectLevel;
-                this.modules = null;
-                this.moduleCount = 0;
-                this.dataCache = null;
-                this.dataList = [];
-            }
-            QRCodeModel.prototype = {
-                addData: function (data) { this.dataList.push(new QR8bitByte(data)); this.dataCache = null; },
-                isDark: function (row, col) { return this.modules[row][col]; },
-                getModuleCount: function () { return this.moduleCount; },
-                make: function () {
-                    if (this.typeNumber < 1) this.typeNumber = 1;
-                    this.makeImpl(false, this.getBestMaskPattern());
-                },
-                makeImpl: function (test, maskPattern) {
-                    this.moduleCount = this.typeNumber * 4 + 17;
-                    this.modules = new Array(this.moduleCount);
-                    for (var row = 0; row < this.moduleCount; row++) {
-                        this.modules[row] = new Array(this.moduleCount);
-                        for (var col = 0; col < this.moduleCount; col++) this.modules[row][col] = null;
-                    }
-                    this.setupPositionProbePattern(0, 0);
-                    this.setupPositionProbePattern(this.moduleCount - 7, 0);
-                    this.setupPositionProbePattern(0, this.moduleCount - 7);
-                    this.setupPositionAdjustPattern();
-                    this.setupTimingPattern();
-                    this.setupTypeInfo(test, maskPattern);
-
-                    if (this.dataCache == null) {
-                        this.dataCache = this.createData(this.typeNumber, this.errorCorrectLevel, this.dataList);
-                    }
-                    this.mapData(this.dataCache, maskPattern);
-                },
-                setupPositionProbePattern: function (row, col) {
-                    for (var r = -1; r <= 7; r++) {
-                        if (row + r <= -1 || this.moduleCount <= row + r) continue;
-                        for (var c = -1; c <= 7; c++) {
-                            if (col + c <= -1 || this.moduleCount <= col + c) continue;
-                            if ((0 <= r && r <= 6 && (c == 0 || c == 6)) || (0 <= c && c <= 6 && (r == 0 || r == 6)) || (2 <= r && r <= 4 && 2 <= c && c <= 4)) {
-                                this.modules[row + r][col + c] = true;
-                            } else {
-                                this.modules[row + r][col + c] = false;
-                            }
-                        }
-                    }
-                },
-                getBestMaskPattern: function () {
-                    var minLostPoint = 0; var pattern = 0;
-                    for (var i = 0; i < 8; i++) {
-                        this.makeImpl(true, i);
-                        var lostPoint = QRUtil.getLostPoint(this);
-                        if (i == 0 || minLostPoint > lostPoint) {
-                            minLostPoint = lostPoint; pattern = i;
-                        }
-                    }
-                    return pattern;
-                },
-                createData: function (typeNumber, errorCorrectLevel, dataList) {
-                    var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectLevel);
-                    var buffer = new QRBitBuffer();
-                    for (var i = 0; i < dataList.length; i++) {
-                        var data = dataList[i];
-                        buffer.put(QRMode.MODE_8BIT_BYTE, 4);
-                        buffer.put(data.getLength(), (typeNumber < 10) ? 8 : 16);
-                        data.write(buffer);
-                    }
-                    var totalDataCount = 0;
-                    for (i = 0; i < rsBlocks.length; i++) totalDataCount += rsBlocks[i].dataCount;
-
-                    // terminator
-                    if (buffer.length + 4 <= totalDataCount * 8) buffer.put(0, 4);
-                    // pad to byte
-                    while (buffer.length % 8 != 0) buffer.putBit(false);
-                    // padding
-                    while (buffer.length / 8 < totalDataCount) {
-                        buffer.put(0xec, 8);
-                        if (buffer.length / 8 >= totalDataCount) break;
-                        buffer.put(0x11, 8);
-                    }
-
-                    return QRCodeModel.createBytes(buffer, rsBlocks);
-                },
-                mapData: function (data, maskPattern) {
-                    var inc = -1; var row = this.moduleCount - 1; var bitIndex = 7; var byteIndex = 0;
-                    for (var col = this.moduleCount - 1; col > 0; col -= 2) {
-                        if (col == 6) col--;
-                        while (true) {
-                            for (var c = 0; c < 2; c++) {
-                                if (this.modules[row][col - c] == null) {
-                                    var dark = false;
-                                    if (byteIndex < data.length) {
-                                        dark = ((data[byteIndex] >>> bitIndex) & 1) == 1;
-                                    }
-                                    var mask = QRUtil.getMask(maskPattern, row, col - c);
-                                    this.modules[row][col - c] = mask ? !dark : dark;
-                                    bitIndex--;
-                                    if (bitIndex == -1) { byteIndex++; bitIndex = 7; }
-                                }
-                            }
-                            row += inc;
-                            if (row < 0 || this.moduleCount <= row) {
-                                row -= inc;
-                                inc = -inc;
-                                break;
-                            }
-                        }
-                    }
-                },
-                setupTimingPattern: function () {
-                    for (var i = 8; i < this.moduleCount - 8; i++) {
-                        if (this.modules[i][6] == null) this.modules[i][6] = (i % 2 == 0);
-                        if (this.modules[6][i] == null) this.modules[6][i] = (i % 2 == 0);
-                    }
-                },
-                setupPositionAdjustPattern: function () {
-                    var pos = QRUtil.getPatternPosition(this.typeNumber);
-                    for (var i = 0; i < pos.length; i++) {
-                        for (var j = 0; j < pos.length; j++) {
-                            var row = pos[i], col = pos[j];
-                            if (this.modules[row][col] != null) continue;
-                            for (var r = -2; r <= 2; r++) {
-                                for (var c = -2; c <= 2; c++) {
-                                    this.modules[row + r][col + c] = (r == -2 || r == 2 || c == -2 || c == 2 || (r == 0 && c == 0));
-                                }
-                            }
-                        }
-                    }
-                },
-                setupTypeInfo: function (test, maskPattern) {
-                    var data = (QRErrorCorrectLevel.M << 3) | maskPattern;
-                    var bits = QRUtil.getBCHTypeInfo(data);
-
-                    // vertical
-                    for (var i = 0; i < 15; i++) {
-                        var mod = (!test && ((bits >>> i) & 1) == 1);
-                        if (i < 6) this.modules[i][8] = mod;
-                        else if (i < 8) this.modules[i + 1][8] = mod;
-                        else this.modules[this.moduleCount - 15 + i][8] = mod;
-                    }
-                    // horizontal
-                    for (i = 0; i < 15; i++) {
-                        mod = (!test && ((bits >>> i) & 1) == 1);
-                        if (i < 8) this.modules[8][this.moduleCount - i - 1] = mod;
-                        else if (i < 9) this.modules[8][15 - i - 1 + 1] = mod;
-                        else this.modules[8][15 - i - 1] = mod;
-                    }
-                    this.modules[this.moduleCount - 8][8] = !test;
-                }
-            };
-
-            QRCodeModel.createBytes = function (buffer, rsBlocks) {
-                var offset = 0;
-                var maxDcCount = 0, maxEcCount = 0;
-                var dcdata = new Array(rsBlocks.length);
-                var ecdata = new Array(rsBlocks.length);
-
-                for (var r = 0; r < rsBlocks.length; r++) {
-                    var dcCount = rsBlocks[r].dataCount;
-                    var ecCount = rsBlocks[r].totalCount - dcCount;
-                    maxDcCount = Math.max(maxDcCount, dcCount);
-                    maxEcCount = Math.max(maxEcCount, ecCount);
-                    dcdata[r] = new Array(dcCount);
-                    for (var i = 0; i < dcdata[r].length; i++) {
-                        dcdata[r][i] = 0xff & buffer.buffer[i + offset];
-                    }
-                    offset += dcCount;
-
-                    var rsPoly = QRUtil.getErrorCorrectPolynomial(ecCount);
-                    var rawPoly = new QRPolynomial(dcdata[r], rsPoly.getLength() - 1);
-                    var modPoly = rawPoly.mod(rsPoly);
-
-                    ecdata[r] = new Array(rsPoly.getLength() - 1);
-                    for (i = 0; i < ecdata[r].length; i++) {
-                        var modIndex = i + modPoly.getLength() - ecdata[r].length;
-                        ecdata[r][i] = (modIndex >= 0) ? modPoly.get(modIndex) : 0;
-                    }
-                }
-
-                var totalCodeCount = 0;
-                for (r = 0; r < rsBlocks.length; r++) totalCodeCount += rsBlocks[r].totalCount;
-
-                var data = new Array(totalCodeCount);
-                var index = 0;
-
-                for (i = 0; i < maxDcCount; i++) {
-                    for (r = 0; r < rsBlocks.length; r++) {
-                        if (i < dcdata[r].length) data[index++] = dcdata[r][i];
-                    }
-                }
-                for (i = 0; i < maxEcCount; i++) {
-                    for (r = 0; r < rsBlocks.length; r++) {
-                        if (i < ecdata[r].length) data[index++] = ecdata[r][i];
-                    }
-                }
-                return data;
-            };
-
-            globalThis.__apexQR = {
-                make: function (text) {
-                    // choose version by length (rough)
-                    var version = 1;
-                    if (text.length > 40) version = 2;
-                    if (text.length > 80) version = 3;
-                    if (text.length > 120) version = 4;
-                    if (text.length > 160) version = 5;
-                    if (text.length > 220) version = 6;
-                    if (text.length > 280) version = 7;
-                    if (text.length > 340) version = 8;
-                    if (text.length > 420) version = 9;
-                    if (text.length > 520) version = 10;
-
-                    var qr = new QRCodeModel(version, QRErrorCorrectLevel.M);
-                    qr.addData(text);
-                    qr.make();
-                    return qr;
-                },
-                toCanvas: function (qr, canvas, cellSize, margin) {
-                    cellSize = cellSize || 8;
-                    margin = margin || 16;
-                    var ctx = canvas.getContext("2d");
-                    var count = qr.getModuleCount();
-                    var size = count * cellSize + margin * 2;
-                    canvas.width = size; canvas.height = size;
-                    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, size, size);
-                    ctx.fillStyle = "#000";
-                    for (var r = 0; r < count; r++) {
-                        for (var c = 0; c < count; c++) {
-                            if (qr.isDark(r, c)) {
-                                ctx.fillRect(margin + c * cellSize, margin + r * cellSize, cellSize, cellSize);
-                            }
-                        }
-                    }
-                }
-            };
-        })();
-
-        /*******************************
-         * 7) UI Render / QR draw
-         *******************************/
+        /* ==========================
+          QR render (canvas)
+        =========================== */
         let lastPayload = "";
 
         function drawQR(text) {
-            lastPayload = text;
-            const qr = globalThis.__apexQR.make(text);
-            globalThis.__apexQR.toCanvas(qr, $("qrCanvas"), 8, 16);
-            $("payloadPreview").textContent = "Link (preview):\n" + text;
+            try {
+                lastPayload = text;
+
+                const qr = qrcode(0, "Q"); // auto version, good EC
+                qr.addData(text);
+                qr.make();
+
+                const canvas = $("qrCanvas");
+                const ctx = canvas.getContext("2d");
+
+                const count = qr.getModuleCount();
+                const scale = 8;
+                const margin = 16;
+
+                canvas.width = canvas.height = count * scale + margin * 2;
+
+                ctx.fillStyle = "#fff";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = "#000";
+                for (let r = 0; r < count; r++) {
+                    for (let c = 0; c < count; c++) {
+                        if (qr.isDark(r, c)) {
+                            ctx.fillRect(margin + c * scale, margin + r * scale, scale, scale);
+                        }
+                    }
+                }
+
+                $("payloadPreview").textContent = "Link (preview):\n" + text;
+            } catch (err) {
+                $("payloadPreview").textContent = "ERROR QR: " + (err?.message || err);
+                console.error(err);
+            }
         }
 
         function renderPreviewFromCompact(compact) {
@@ -1217,6 +825,7 @@ Batería segura"></textarea>
                 { text: "Control: " + (o.tipo_control || "—") },
                 { text: "Inspección: " + (o.inspeccion_estado || "—"), cls: statusCls(o.inspeccion_estado) }
             ]);
+
             setKV($("previewKV"), [
                 ["Robot ID", o.robot_id],
                 ["Nombre", o.robot_nombre],
@@ -1230,6 +839,9 @@ Batería segura"></textarea>
             ]);
         }
 
+        /* ==========================
+          Viewer mode
+        =========================== */
         function showViewer(compact) {
             const o = prettyFromCompact(compact);
 
@@ -1283,6 +895,9 @@ Batería segura"></textarea>
             }
         }
 
+        /* ==========================
+          Buttons
+        =========================== */
         function validateBasic() {
             const id = cleanStr($("robot_id").value);
             const name = cleanStr($("robot_nombre").value);
@@ -1293,42 +908,47 @@ Batería segura"></textarea>
             return true;
         }
 
-        /*******************************
-         * 8) Buttons
-         *******************************/
-        $("btnGenLink").onclick = async () => {
+        const btnGenLink = $("btnGenLink");
+
+        btnGenLink.onclick = async () => {
             if (!validateBasic()) return;
 
             const compact = buildRobotObj();
+            renderPreviewFromCompact(compact);
 
             try {
-                await insertRobot(compact);
-                const url = payloadLinkFromId(compact.i);
+                btnGenLink.disabled = true;
+                btnGenLink.textContent = "Guardando...";
 
-                renderPreviewFromCompact(compact);
+                const id = await saveToSupabase(compact);
+                const url = payloadLinkById(id);
+
                 drawQR(url);
-
-                alert("Robot registrado en la base ✅");
             } catch (e) {
-                alert(e.message || "Error registrando robot");
+                alert("Error guardando en Supabase:\n" + (e?.message || e));
                 console.error(e);
+            } finally {
+                btnGenLink.disabled = false;
+                btnGenLink.textContent = "Guardar y generar QR";
             }
         };
 
         $("btnCopy").onclick = async () => {
-            if (!lastPayload) { alert("Primero registra y genera el QR."); return; }
+            if (!lastPayload) { alert("Primero genera un QR."); return; }
             try {
                 await navigator.clipboard.writeText(lastPayload);
+                alert("Link copiado.");
             } catch (e) {
                 const ta = document.createElement("textarea");
                 ta.value = lastPayload; document.body.appendChild(ta);
                 ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+                alert("Link copiado.");
             }
         };
 
         $("btnOpen").onclick = () => {
-            if (!lastPayload) { alert("Primero registra y genera el QR."); return; }
-            window.open(lastPayload, "_blank", "noopener,noreferrer");
+            if (!lastPayload) { alert("Primero genera un QR."); return; }
+            window.open(lastPayload, "_blank");
         };
 
         $("btnDownload").onclick = () => {
@@ -1336,6 +956,42 @@ Batería segura"></textarea>
             a.download = "apex_robot_qr.png";
             a.href = $("qrCanvas").toDataURL("image/png");
             a.click();
+        };
+
+        // Local draft (solo para no perder lo escrito)
+        const STORAGE_KEY = "apex_robot_form_draft_v1";
+
+        $("btnSaveLocal").onclick = () => {
+            const compact = buildRobotObj();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
+            alert("Guardado en este navegador.");
+        };
+
+        $("btnLoadLocal").onclick = () => {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) { alert("No hay guardado."); return; }
+            const o = JSON.parse(raw);
+
+            $("robot_id").value = o.i || "";
+            $("robot_nombre").value = o.n || "";
+            $("categoria").value = o.c || "";
+            $("equipo").value = o.t || "";
+            $("controlador").value = o.p || "";
+            $("escuela").value = o.s || "";
+
+            $("peso_g").value = (o.w ?? "");
+            $("dimensiones_mm").value = o.d || "";
+            $("tipo_control").value = o.y || "";
+            $("frecuencia_protocolo").value = o.f || "";
+            $("contacto").value = o.k || "";
+            $("inspeccion_estado").value = o.a || "pendiente";
+            $("inspeccion_checklist").value = (o.l || []).join("\n");
+            $("foto_url").value = o.u || "";
+            $("logo_url").value = o.g || "";
+
+            renderPreviewFromCompact(o);
+            $("payloadPreview").textContent = "Link (preview): —";
+            lastPayload = "";
         };
 
         $("btnClear").onclick = () => {
@@ -1349,79 +1005,56 @@ Batería segura"></textarea>
             $("previewKV").innerHTML = "";
             $("payloadPreview").textContent = "Link (preview): —";
 
-            const ctx = $("qrCanvas").getContext("2d");
-            ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, $("qrCanvas").width, $("qrCanvas").height);
+            const canvas = $("qrCanvas");
+            const ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
             lastPayload = "";
         };
 
         $("btnBack").onclick = () => {
-            location.hash = "";
+            // quitar ?id=... sin recargar
+            const url = new URL(location.href);
+            url.searchParams.delete("id");
+            history.replaceState(null, "", url.toString());
+
             $("viewer").style.display = "none";
             $("generator").style.display = "grid";
         };
 
-        /*******************************
-         * 9) Boot: if #r=... load from DB
-         *******************************/
+        /* ==========================
+          Boot: if ?id=... load robot and show viewer
+        =========================== */
         (async function boot() {
+            // blank canvas
             const ctx = $("qrCanvas").getContext("2d");
-            ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, $("qrCanvas").width, $("qrCanvas").height);
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, $("qrCanvas").width, $("qrCanvas").height);
 
-            const hash = location.hash || "";
-            if (hash.startsWith("#r=")) {
-                const rid = decodeURIComponent(hash.slice(3));
+            const url = new URL(location.href);
+            const id = url.searchParams.get("id");
+
+            if (id) {
                 try {
-                    const row = await fetchRobotById(rid);
-                    showViewer(dbRowToCompact(row));
+                    const row = await loadFromSupabase(id);
+                    const compact = dbRowToCompact(row);
+                    showViewer(compact);
                     return;
                 } catch (e) {
-                    alert("Robot no encontrado en la base (o RLS bloqueando SELECT).");
+                    alert("No se pudo cargar este robot:\n" + (e?.message || e));
                     console.error(e);
                 }
             }
 
-            $("viewer").style.display = "none";
-            $("generator").style.display = "grid";
+            // Cargar draft local si existe
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    const o = JSON.parse(saved);
+                    renderPreviewFromCompact(o);
+                } catch (_) { }
+            }
         })();
     </script>
-
-    <!--
-  === SUPABASE SQL (córrelo UNA VEZ en Supabase > SQL Editor) ===
-
-  create table if not exists public.robots (
-    id text primary key,
-    name text not null,
-    category text,
-    team text,
-    pilot text,
-    school text,
-    weight_g int,
-    dimensions_mm text,
-    control_type text,
-    freq_proto text,
-    contact text,
-    inspection_status text not null default 'pendiente',
-    checklist text[],
-    photo_url text,
-    logo_url text,
-    created_at timestamptz not null default now()
-  );
-
-  alter table public.robots enable row level security;
-
-  drop policy if exists robots_select_public on public.robots;
-  create policy robots_select_public
-  on public.robots for select
-  to anon, authenticated
-  using (true);
-
-  drop policy if exists robots_insert_public on public.robots;
-  create policy robots_insert_public
-  on public.robots for insert
-  to anon, authenticated
-  with check (true);
-
-  -->
 </body>
 
 </html>
