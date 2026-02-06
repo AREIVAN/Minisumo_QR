@@ -1,0 +1,960 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>APEX ROBOT ID QR</title>
+
+    <!-- ✅ QR engine estable -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+
+    <style>
+        :root {
+            --bg: #070A10;
+            --panel: #0B1020;
+            --panel2: #0C142A;
+            --stroke: rgba(122, 63, 255, .55);
+            --neon: #7A3FFF;
+            --neon2: #2FE6FF;
+            --hot: #FF2E88;
+            --text: #EAF0FF;
+            --muted: rgba(234, 240, 255, .65);
+            --good: #2FE6FF;
+            --warn: #FFB020;
+            --bad: #FF2E88;
+            --r: 16px;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+            color: var(--text);
+            background:
+                radial-gradient(1100px 700px at 10% -10%, rgba(122, 63, 255, .25), transparent 60%),
+                radial-gradient(900px 600px at 110% 0%, rgba(47, 230, 255, .18), transparent 55%),
+                radial-gradient(900px 700px at 50% 120%, rgba(255, 46, 136, .10), transparent 55%),
+                var(--bg);
+        }
+
+        .wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 18px
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 6px 0 14px;
+            flex-wrap: wrap;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border: 1px solid rgba(122, 63, 255, .35);
+            background: linear-gradient(180deg, rgba(11, 16, 32, .85), rgba(12, 20, 42, .55));
+            border-radius: 999px;
+            box-shadow: 0 0 0 1px rgba(47, 230, 255, .08) inset;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: conic-gradient(from 210deg, var(--neon), var(--neon2), var(--hot), var(--neon));
+            filter: drop-shadow(0 0 10px rgba(122, 63, 255, .6));
+        }
+
+        .brand span {
+            font-weight: 800;
+            letter-spacing: .6px
+        }
+
+        .badge {
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(47, 230, 255, .25);
+            background: rgba(12, 20, 42, .55);
+            color: var(--muted);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge b {
+            color: var(--text)
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.15fr .85fr;
+            gap: 14px;
+            align-items: start;
+        }
+
+        @media (max-width: 980px) {
+            .grid {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .panel {
+            border-radius: calc(var(--r) + 6px);
+            background: linear-gradient(180deg, rgba(11, 16, 32, .92), rgba(12, 20, 42, .68));
+            border: 1px solid rgba(122, 63, 255, .35);
+            box-shadow: 0 0 0 1px rgba(47, 230, 255, .08) inset, 0 18px 60px rgba(0, 0, 0, .55);
+            overflow: hidden;
+        }
+
+        .panelHead {
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(122, 63, 255, .25);
+        }
+
+        .panelHead h2 {
+            margin: 0;
+            font-size: 14px;
+            letter-spacing: .6px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .panelHead .title {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .panelHead .title b {
+            font-size: 18px;
+            color: var(--text);
+            letter-spacing: .2px
+        }
+
+        .btnRow {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap
+        }
+
+        .btn {
+            border: 1px solid rgba(47, 230, 255, .25);
+            background: rgba(12, 20, 42, .55);
+            color: var(--text);
+            padding: 10px 12px;
+            border-radius: 14px;
+            font-weight: 800;
+            letter-spacing: .2px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            filter: brightness(1.08)
+        }
+
+        .btn.primary {
+            border-color: rgba(122, 63, 255, .45);
+            background: linear-gradient(90deg, rgba(122, 63, 255, .28), rgba(47, 230, 255, .10));
+            box-shadow: 0 0 0 1px rgba(122, 63, 255, .12) inset;
+        }
+
+        .btn.hot {
+            border-color: rgba(255, 46, 136, .45);
+            background: rgba(255, 46, 136, .10);
+        }
+
+        .content {
+            padding: 16px
+        }
+
+        .sectionTitle {
+            margin: 12px 0 10px;
+            color: rgba(234, 240, 255, .55);
+            font-size: 12px;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+        }
+
+        .formGrid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px
+        }
+
+        @media (max-width: 700px) {
+            .formGrid {
+                grid-template-columns: 1fr
+            }
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            color: rgba(234, 240, 255, .60);
+            margin: 4px 0 6px
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(122, 63, 255, .22);
+            background: rgba(7, 10, 16, .35);
+            color: var(--text);
+            outline: none;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: rgba(47, 230, 255, .35);
+            box-shadow: 0 0 0 1px rgba(47, 230, 255, .10) inset;
+        }
+
+        .hint {
+            color: rgba(234, 240, 255, .45);
+            font-size: 12px;
+            line-height: 1.35;
+            margin-top: 10px
+        }
+
+        .rightBox {
+            padding: 16px
+        }
+
+        .qrBox {
+            border-radius: 18px;
+            border: 1px solid rgba(47, 230, 255, .22);
+            background: rgba(7, 10, 16, .35);
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 360px;
+        }
+
+        .qrCard {
+            margin-top: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(122, 63, 255, .25);
+            background: linear-gradient(180deg, rgba(11, 16, 32, .86), rgba(12, 20, 42, .58));
+            padding: 12px;
+        }
+
+        .kv {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 6px 10px;
+            align-items: center;
+            font-size: 13px
+        }
+
+        .k {
+            color: rgba(234, 240, 255, .60)
+        }
+
+        .v {
+            color: var(--text);
+            font-weight: 700
+        }
+
+        .chipRow {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px
+        }
+
+        .chip {
+            padding: 7px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            border: 1px solid rgba(122, 63, 255, .28);
+            background: rgba(7, 10, 16, .35);
+            color: var(--muted);
+        }
+
+        .chip.good {
+            border-color: rgba(47, 230, 255, .55);
+            color: var(--text)
+        }
+
+        .chip.warn {
+            border-color: rgba(255, 176, 32, .55);
+            color: var(--text)
+        }
+
+        .chip.bad {
+            border-color: rgba(255, 46, 136, .55);
+            color: var(--text)
+        }
+
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+            font-size: 12px;
+            color: rgba(234, 240, 255, .70);
+            white-space: pre-wrap;
+            word-break: break-word;
+            background: rgba(7, 10, 16, .35);
+            border: 1px solid rgba(122, 63, 255, .18);
+            border-radius: 14px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        /* Viewer mode */
+        .viewer {
+            display: none;
+            padding: 18px;
+        }
+
+        .viewer .bigTitle {
+            font-size: 22px;
+            margin: 0 0 8px;
+            font-weight: 900;
+            letter-spacing: .2px
+        }
+
+        .viewer .sub {
+            color: rgba(234, 240, 255, .65);
+            margin-bottom: 14px
+        }
+
+        .viewerGrid {
+            display: grid;
+            grid-template-columns: 1.2fr .8fr;
+            gap: 14px;
+        }
+
+        @media (max-width: 900px) {
+            .viewerGrid {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .mediaBox {
+            border-radius: 18px;
+            border: 1px solid rgba(47, 230, 255, .22);
+            background: rgba(7, 10, 16, .35);
+            overflow: hidden;
+            min-height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .mediaBox img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none
+        }
+
+        .fallback {
+            color: rgba(234, 240, 255, .35);
+            font-weight: 900;
+            letter-spacing: .8px
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="topbar">
+            <div class="brand">
+                <div class="dot"></div><span>APEX ROBOT ID QR</span>
+            </div>
+            <div class="badge"><b>offline / 1 archivo</b> · Identificador (no competencia)</div>
+        </div>
+
+        <!-- GENERATOR -->
+        <div id="generator" class="grid">
+            <!-- LEFT -->
+            <section class="panel">
+                <div class="panelHead">
+                    <div class="title">
+                        <h2>Datos para el QR</h2>
+                        <b>Robot</b>
+                    </div>
+                    <div class="btnRow">
+                        <button class="btn primary" id="btnGenOffline">Generar QR (offline)</button>
+                        <button class="btn" id="btnGenLink">Generar QR (link)</button>
+                    </div>
+                </div>
+
+                <div class="content">
+                    <div class="sectionTitle">Básico</div>
+                    <div class="formGrid">
+                        <div>
+                            <label>Robot ID (único)</label>
+                            <input id="robot_id" placeholder="Ej. MS-014" />
+                        </div>
+                        <div>
+                            <label>Nombre del robot</label>
+                            <input id="robot_nombre" placeholder="Ej. KRAKEN" />
+                        </div>
+
+                        <div>
+                            <label>Categoría</label>
+                            <select id="categoria">
+                                <option value="">(selecciona)</option>
+                                <option>Mini Sumo</option>
+                                <option>Mini Sumo 500g</option>
+                                <option>Sumo 3kg</option>
+                                <option>Combate</option>
+                                <option>Seguidor de línea</option>
+                                <option>Otro</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Equipo</label>
+                            <input id="equipo" placeholder="Ej. RoboDragons" />
+                        </div>
+
+                        <div>
+                            <label>Controlador / Piloto</label>
+                            <input id="controlador" placeholder="Nombre del piloto" />
+                        </div>
+                        <div>
+                            <label>Escuela</label>
+                            <input id="escuela" placeholder="Ej. ESIME Azcapotzalco" />
+                        </div>
+                    </div>
+
+                    <div class="sectionTitle">Opcional</div>
+                    <div class="formGrid">
+                        <div>
+                            <label>Peso (g)</label>
+                            <input id="peso_g" type="number" min="0" placeholder="Ej. 498" />
+                        </div>
+                        <div>
+                            <label>Dimensiones (mm)</label>
+                            <input id="dimensiones_mm" placeholder='Ej. 100×100×55' />
+                        </div>
+
+                        <div>
+                            <label>Tipo de control</label>
+                            <select id="tipo_control">
+                                <option value="">(opcional)</option>
+                                <option>Autónomo</option>
+                                <option>RC</option>
+                                <option>Híbrido</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Frecuencia / Protocolo (si aplica)</label>
+                            <input id="frecuencia_protocolo" placeholder="Ej. 2.4GHz / ELRS / SBUS" />
+                        </div>
+
+                        <div>
+                            <label>Contacto</label>
+                            <input id="contacto" placeholder="IG / WhatsApp / Email" />
+                        </div>
+                        <div>
+                            <label>Estado de inspección</label>
+                            <select id="inspeccion_estado">
+                                <option value="pendiente">pendiente</option>
+                                <option value="aprobado">aprobado</option>
+                                <option value="rechazado">rechazado</option>
+                            </select>
+                        </div>
+
+                        <div style="grid-column:1/-1">
+                            <label>Checklist de inspección (1 por línea)</label>
+                            <textarea id="inspeccion_checklist" placeholder="Ej.
+Peso ok
+Kill-switch ok
+Batería segura"></textarea>
+                        </div>
+
+                        <div>
+                            <label>Foto del robot (URL)</label>
+                            <input id="foto_url" placeholder="https://..." />
+                        </div>
+                        <div>
+                            <label>Logo del equipo (URL)</label>
+                            <input id="logo_url" placeholder="https://..." />
+                        </div>
+                    </div>
+
+                    <div class="btnRow" style="margin-top:12px">
+                        <button class="btn" id="btnSave">Guardar en este navegador</button>
+                        <button class="btn" id="btnLoad">Cargar guardado</button>
+                        <button class="btn hot" id="btnClear">Limpiar</button>
+                    </div>
+
+                    <div class="hint">
+                        Nota: <b>offline</b> mete los datos dentro del QR como JSON compacto. El modo <b>link</b> genera
+                        un QR que abre
+                        una credencial visual (requiere que el archivo esté alojado en una URL).
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT -->
+            <section class="panel">
+                <div class="panelHead">
+                    <div class="title">
+                        <h2>Escanéalo con cámara</h2>
+                        <b>Robot QR</b>
+                    </div>
+                    <div class="btnRow">
+                        <button class="btn" id="btnDownload">Descargar QR (PNG)</button>
+                        <button class="btn" id="btnCopy">Copiar payload</button>
+                    </div>
+                </div>
+
+                <div class="rightBox">
+                    <div class="qrBox">
+                        <canvas id="qrCanvas" width="320" height="320" style="width:320px;height:320px"></canvas>
+                    </div>
+
+                    <div class="qrCard">
+                        <div class="chipRow" id="chipRow"></div>
+                        <div class="kv" id="previewKV" style="margin-top:10px"></div>
+                        <div class="mono" id="payloadPreview">Payload (preview): —</div>
+                    </div>
+
+                    <div class="hint" style="margin-top:10px">
+                        Tip: imprime QR negro/blanco ≥ 3 cm, y evita pegarlos en superficies muy curvas.
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- VIEWER -->
+        <section id="viewer" class="panel viewer">
+            <div class="panelHead">
+                <div class="title">
+                    <h2>Credencial del robot</h2>
+                    <b id="v_name">—</b>
+                </div>
+                <div class="btnRow">
+                    <button class="btn" id="btnBack">Volver</button>
+                </div>
+            </div>
+
+            <div class="viewer" style="display:block">
+                <div class="viewerGrid">
+                    <div class="panel" style="border-radius:18px">
+                        <div class="content">
+                            <h1 class="bigTitle" id="v_title">—</h1>
+                            <div class="sub" id="v_sub">—</div>
+                            <div class="chipRow" id="v_chips"></div>
+                            <div class="kv" id="v_kv" style="margin-top:12px"></div>
+
+                            <div class="sectionTitle" style="margin-top:14px">Checklist</div>
+                            <div class="mono" id="v_check">—</div>
+                        </div>
+                    </div>
+
+                    <div class="panel" style="border-radius:18px">
+                        <div class="content">
+                            <div class="sectionTitle">Foto</div>
+                            <div class="mediaBox">
+                                <img id="v_photo" alt="Foto robot" />
+                                <div class="fallback" id="v_photo_f">NO PHOTO</div>
+                            </div>
+
+                            <div class="sectionTitle" style="margin-top:14px">Logo</div>
+                            <div class="mediaBox" style="min-height:160px">
+                                <img id="v_logo" alt="Logo equipo" />
+                                <div class="fallback" id="v_logo_f">LOGO</div>
+                            </div>
+
+                            <div class="hint" style="margin-top:12px">
+                                Este QR es solo identificación. No valida torneo ni registros.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        /* --------------------------
+           Compact payload + Base64URL
+        --------------------------- */
+        function cleanStr(s) { return (s || "").toString().trim(); }
+        function base64UrlEncode(str) {
+            const b64 = btoa(unescape(encodeURIComponent(str)));
+            return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+        function base64UrlDecode(b64u) {
+            let b64 = b64u.replace(/-/g, '+').replace(/_/g, '/');
+            while (b64.length % 4) b64 += '=';
+            return decodeURIComponent(escape(atob(b64)));
+        }
+
+        function buildRobotObj() {
+            const checklist = cleanStr(document.getElementById("inspeccion_checklist").value)
+                .split("\n").map(s => s.trim()).filter(Boolean);
+
+            const obj = {
+                v: 1,
+                i: cleanStr(robot_id.value),
+                n: cleanStr(robot_nombre.value),
+                c: cleanStr(categoria.value),
+                t: cleanStr(equipo.value),
+                p: cleanStr(controlador.value),
+                s: cleanStr(escuela.value),
+            };
+
+            const peso = cleanStr(peso_g.value);
+            const dim = cleanStr(dimensiones_mm.value);
+            const type = cleanStr(tipo_control.value);
+            const freq = cleanStr(frecuencia_protocolo.value);
+            const cont = cleanStr(contacto.value);
+            const ist = cleanStr(inspeccion_estado.value);
+            const foto = cleanStr(foto_url.value);
+            const logo = cleanStr(logo_url.value);
+
+            if (peso) obj.w = Number(peso);
+            if (dim) obj.d = dim;
+            if (type) obj.y = type;
+            if (freq) obj.f = freq;
+            if (cont) obj.k = cont;
+            if (ist) obj.a = ist;
+            if (checklist.length) obj.l = checklist;
+            if (foto) obj.u = foto;
+            if (logo) obj.g = logo;
+
+            return obj;
+        }
+
+        function prettyFromCompact(o) {
+            return {
+                robot_id: o.i || "",
+                robot_nombre: o.n || "",
+                categoria: o.c || "",
+                equipo: o.t || "",
+                controlador: o.p || "",
+                escuela: o.s || "",
+                peso_g: o.w ?? "",
+                dimensiones_mm: o.d || "",
+                tipo_control: o.y || "",
+                frecuencia_protocolo: o.f || "",
+                contacto: o.k || "",
+                inspeccion_estado: o.a || "pendiente",
+                inspeccion_checklist: Array.isArray(o.l) ? o.l : [],
+                foto_url: o.u || "",
+                logo_url: o.g || "",
+            };
+        }
+
+        /* --------------------------
+           UI Helpers
+        --------------------------- */
+        function setKV(container, rows) {
+            container.innerHTML = "";
+            for (const [k, v] of rows) {
+                if (v === undefined || v === null || v === "") continue;
+                const kEl = document.createElement("div"); kEl.className = "k"; kEl.textContent = k;
+                const vEl = document.createElement("div"); vEl.className = "v"; vEl.textContent = v;
+                container.appendChild(kEl); container.appendChild(vEl);
+            }
+        }
+        function setChips(container, chips) {
+            container.innerHTML = "";
+            chips.forEach(ch => {
+                const el = document.createElement("div");
+                el.className = "chip " + (ch.cls || "");
+                el.textContent = ch.text;
+                container.appendChild(el);
+            });
+        }
+        function statusCls(state) {
+            if (state === "aprobado") return "good";
+            if (state === "rechazado") return "bad";
+            return "warn";
+        }
+
+        /* --------------------------
+           Generate QR payloads
+        --------------------------- */
+        const STORAGE_KEY = "apex_robot_qr_saved_v1";
+        let lastPayload = "";
+
+        function payloadOffline(robotObj) {
+            return "APEXRBT:" + JSON.stringify(robotObj);
+        }
+
+        function payloadLink(robotObj) {
+            const json = JSON.stringify(robotObj);
+            const b64u = base64UrlEncode(json);
+            const base = location.href.split("#")[0];
+            return base + "#view=" + b64u;
+        }
+
+        /* ✅ QR render estable (ya no usa el engine recortado) */
+        function drawQR(text) {
+            try {
+                lastPayload = text;
+
+                const qr = qrcode(0, "Q"); // 0=auto version, "Q" buena corrección
+                qr.addData(text);
+                qr.make();
+
+                const canvas = document.getElementById("qrCanvas");
+                const ctx = canvas.getContext("2d");
+
+                const count = qr.getModuleCount();
+                const scale = 8;
+                const margin = 16;
+
+                canvas.width = canvas.height = count * scale + margin * 2;
+
+                ctx.fillStyle = "#fff";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = "#000";
+                for (let r = 0; r < count; r++) {
+                    for (let c = 0; c < count; c++) {
+                        if (qr.isDark(r, c)) {
+                            ctx.fillRect(margin + c * scale, margin + r * scale, scale, scale);
+                        }
+                    }
+                }
+
+                payloadPreview.textContent = "Payload (preview):\n" + text;
+            } catch (err) {
+                payloadPreview.textContent = "ERROR QR: " + (err?.message || err);
+                console.error(err);
+            }
+        }
+
+        /* --------------------------
+           Preview Card (generator)
+        --------------------------- */
+        function renderPreviewFromCompact(compact) {
+            const o = prettyFromCompact(compact);
+            setChips(chipRow, [
+                { text: o.categoria || "Categoría —" },
+                { text: "Control: " + (o.tipo_control || "—") },
+                { text: "Inspección: " + (o.inspeccion_estado || "—"), cls: statusCls(o.inspeccion_estado) }
+            ]);
+
+            setKV(previewKV, [
+                ["Robot ID", o.robot_id],
+                ["Nombre", o.robot_nombre],
+                ["Equipo", o.equipo],
+                ["Piloto", o.controlador],
+                ["Escuela", o.escuela],
+                ["Peso", o.peso_g ? `${o.peso_g} g` : ""],
+                ["Dimensiones", o.dimensiones_mm],
+                ["Freq/Proto", o.frecuencia_protocolo],
+                ["Contacto", o.contacto],
+            ]);
+        }
+
+        /* --------------------------
+           Viewer mode (#view=...)
+        --------------------------- */
+        function showViewer(compact) {
+            const o = prettyFromCompact(compact);
+
+            generator.style.display = "none";
+            viewer.style.display = "block";
+
+            v_name.textContent = o.robot_nombre || "Robot";
+            v_title.textContent = (o.robot_nombre || "—") + (o.robot_id ? ` · ${o.robot_id}` : "");
+            v_sub.textContent = `${o.categoria || "—"} · ${o.equipo || "—"} · ${o.escuela || "—"}`;
+
+            const chips = [
+                { text: o.categoria || "Categoría —" },
+                { text: "Equipo: " + (o.equipo || "—") },
+                { text: "Control: " + (o.tipo_control || "—") },
+                { text: "Inspección: " + (o.inspeccion_estado || "—"), cls: statusCls(o.inspeccion_estado) }
+            ];
+            setChips(v_chips, chips);
+
+            setKV(v_kv, [
+                ["Robot ID", o.robot_id],
+                ["Nombre", o.robot_nombre],
+                ["Equipo", o.equipo],
+                ["Piloto", o.controlador],
+                ["Escuela", o.escuela],
+                ["Peso", o.peso_g ? `${o.peso_g} g` : ""],
+                ["Dimensiones", o.dimensiones_mm],
+                ["Frecuencia/Protocolo", o.frecuencia_protocolo],
+                ["Contacto", o.contacto],
+            ]);
+
+            const lines = (o.inspeccion_checklist && o.inspeccion_checklist.length)
+                ? o.inspeccion_checklist.map(x => "• " + x).join("\n")
+                : "—";
+            v_check.textContent = lines;
+
+            if (o.foto_url) {
+                v_photo.src = o.foto_url;
+                v_photo.style.display = "block";
+                v_photo_f.style.display = "none";
+            } else {
+                v_photo.style.display = "none";
+                v_photo_f.style.display = "block";
+            }
+            if (o.logo_url) {
+                v_logo.src = o.logo_url;
+                v_logo.style.display = "block";
+                v_logo_f.style.display = "none";
+            } else {
+                v_logo.style.display = "none";
+                v_logo_f.style.display = "block";
+            }
+        }
+
+        /* --------------------------
+           Buttons
+        --------------------------- */
+        function validateBasic() {
+            const id = cleanStr(robot_id.value);
+            const name = cleanStr(robot_nombre.value);
+            if (!id || !name) {
+                alert("Pon al menos Robot ID y Nombre del robot.");
+                return false;
+            }
+            return true;
+        }
+
+        btnGenOffline.onclick = () => {
+            if (!validateBasic()) return;
+            const compact = buildRobotObj();
+            renderPreviewFromCompact(compact);
+            drawQR(payloadOffline(compact));
+        };
+
+        btnGenLink.onclick = () => {
+            if (!validateBasic()) return;
+            const compact = buildRobotObj();
+            renderPreviewFromCompact(compact);
+            drawQR(payloadLink(compact));
+        };
+
+        btnCopy.onclick = async () => {
+            if (!lastPayload) { alert("Primero genera un QR."); return; }
+            try {
+                await navigator.clipboard.writeText(lastPayload);
+            } catch (e) {
+                const ta = document.createElement("textarea");
+                ta.value = lastPayload; document.body.appendChild(ta);
+                ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+            }
+        };
+
+        btnDownload.onclick = () => {
+            const a = document.createElement("a");
+            a.download = "apex_robot_qr.png";
+            a.href = qrCanvas.toDataURL("image/png");
+            a.click();
+        };
+
+        btnSave.onclick = () => {
+            const compact = buildRobotObj();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
+            alert("Guardado.");
+        };
+
+        btnLoad.onclick = () => {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) { alert("No hay guardado."); return; }
+            const o = JSON.parse(raw);
+
+            robot_id.value = o.i || "";
+            robot_nombre.value = o.n || "";
+            categoria.value = o.c || "";
+            equipo.value = o.t || "";
+            controlador.value = o.p || "";
+            escuela.value = o.s || "";
+
+            peso_g.value = (o.w ?? "");
+            dimensiones_mm.value = o.d || "";
+            tipo_control.value = o.y || "";
+            frecuencia_protocolo.value = o.f || "";
+            contacto.value = o.k || "";
+            inspeccion_estado.value = o.a || "pendiente";
+            inspeccion_checklist.value = (o.l || []).join("\n");
+            foto_url.value = o.u || "";
+            logo_url.value = o.g || "";
+
+            renderPreviewFromCompact(o);
+            drawQR(payloadOffline(o));
+        };
+
+        btnClear.onclick = () => {
+            ["robot_id", "robot_nombre", "categoria", "equipo", "controlador", "escuela",
+                "peso_g", "dimensiones_mm", "tipo_control", "frecuencia_protocolo", "contacto",
+                "inspeccion_estado", "inspeccion_checklist", "foto_url", "logo_url"
+            ].forEach(id => document.getElementById(id).value = "");
+            chipRow.innerHTML = "";
+            previewKV.innerHTML = "";
+            payloadPreview.textContent = "Payload (preview): —";
+            const ctx = qrCanvas.getContext("2d");
+            ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, qrCanvas.width, qrCanvas.height);
+            lastPayload = "";
+        };
+
+        btnBack.onclick = () => {
+            location.hash = "";
+            viewer.style.display = "none";
+            generator.style.display = "grid";
+        };
+
+        /* --------------------------
+           Boot: handle #view=
+        --------------------------- */
+        (function boot() {
+            const ctx = qrCanvas.getContext("2d");
+            ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, qrCanvas.width, qrCanvas.height);
+
+            const hash = location.hash || "";
+            if (hash.startsWith("#view=")) {
+                const b64u = hash.slice(6);
+                try {
+                    const json = base64UrlDecode(b64u);
+                    const compact = JSON.parse(json);
+                    showViewer(compact);
+                    return;
+                } catch (err) {
+                    console.warn(err);
+                }
+            }
+
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    const o = JSON.parse(saved);
+                    renderPreviewFromCompact(o);
+                    drawQR(payloadOffline(o));
+                } catch (_) { }
+            }
+        })();
+    </script>
+</body>
+
+</html>
