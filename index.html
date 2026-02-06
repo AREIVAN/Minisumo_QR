@@ -9,6 +9,9 @@
     <!-- ✅ QR engine estable -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 
+    <!-- ✅ Supabase JS (sin login por ahora) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         :root {
             --bg: #070A10;
@@ -511,6 +514,9 @@ Batería segura"></textarea>
                         Nota: <b>offline</b> mete los datos dentro del QR como JSON compacto. El modo <b>link</b> genera
                         un QR que abre
                         una credencial visual (requiere que el archivo esté alojado en una URL).
+                        <br><br>
+                        ✅ Con Supabase: al generar/guardar, también se sube a la base de datos para que quede “para
+                        siempre”.
                     </div>
                 </div>
             </section>
@@ -525,7 +531,6 @@ Batería segura"></textarea>
                     <div class="btnRow">
                         <button class="btn" id="btnDownload">Descargar QR (PNG)</button>
                         <button class="btn" id="btnOpen">Abrir link</button>
-
                         <button class="btn" id="btnCopy">Copiar payload</button>
                     </div>
                 </div>
@@ -600,8 +605,15 @@ Batería segura"></textarea>
     </div>
 
     <script>
+        /* =========================================================
+           ✅ SUPABASE CONFIG (PEGA TUS DATOS AQUÍ)
+           ========================================================= */
+        const SUPABASE_URL = "https://pddjulxliqlqoopveugh.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_BgfIRiHsUgqPhCqZ4L8yEA_wjarKci0";
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         /* --------------------------
-           Compact payload + Base64URL
+           Compact payload + Base64URL (legacy soporte #view=)
         --------------------------- */
         function cleanStr(s) { return (s || "").toString().trim(); }
         function base64UrlEncode(str) {
@@ -697,30 +709,62 @@ Batería segura"></textarea>
             return "warn";
         }
 
-        /* --------------------------
-           Generate QR payloads
-        --------------------------- */
+        /* =========================================================
+           ✅ PAYLOADS
+           - Offline: JSON compacto dentro del QR
+           - Link: URL corta persistente (#id=ROBOT_ID) + datos en Supabase
+           ========================================================= */
+        function payloadOffline(robotObj) {
+            return JSON.stringify(robotObj);
+        }
+        function payloadLink(robotObj) {
+            const base = "https://areivan.github.io/Minisumo_QR/";
+            const rid = encodeURIComponent(robotObj.i || "");
+            return base + "#id=" + rid;
+        }
+
+        /* =========================================================
+           ✅ SUPABASE CRUD (sin login / sin RLS)
+           Tabla esperada: public.robot_cards
+           Campos: robot_id (unique), data (jsonb), qr_link, qr_offline, created_at, updated_at
+           ========================================================= */
+        async function saveToSupabase(compact) {
+            const robot_id = (compact.i || "").trim();
+            if (!robot_id) throw new Error("robot_id vacío");
+
+            const row = {
+                robot_id,
+                data: compact,
+                qr_link: payloadLink(compact),
+                qr_offline: payloadOffline(compact),
+            };
+
+            const { data, error } = await sb
+                .from("robot_cards")
+                .upsert(row, { onConflict: "robot_id" })
+                .select("robot_id, qr_link, updated_at")
+                .single();
+
+            if (error) throw error;
+            return data;
+        }
+
+        async function loadFromSupabaseByRobotId(robot_id) {
+            const { data, error } = await sb
+                .from("robot_cards")
+                .select("robot_id, data, qr_link, qr_offline, updated_at")
+                .eq("robot_id", robot_id)
+                .single();
+
+            if (error) throw error;
+            return data;
+        }
+
+        /* ✅ QR render estable */
         const STORAGE_KEY = "apex_robot_qr_saved_v1";
         let lastPayload = "";
+        let lastPayloadType = ""; // "offline" | "link"
 
-        function payloadLink(robotObj) {
-            const json = JSON.stringify(robotObj);
-            const b64u = base64UrlEncode(json);
-
-            const base = "https://areivan.github.io/Minisumo_QR/";
-            return base + "#view=" + b64u;
-        }
-
-        function payloadLink(robotObj) {
-            const json = JSON.stringify(robotObj);
-            const b64u = base64UrlEncode(json);
-
-            // ✅ URL canónica de tu GitHub Pages (con slash final)
-            const base = "https://areivan.github.io/Minisumo_QR/";
-            return base + "#view=" + b64u;
-        }
-
-        /* ✅ QR render estable (ya no usa el engine recortado) */
         function drawQR(text) {
             try {
                 lastPayload = text;
@@ -782,7 +826,7 @@ Batería segura"></textarea>
         }
 
         /* --------------------------
-           Viewer mode (#view=...)
+           Viewer mode (#id=... o legacy #view=...)
         --------------------------- */
         function showViewer(compact) {
             const o = prettyFromCompact(compact);
@@ -850,18 +894,44 @@ Batería segura"></textarea>
             return true;
         }
 
-        btnGenOffline.onclick = () => {
+        // ✅ Generar OFFLINE (JSON dentro del QR) + guardar en Supabase
+        btnGenOffline.onclick = async () => {
             if (!validateBasic()) return;
             const compact = buildRobotObj();
             renderPreviewFromCompact(compact);
+
+            lastPayloadType = "offline";
             drawQR(payloadOffline(compact));
+
+            // cache local opcional (para que no pierdas lo último)
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
+
+            try {
+                await saveToSupabase(compact);
+            } catch (e) {
+                console.error(e);
+                alert("No se pudo guardar en Supabase: " + (e.message || e));
+            }
         };
 
-        btnGenLink.onclick = () => {
+        // ✅ Generar LINK (QR apunta a #id=ROBOT_ID) + guardar en Supabase
+        btnGenLink.onclick = async () => {
             if (!validateBasic()) return;
             const compact = buildRobotObj();
             renderPreviewFromCompact(compact);
-            drawQR(payloadLink(compact));   // ✅ SIEMPRE URL
+
+            lastPayloadType = "link";
+            const link = payloadLink(compact);
+            drawQR(link);
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
+
+            try {
+                await saveToSupabase(compact);
+            } catch (e) {
+                console.error(e);
+                alert("No se pudo guardar en Supabase: " + (e.message || e));
+            }
         };
 
         btnCopy.onclick = async () => {
@@ -877,6 +947,10 @@ Batería segura"></textarea>
 
         btnOpen.onclick = () => {
             if (!lastPayload) { alert("Primero genera un QR."); return; }
+            if (!/^https?:\/\//i.test(lastPayload)) {
+                alert("Este QR es OFFLINE (JSON). Genera el QR (link) para abrir en navegador.");
+                return;
+            }
             window.open(lastPayload, "_blank");
         };
 
@@ -887,15 +961,71 @@ Batería segura"></textarea>
             a.click();
         };
 
-        btnSave.onclick = () => {
+        // Mantiene el botón y el diseño original:
+        // Guardar en navegador + también subir a Supabase
+        btnSave.onclick = async () => {
             const compact = buildRobotObj();
             localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
-            alert("Guardado.");
+
+            try {
+                if (!compact.i || !compact.n) {
+                    alert("Guardado local. Para Supabase, pon al menos Robot ID y Nombre.");
+                    return;
+                }
+                await saveToSupabase(compact);
+                alert("Guardado (local + Supabase).");
+            } catch (e) {
+                console.error(e);
+                alert("Guardado local. Supabase falló: " + (e.message || e));
+            }
         };
 
-        btnLoad.onclick = () => {
+        // Cargar guardado:
+        // - Si hay Robot ID en el input: carga desde Supabase
+        // - Si no: carga localStorage
+        btnLoad.onclick = async () => {
+            const rid = cleanStr(robot_id.value);
+
+            if (rid) {
+                try {
+                    const rec = await loadFromSupabaseByRobotId(rid);
+                    const o = rec.data;
+
+                    robot_id.value = o.i || "";
+                    robot_nombre.value = o.n || "";
+                    categoria.value = o.c || "";
+                    equipo.value = o.t || "";
+                    controlador.value = o.p || "";
+                    escuela.value = o.s || "";
+
+                    peso_g.value = (o.w ?? "");
+                    dimensiones_mm.value = o.d || "";
+                    tipo_control.value = o.y || "";
+                    frecuencia_protocolo.value = o.f || "";
+                    contacto.value = o.k || "";
+                    inspeccion_estado.value = o.a || "pendiente";
+                    inspeccion_checklist.value = (o.l || []).join("\n");
+                    foto_url.value = o.u || "";
+                    logo_url.value = o.g || "";
+
+                    renderPreviewFromCompact(o);
+
+                    // Por defecto, dibuja el QR link persistente
+                    lastPayloadType = "link";
+                    drawQR(rec.qr_link);
+
+                    // cache local para el próximo arranque
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(o));
+                    return;
+                } catch (e) {
+                    console.error(e);
+                    alert("No se pudo cargar desde Supabase: " + (e.message || e));
+                }
+            }
+
+            // fallback local
             const raw = localStorage.getItem(STORAGE_KEY);
-            if (!raw) { alert("No hay guardado."); return; }
+            if (!raw) { alert("No hay guardado local. Escribe Robot ID y dale Cargar para Supabase."); return; }
             const o = JSON.parse(raw);
 
             robot_id.value = o.i || "";
@@ -916,20 +1046,31 @@ Batería segura"></textarea>
             logo_url.value = o.g || "";
 
             renderPreviewFromCompact(o);
+            lastPayloadType = "link";
             drawQR(payloadLink(o));
         };
 
         btnClear.onclick = () => {
-            ["robot_id", "robot_nombre", "categoria", "equipo", "controlador", "escuela",
-                "peso_g", "dimensiones_mm", "tipo_control", "frecuencia_protocolo", "contacto",
-                "inspeccion_estado", "inspeccion_checklist", "foto_url", "logo_url"
+            // inputs
+            ["robot_id", "robot_nombre", "equipo", "controlador", "escuela",
+                "peso_g", "dimensiones_mm", "frecuencia_protocolo", "contacto",
+                "inspeccion_checklist", "foto_url", "logo_url"
             ].forEach(id => document.getElementById(id).value = "");
+
+            // selects
+            categoria.value = "";
+            tipo_control.value = "";
+            inspeccion_estado.value = "pendiente";
+
             chipRow.innerHTML = "";
             previewKV.innerHTML = "";
             payloadPreview.textContent = "Payload (preview): —";
+
             const ctx = qrCanvas.getContext("2d");
             ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, qrCanvas.width, qrCanvas.height);
+
             lastPayload = "";
+            lastPayloadType = "";
         };
 
         btnBack.onclick = () => {
@@ -939,13 +1080,29 @@ Batería segura"></textarea>
         };
 
         /* --------------------------
-           Boot: handle #view=
+           Boot: handle #id=... (Supabase) y #view=... (legacy)
         --------------------------- */
-        (function boot() {
+        (async function boot() {
             const ctx = qrCanvas.getContext("2d");
             ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, qrCanvas.width, qrCanvas.height);
 
             const hash = location.hash || "";
+
+            // ✅ Nuevo: abrir credencial por ID (persistente)
+            if (hash.startsWith("#id=")) {
+                const rid = decodeURIComponent(hash.slice(4));
+                try {
+                    const rec = await loadFromSupabaseByRobotId(rid);
+                    showViewer(rec.data);
+                    return;
+                } catch (e) {
+                    console.error(e);
+                    alert("No se encontró este Robot ID en Supabase: " + rid);
+                    location.hash = "";
+                }
+            }
+
+            // ✅ Legacy: abrir credencial con JSON embebido (por si ya imprimiste QRs antiguos)
             if (hash.startsWith("#view=")) {
                 const b64u = hash.slice(6);
                 try {
@@ -958,11 +1115,13 @@ Batería segura"></textarea>
                 }
             }
 
+            // Inicial: carga el cache local si existe
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
                 try {
                     const o = JSON.parse(saved);
                     renderPreviewFromCompact(o);
+                    lastPayloadType = "link";
                     drawQR(payloadLink(o));
                 } catch (_) { }
             }
