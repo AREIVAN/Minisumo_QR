@@ -401,7 +401,7 @@
                         <b>Robot</b>
                     </div>
                     <div class="btnRow">
-                        <button class="btn primary" id="btnGenOffline">Generar QR (offline)</button>
+                        <button class="btn primary" id="btnGenOffline">Generar QR</button>
                         <button class="btn" id="btnGenLink">Generar QR (link)</button>
                     </div>
                 </div>
@@ -703,8 +703,12 @@ Batería segura"></textarea>
         const STORAGE_KEY = "apex_robot_qr_saved_v1";
         let lastPayload = "";
 
-        function payloadOffline(robotObj) {
-            return "APEXRBT:" + JSON.stringify(robotObj);
+        function payloadLink(robotObj) {
+            const json = JSON.stringify(robotObj);
+            const b64u = base64UrlEncode(json);
+
+            const base = "https://areivan.github.io/Minisumo_QR/";
+            return base + "#view=" + b64u;
         }
 
         function payloadLink(robotObj) {
@@ -857,7 +861,7 @@ Batería segura"></textarea>
             if (!validateBasic()) return;
             const compact = buildRobotObj();
             renderPreviewFromCompact(compact);
-            drawQR(payloadLink(compact));
+            drawQR(payloadLink(compact));   // ✅ SIEMPRE URL
         };
 
         btnCopy.onclick = async () => {
@@ -912,7 +916,7 @@ Batería segura"></textarea>
             logo_url.value = o.g || "";
 
             renderPreviewFromCompact(o);
-            drawQR(payloadOffline(o));
+            drawQR(payloadLink(o));
         };
 
         btnClear.onclick = () => {
@@ -959,7 +963,7 @@ Batería segura"></textarea>
                 try {
                     const o = JSON.parse(saved);
                     renderPreviewFromCompact(o);
-                    drawQR(payloadOffline(o));
+                    drawQR(payloadLink(o));
                 } catch (_) { }
             }
         })();
