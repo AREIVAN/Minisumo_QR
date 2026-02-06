@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="es">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <head>
     <meta charset="utf-8" />
@@ -604,9 +603,6 @@ Batería segura"></textarea>
         /* --------------------------
            Compact payload + Base64URL
         --------------------------- */
-        const SUPABASE_URL = "https://TU-PROYECTO.supabase.co";
-        const SUPABASE_ANON_KEY = "TU_ANON_KEY";
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         function cleanStr(s) { return (s || "").toString().trim(); }
         function base64UrlEncode(str) {
             const b64 = btoa(unescape(encodeURIComponent(str)));
