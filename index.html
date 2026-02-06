@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>APEX ROBOT ID QR</title>
 
-    <!-- ✅ QR engine estable -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+    <!-- Supabase JS (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         :root {
@@ -388,7 +388,7 @@
             <div class="brand">
                 <div class="dot"></div><span>APEX ROBOT ID QR</span>
             </div>
-            <div class="badge"><b>offline / 1 archivo</b> · Identificador (no competencia)</div>
+            <div class="badge"><b>online / Supabase</b> · Catálogo público (sin login)</div>
         </div>
 
         <!-- GENERATOR -->
@@ -397,12 +397,11 @@
             <section class="panel">
                 <div class="panelHead">
                     <div class="title">
-                        <h2>Datos para el QR</h2>
+                        <h2>Registro + QR corto</h2>
                         <b>Robot</b>
                     </div>
                     <div class="btnRow">
-                        <button class="btn primary" id="btnGenOffline">Generar QR</button>
-                        <button class="btn" id="btnGenLink">Generar QR (link)</button>
+                        <button class="btn primary" id="btnGenLink">Registrar y generar QR</button>
                     </div>
                 </div>
 
@@ -502,15 +501,12 @@ Batería segura"></textarea>
                     </div>
 
                     <div class="btnRow" style="margin-top:12px">
-                        <button class="btn" id="btnSave">Guardar en este navegador</button>
-                        <button class="btn" id="btnLoad">Cargar guardado</button>
                         <button class="btn hot" id="btnClear">Limpiar</button>
                     </div>
 
                     <div class="hint">
-                        Nota: <b>offline</b> mete los datos dentro del QR como JSON compacto. El modo <b>link</b> genera
-                        un QR que abre
-                        una credencial visual (requiere que el archivo esté alojado en una URL).
+                        Este modo registra el robot en <b>Supabase</b> y genera un QR corto con <b>#r=ROBOT_ID</b>.
+                        Cualquiera puede abrir el QR para ver la credencial.
                     </div>
                 </div>
             </section>
@@ -519,14 +515,13 @@ Batería segura"></textarea>
             <section class="panel">
                 <div class="panelHead">
                     <div class="title">
-                        <h2>Escanéalo con cámara</h2>
-                        <b>Robot QR</b>
+                        <h2>QR corto</h2>
+                        <b>Link</b>
                     </div>
                     <div class="btnRow">
                         <button class="btn" id="btnDownload">Descargar QR (PNG)</button>
+                        <button class="btn" id="btnCopy">Copiar link</button>
                         <button class="btn" id="btnOpen">Abrir link</button>
-
-                        <button class="btn" id="btnCopy">Copiar payload</button>
                     </div>
                 </div>
 
@@ -538,11 +533,11 @@ Batería segura"></textarea>
                     <div class="qrCard">
                         <div class="chipRow" id="chipRow"></div>
                         <div class="kv" id="previewKV" style="margin-top:10px"></div>
-                        <div class="mono" id="payloadPreview">Payload (preview): —</div>
+                        <div class="mono" id="payloadPreview">Link (preview): —</div>
                     </div>
 
                     <div class="hint" style="margin-top:10px">
-                        Tip: imprime QR negro/blanco ≥ 3 cm, y evita pegarlos en superficies muy curvas.
+                        Tip: imprime QR negro/blanco ≥ 3–4 cm, con buen margen blanco alrededor.
                     </div>
                 </div>
             </section>
@@ -589,7 +584,7 @@ Batería segura"></textarea>
                             </div>
 
                             <div class="hint" style="margin-top:12px">
-                                Este QR es solo identificación. No valida torneo ni registros.
+                                Este QR es solo identificación. Catálogo público (sin login).
                             </div>
                         </div>
                     </div>
@@ -600,42 +595,72 @@ Batería segura"></textarea>
     </div>
 
     <script>
-        /* --------------------------
-           Compact payload + Base64URL
-        --------------------------- */
+        /*******************************
+         * 0) CONFIG SUPABASE
+         *******************************/
+        const SUPABASE_URL = "https://pddjulxliqlqoopveugh.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_BgfIRiHsUgqPhCqZ4L8yEA_wjarKci0";
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        /*******************************
+         * 1) Helpers
+         *******************************/
+        const $ = (id) => document.getElementById(id);
+
         function cleanStr(s) { return (s || "").toString().trim(); }
-        function base64UrlEncode(str) {
-            const b64 = btoa(unescape(encodeURIComponent(str)));
-            return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-        }
-        function base64UrlDecode(b64u) {
-            let b64 = b64u.replace(/-/g, '+').replace(/_/g, '/');
-            while (b64.length % 4) b64 += '=';
-            return decodeURIComponent(escape(atob(b64)));
+
+        function statusCls(state) {
+            if (state === "aprobado") return "good";
+            if (state === "rechazado") return "bad";
+            return "warn";
         }
 
+        function setKV(container, rows) {
+            container.innerHTML = "";
+            for (const [k, v] of rows) {
+                if (v === undefined || v === null || v === "") continue;
+                const kEl = document.createElement("div"); kEl.className = "k"; kEl.textContent = k;
+                const vEl = document.createElement("div"); vEl.className = "v"; vEl.textContent = v;
+                container.appendChild(kEl); container.appendChild(vEl);
+            }
+        }
+
+        function setChips(container, chips) {
+            container.innerHTML = "";
+            chips.forEach(ch => {
+                const el = document.createElement("div");
+                el.className = "chip " + (ch.cls || "");
+                el.textContent = ch.text;
+                container.appendChild(el);
+            });
+        }
+
+        /*******************************
+         * 2) Build compact object (like your previous)
+         *******************************/
         function buildRobotObj() {
-            const checklist = cleanStr(document.getElementById("inspeccion_checklist").value)
+            const checklist = cleanStr($("inspeccion_checklist").value)
                 .split("\n").map(s => s.trim()).filter(Boolean);
 
+            // compact keys
             const obj = {
                 v: 1,
-                i: cleanStr(robot_id.value),
-                n: cleanStr(robot_nombre.value),
-                c: cleanStr(categoria.value),
-                t: cleanStr(equipo.value),
-                p: cleanStr(controlador.value),
-                s: cleanStr(escuela.value),
+                i: cleanStr($("robot_id").value),
+                n: cleanStr($("robot_nombre").value),
+                c: cleanStr($("categoria").value),
+                t: cleanStr($("equipo").value),
+                p: cleanStr($("controlador").value),
+                s: cleanStr($("escuela").value),
             };
 
-            const peso = cleanStr(peso_g.value);
-            const dim = cleanStr(dimensiones_mm.value);
-            const type = cleanStr(tipo_control.value);
-            const freq = cleanStr(frecuencia_protocolo.value);
-            const cont = cleanStr(contacto.value);
-            const ist = cleanStr(inspeccion_estado.value);
-            const foto = cleanStr(foto_url.value);
-            const logo = cleanStr(logo_url.value);
+            const peso = cleanStr($("peso_g").value);
+            const dim = cleanStr($("dimensiones_mm").value);
+            const type = cleanStr($("tipo_control").value);
+            const freq = cleanStr($("frecuencia_protocolo").value);
+            const cont = cleanStr($("contacto").value);
+            const ist = cleanStr($("inspeccion_estado").value);
+            const foto = cleanStr($("foto_url").value);
+            const logo = cleanStr($("logo_url").value);
 
             if (peso) obj.w = Number(peso);
             if (dim) obj.d = dim;
@@ -670,105 +695,305 @@ Batería segura"></textarea>
             };
         }
 
-        /* --------------------------
-           UI Helpers
-        --------------------------- */
-        function setKV(container, rows) {
-            container.innerHTML = "";
-            for (const [k, v] of rows) {
-                if (v === undefined || v === null || v === "") continue;
-                const kEl = document.createElement("div"); kEl.className = "k"; kEl.textContent = k;
-                const vEl = document.createElement("div"); vEl.className = "v"; vEl.textContent = v;
-                container.appendChild(kEl); container.appendChild(vEl);
+        /*******************************
+         * 3) Supabase DB mapping
+         *******************************/
+        async function insertRobot(compact) {
+            const row = {
+                id: compact.i,
+                name: compact.n,
+                category: compact.c || null,
+                team: compact.t || null,
+                pilot: compact.p || null,
+                school: compact.s || null,
+                weight_g: compact.w ?? null,
+                dimensions_mm: compact.d || null,
+                control_type: compact.y || null,
+                freq_proto: compact.f || null,
+                contact: compact.k || null,
+                inspection_status: compact.a || "pendiente",
+                checklist: Array.isArray(compact.l) ? compact.l : null,
+                photo_url: compact.u || null,
+                logo_url: compact.g || null,
+            };
+
+            const { error } = await supabase.from("robots").insert(row);
+            if (!error) return;
+
+            // duplicate key
+            if (String(error.code).includes("23505")) {
+                throw new Error("Ese Robot ID ya existe. Usa otro ID.");
             }
-        }
-        function setChips(container, chips) {
-            container.innerHTML = "";
-            chips.forEach(ch => {
-                const el = document.createElement("div");
-                el.className = "chip " + (ch.cls || "");
-                el.textContent = ch.text;
-                container.appendChild(el);
-            });
-        }
-        function statusCls(state) {
-            if (state === "aprobado") return "good";
-            if (state === "rechazado") return "bad";
-            return "warn";
+            throw new Error(error.message || "Error insertando robot.");
         }
 
-        /* --------------------------
-           Generate QR payloads
-        --------------------------- */
-        const STORAGE_KEY = "apex_robot_qr_saved_v1";
-        let lastPayload = "";
+        async function fetchRobotById(id) {
+            const { data, error } = await supabase
+                .from("robots")
+                .select("*")
+                .eq("id", id)
+                .single();
 
-        function payloadLink(robotObj) {
-            const json = JSON.stringify(robotObj);
-            const b64u = base64UrlEncode(json);
+            if (error) throw new Error(error.message || "Robot no encontrado.");
+            return data;
+        }
 
+        function dbRowToCompact(r) {
+            return {
+                v: 1,
+                i: r.id,
+                n: r.name,
+                c: r.category || "",
+                t: r.team || "",
+                p: r.pilot || "",
+                s: r.school || "",
+                w: r.weight_g ?? undefined,
+                d: r.dimensions_mm || "",
+                y: r.control_type || "",
+                f: r.freq_proto || "",
+                k: r.contact || "",
+                a: r.inspection_status || "pendiente",
+                l: Array.isArray(r.checklist) ? r.checklist : [],
+                u: r.photo_url || "",
+                g: r.logo_url || "",
+            };
+        }
+
+        /*******************************
+         * 4) QR: short link payload
+         *******************************/
+        function payloadLinkFromId(robotId) {
             const base = "https://areivan.github.io/Minisumo_QR/";
-            return base + "#view=" + b64u;
+            return base + "#r=" + encodeURIComponent(robotId);
         }
 
-        function payloadLink(robotObj) {
-            const json = JSON.stringify(robotObj);
-            const b64u = base64UrlEncode(json);
+        /*******************************
+         * 5) Minimal QR generator (embedded)
+         *******************************/
+        /* eslint-disable */
+        var qrcode = function () {
+            function t(t) { this.typeNumber = t, this.errorCorrectLevel = "M", this.modules = null, this.moduleCount = 0, this.dataCache = null, this.dataList = [] }
+            function r(t, e) { this.totalCount = t, this.dataCount = e }
+            function n() { this.buffer = [], this.length = 0 }
+            function i(t, e) { this.mode = t, this.data = e }
 
-            // ✅ URL canónica de tu GitHub Pages (con slash final)
-            const base = "https://areivan.github.io/Minisumo_QR/";
-            return base + "#view=" + b64u;
-        }
-
-        /* ✅ QR render estable (ya no usa el engine recortado) */
-        function drawQR(text) {
-            try {
-                lastPayload = text;
-
-                const qr = qrcode(0, "Q"); // 0=auto version, "Q" buena corrección
-                qr.addData(text);
-                qr.make();
-
-                const canvas = document.getElementById("qrCanvas");
-                const ctx = canvas.getContext("2d");
-
-                const count = qr.getModuleCount();
-                const scale = 8;
-                const margin = 16;
-
-                canvas.width = canvas.height = count * scale + margin * 2;
-
-                ctx.fillStyle = "#fff";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                ctx.fillStyle = "#000";
-                for (let r = 0; r < count; r++) {
-                    for (let c = 0; c < count; c++) {
-                        if (qr.isDark(r, c)) {
-                            ctx.fillRect(margin + c * scale, margin + r * scale, scale, scale);
+            t.prototype = {
+                addData: function (t) { var e = new i(4, t); this.dataList.push(e), this.dataCache = null },
+                make: function () { this.makeImpl(!1, this.getBestMaskPattern()) },
+                makeImpl: function (t, e) {
+                    this.moduleCount = 4 * this.typeNumber + 17,
+                        this.modules = new Array(this.moduleCount);
+                    for (var r = 0; r < this.moduleCount; r++) {
+                        this.modules[r] = new Array(this.moduleCount);
+                        for (var n = 0; n < this.moduleCount; n++) this.modules[r][n] = null
+                    }
+                    this.setupPositionProbePattern(0, 0),
+                        this.setupPositionProbePattern(this.moduleCount - 7, 0),
+                        this.setupPositionProbePattern(0, this.moduleCount - 7),
+                        this.setupPositionAdjustPattern(),
+                        this.setupTimingPattern(),
+                        this.setupTypeInfo(t, e),
+                        this.typeNumber >= 7 && this.setupTypeNumber(t);
+                    var i = this.createData(this.typeNumber, this.errorCorrectLevel);
+                    this.mapData(i, e)
+                },
+                setupPositionProbePattern: function (t, e) {
+                    for (var r = -1; r <= 7; r++)
+                        if (!(t + r <= -1 || this.moduleCount <= t + r))
+                            for (var n = -1; n <= 7; n++)
+                                e + n <= -1 || this.moduleCount <= e + n || (0 <= r && r <= 6 && (0 == n || 6 == n) || 0 <= n && n <= 6 && (0 == r || 6 == r) || 2 <= r && r <= 4 && 2 <= n && n <= 4 ? this.modules[t + r][e + n] = !0 : this.modules[t + r][e + n] = !1)
+                },
+                getBestMaskPattern: function () {
+                    for (var t = 0, e = 0, r = 0; r < 8; r++) {
+                        this.makeImpl(!0, r);
+                        var n = u.getLostPoint(this);
+                        (0 == r || t > n) && (t = n, e = r)
+                    }
+                    return e
+                },
+                createData: function (t, e) {
+                    for (var r = rmap[t], i = new n, o = 0; o < this.dataList.length; o++) {
+                        var a = this.dataList[o];
+                        i.put(a.mode, 4), i.put(s.getLengthInBits(a.mode, t), a.data.length);
+                        for (var h = 0; h < a.data.length; h++) i.put(a.data.charCodeAt(h), 8)
+                    }
+                    var f = 8 * r.dataCount - i.length;
+                    if (f > 0) for (o = 0; o < f; o++) i.putBit(!1);
+                    for (; i.length % 8 != 0;) i.putBit(!1);
+                    for (; i.length / 8 < r.dataCount;) { i.put(236, 8); if (i.length / 8 >= r.dataCount) break; i.put(17, 8) }
+                    return u.createBytes(i, r)
+                },
+                mapData: function (t, e) {
+                    for (var r = -1, n = this.moduleCount - 1, i = 7, o = 0, a = this.moduleCount - 1; a > 0; a -= 2)
+                        for (6 == a && a--; ;) {
+                            for (var h = 0; h < 2; h++)
+                                if (null == this.modules[a - h][n]) {
+                                    var f = !1;
+                                    i < t.length && (f = 1 == (t[i] >>> o & 1));
+                                    var c = u.getMask(e, a - h, n);
+                                    this.modules[a - h][n] = c ? !f : f, o--, -1 == o && (i--, o = 7)
+                                }
+                            if ((n += r) < 0 || this.moduleCount <= n) { n -= r, r = -r; break }
                         }
+                },
+                setupTimingPattern: function () {
+                    for (var t = 8; t < this.moduleCount - 8; t++)
+                        null == this.modules[t][6] && (this.modules[t][6] = t % 2 == 0),
+                            null == this.modules[6][t] && (this.modules[6][t] = t % 2 == 0)
+                },
+                setupPositionAdjustPattern: function () {
+                    for (var t = u.getPatternPosition(this.typeNumber), e = 0; e < t.length; e++)
+                        for (var r = 0; r < t.length; r++) {
+                            var n = t[e], i = t[r];
+                            if (null != this.modules[n][i]) continue;
+                            for (var o = -2; o <= 2; o++)
+                                for (var a = -2; a <= 2; a++)
+                                    this.modules[n + o][i + a] = -2 == o || 2 == o || -2 == a || 2 == a || 0 == o && 0 == a
+                        }
+                },
+                setupTypeNumber: function (t) {
+                    for (var e = u.getBCHTypeNumber(this.typeNumber), r = 0; r < 18; r++) {
+                        var n = !t && 1 == (e >>> r & 1);
+                        this.modules[Math.floor(r / 3)][r % 3 + this.moduleCount - 8 - 3] = n
+                    }
+                    for (r = 0; r < 18; r++) {
+                        n = !t && 1 == (e >>> r & 1);
+                        this.modules[r % 3 + this.moduleCount - 8 - 3][Math.floor(r / 3)] = n
+                    }
+                },
+                setupTypeInfo: function (t, e) {
+                    for (var r = u.getBCHTypeInfo(e), n = 0; n < 15; n++) {
+                        var i = !t && 1 == (r >>> n & 1);
+                        n < 6 ? this.modules[n][8] = i : n < 8 ? this.modules[n + 1][8] = i : this.modules[this.moduleCount - 15 + n][8] = i
+                    }
+                    for (n = 0; n < 15; n++) {
+                        i = !t && 1 == (r >>> n & 1);
+                        n < 8 ? this.modules[8][this.moduleCount - n - 1] = i : n < 9 ? this.modules[8][15 - n - 1 + 1] = i : this.modules[8][15 - n - 1] = i
+                    }
+                    this.modules[this.moduleCount - 8][8] = !t
+                }
+            };
+
+            n.prototype = {
+                get: function (t) { return 1 == (this.buffer[Math.floor(t / 8)] >>> 7 - t % 8 & 1) },
+                put: function (t, e) { for (var r = 0; r < e; r++) this.putBit(1 == (t >>> e - r - 1 & 1)) },
+                putBit: function (t) {
+                    var e = Math.floor(this.length / 8);
+                    this.buffer.length <= e && this.buffer.push(0);
+                    t && (this.buffer[e] |= 128 >>> this.length % 8);
+                    this.length++
+                }
+            };
+
+            var s = {
+                getLengthInBits: function (t, e) { if (1 <= e && e < 10) return 8; if (e < 27) return 16; return 16 }
+            };
+
+            var u = {
+                PATTERN_POSITION_TABLE: [[], [6, 18], [6, 22], [6, 26], [6, 30], [6, 34], [6, 22, 38], [6, 24, 42], [6, 26, 46], [6, 28, 50]],
+                G15: 1335, G18: 7973, G15_MASK: 21522,
+                getBCHTypeInfo: function (t) {
+                    for (var e = t << 10; u.getBCHDigit(e) - u.getBCHDigit(u.G15) >= 0;) e ^= u.G15 << u.getBCHDigit(e) - u.getBCHDigit(u.G15);
+                    return (t << 10 | e) ^ u.G15_MASK
+                },
+                getBCHTypeNumber: function (t) {
+                    for (var e = t << 12; u.getBCHDigit(e) - u.getBCHDigit(u.G18) >= 0;) e ^= u.G18 << u.getBCHDigit(e) - u.getBCHDigit(u.G18);
+                    return t << 12 | e
+                },
+                getBCHDigit: function (t) { for (var e = 0; 0 != t;) e++, t >>>= 1; return e },
+                getPatternPosition: function (t) { return u.PATTERN_POSITION_TABLE[t] || [6, 18] },
+                getMask: function (t, e, r) {
+                    switch (t) {
+                        case 0: return (e + r) % 2 == 0;
+                        case 1: return e % 2 == 0;
+                        case 2: return r % 3 == 0;
+                        case 3: return (e + r) % 3 == 0;
+                        case 4: return (Math.floor(e / 2) + Math.floor(r / 3)) % 2 == 0;
+                        case 5: return e * r % 2 + e * r % 3 == 0;
+                        case 6: return (e * r % 2 + e * r % 3) % 2 == 0;
+                        case 7: return (e * r % 3 + (e + r) % 2) % 2 == 0;
+                        default: return !1
+                    }
+                },
+                createBytes: function (t, e) {
+                    for (var n = [], i = 0; i < e.totalCount; i++) n.push(0);
+                    for (i = 0; i < e.dataCount; i++) n[i] = 255 & t.buffer[Math.floor(i)];
+                    return n
+                },
+                getLostPoint: function (t) {
+                    for (var e = 0, r = t.moduleCount, n = 0; n < r; n++)
+                        for (var i = 0; i < r; i++) {
+                            for (var o = 0, a = t.modules[n][i], s = -1; s <= 1; s++)
+                                if (!(n + s < 0 || r <= n + s))
+                                    for (var u2 = -1; u2 <= 1; u2++)
+                                        i + u2 < 0 || r <= i + u2 || 0 == s && 0 == u2 || a != t.modules[n + s][i + u2] || o++;
+                            o > 5 && (e += 3 + o - 5)
+                        }
+                    return e
+                }
+            };
+
+            var rmap = {
+                1: new r(26, 19), 2: new r(44, 34), 3: new r(70, 55), 4: new r(100, 80),
+                5: new r(134, 108), 6: new r(172, 136), 7: new r(196, 156), 8: new r(242, 194), 9: new r(292, 232)
+            };
+
+            t.prototype.toCanvas = function (canvas, cellSize, margin) {
+                cellSize = cellSize || 8; margin = margin || 16;
+                var ctx = canvas.getContext("2d");
+                var size = this.moduleCount * cellSize + margin * 2;
+                canvas.width = size; canvas.height = size;
+                ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, size, size);
+                ctx.fillStyle = "#000";
+                for (var r = 0; r < this.moduleCount; r++) {
+                    for (var c = 0; c < this.moduleCount; c++) {
+                        if (this.modules[r][c]) ctx.fillRect(margin + c * cellSize, margin + r * cellSize, cellSize, cellSize);
                     }
                 }
+            };
 
-                payloadPreview.textContent = "Payload (preview):\n" + text;
-            } catch (err) {
-                payloadPreview.textContent = "ERROR QR: " + (err?.message || err);
-                console.error(err);
+            return {
+                make: function (text) {
+                    var type = 1;
+                    if (text.length > 60) type = 3;
+                    if (text.length > 110) type = 4;
+                    if (text.length > 160) type = 5;
+                    if (text.length > 220) type = 6;
+                    if (text.length > 280) type = 7;
+                    if (text.length > 340) type = 8;
+                    if (text.length > 420) type = 9;
+                    var qr = new t(type);
+                    qr.errorCorrectLevel = "M";
+                    qr.addData(text);
+                    qr.make();
+                    return qr;
+                }
             }
+        }();
+        /* eslint-enable */
+
+        /*******************************
+         * 6) UI Render / QR draw
+         *******************************/
+        let lastPayload = "";
+
+        function drawQR(text) {
+            lastPayload = text;
+            const qr = qrcode.make(text);
+            qr.toCanvas($("qrCanvas"), 8, 16);
+            $("payloadPreview").textContent = "Link (preview):\n" + text;
         }
 
-        /* --------------------------
-           Preview Card (generator)
-        --------------------------- */
         function renderPreviewFromCompact(compact) {
             const o = prettyFromCompact(compact);
-            setChips(chipRow, [
+
+            setChips($("chipRow"), [
                 { text: o.categoria || "Categoría —" },
                 { text: "Control: " + (o.tipo_control || "—") },
                 { text: "Inspección: " + (o.inspeccion_estado || "—"), cls: statusCls(o.inspeccion_estado) }
             ]);
 
-            setKV(previewKV, [
+            setKV($("previewKV"), [
                 ["Robot ID", o.robot_id],
                 ["Nombre", o.robot_nombre],
                 ["Equipo", o.equipo],
@@ -781,28 +1006,24 @@ Batería segura"></textarea>
             ]);
         }
 
-        /* --------------------------
-           Viewer mode (#view=...)
-        --------------------------- */
         function showViewer(compact) {
             const o = prettyFromCompact(compact);
 
-            generator.style.display = "none";
-            viewer.style.display = "block";
+            $("generator").style.display = "none";
+            $("viewer").style.display = "block";
 
-            v_name.textContent = o.robot_nombre || "Robot";
-            v_title.textContent = (o.robot_nombre || "—") + (o.robot_id ? ` · ${o.robot_id}` : "");
-            v_sub.textContent = `${o.categoria || "—"} · ${o.equipo || "—"} · ${o.escuela || "—"}`;
+            $("v_name").textContent = o.robot_nombre || "Robot";
+            $("v_title").textContent = (o.robot_nombre || "—") + (o.robot_id ? ` · ${o.robot_id}` : "");
+            $("v_sub").textContent = `${o.categoria || "—"} · ${o.equipo || "—"} · ${o.escuela || "—"}`;
 
-            const chips = [
+            setChips($("v_chips"), [
                 { text: o.categoria || "Categoría —" },
                 { text: "Equipo: " + (o.equipo || "—") },
                 { text: "Control: " + (o.tipo_control || "—") },
                 { text: "Inspección: " + (o.inspeccion_estado || "—"), cls: statusCls(o.inspeccion_estado) }
-            ];
-            setChips(v_chips, chips);
+            ]);
 
-            setKV(v_kv, [
+            setKV($("v_kv"), [
                 ["Robot ID", o.robot_id],
                 ["Nombre", o.robot_nombre],
                 ["Equipo", o.equipo],
@@ -817,32 +1038,30 @@ Batería segura"></textarea>
             const lines = (o.inspeccion_checklist && o.inspeccion_checklist.length)
                 ? o.inspeccion_checklist.map(x => "• " + x).join("\n")
                 : "—";
-            v_check.textContent = lines;
+            $("v_check").textContent = lines;
 
             if (o.foto_url) {
-                v_photo.src = o.foto_url;
-                v_photo.style.display = "block";
-                v_photo_f.style.display = "none";
+                $("v_photo").src = o.foto_url;
+                $("v_photo").style.display = "block";
+                $("v_photo_f").style.display = "none";
             } else {
-                v_photo.style.display = "none";
-                v_photo_f.style.display = "block";
+                $("v_photo").style.display = "none";
+                $("v_photo_f").style.display = "block";
             }
+
             if (o.logo_url) {
-                v_logo.src = o.logo_url;
-                v_logo.style.display = "block";
-                v_logo_f.style.display = "none";
+                $("v_logo").src = o.logo_url;
+                $("v_logo").style.display = "block";
+                $("v_logo_f").style.display = "none";
             } else {
-                v_logo.style.display = "none";
-                v_logo_f.style.display = "block";
+                $("v_logo").style.display = "none";
+                $("v_logo_f").style.display = "block";
             }
         }
 
-        /* --------------------------
-           Buttons
-        --------------------------- */
         function validateBasic() {
-            const id = cleanStr(robot_id.value);
-            const name = cleanStr(robot_nombre.value);
+            const id = cleanStr($("robot_id").value);
+            const name = cleanStr($("robot_nombre").value);
             if (!id || !name) {
                 alert("Pon al menos Robot ID y Nombre del robot.");
                 return false;
@@ -850,22 +1069,30 @@ Batería segura"></textarea>
             return true;
         }
 
-        btnGenOffline.onclick = () => {
+        /*******************************
+         * 7) Buttons
+         *******************************/
+        $("btnGenLink").onclick = async () => {
             if (!validateBasic()) return;
+
             const compact = buildRobotObj();
-            renderPreviewFromCompact(compact);
-            drawQR(payloadOffline(compact));
+
+            try {
+                await insertRobot(compact);
+                const url = payloadLinkFromId(compact.i);
+
+                renderPreviewFromCompact(compact);
+                drawQR(url);
+
+                alert("Robot registrado en la base ✅");
+            } catch (e) {
+                alert(e.message || "Error registrando robot");
+                console.error(e);
+            }
         };
 
-        btnGenLink.onclick = () => {
-            if (!validateBasic()) return;
-            const compact = buildRobotObj();
-            renderPreviewFromCompact(compact);
-            drawQR(payloadLink(compact));   // ✅ SIEMPRE URL
-        };
-
-        btnCopy.onclick = async () => {
-            if (!lastPayload) { alert("Primero genera un QR."); return; }
+        $("btnCopy").onclick = async () => {
+            if (!lastPayload) { alert("Primero registra y genera el QR."); return; }
             try {
                 await navigator.clipboard.writeText(lastPayload);
             } catch (e) {
@@ -875,99 +1102,105 @@ Batería segura"></textarea>
             }
         };
 
-        btnOpen.onclick = () => {
-            if (!lastPayload) { alert("Primero genera un QR."); return; }
-            window.open(lastPayload, "_blank");
+        $("btnOpen").onclick = () => {
+            if (!lastPayload) { alert("Primero registra y genera el QR."); return; }
+            window.open(lastPayload, "_blank", "noopener,noreferrer");
         };
 
-        btnDownload.onclick = () => {
+        $("btnDownload").onclick = () => {
             const a = document.createElement("a");
             a.download = "apex_robot_qr.png";
-            a.href = qrCanvas.toDataURL("image/png");
+            a.href = $("qrCanvas").toDataURL("image/png");
             a.click();
         };
 
-        btnSave.onclick = () => {
-            const compact = buildRobotObj();
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
-            alert("Guardado.");
-        };
-
-        btnLoad.onclick = () => {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (!raw) { alert("No hay guardado."); return; }
-            const o = JSON.parse(raw);
-
-            robot_id.value = o.i || "";
-            robot_nombre.value = o.n || "";
-            categoria.value = o.c || "";
-            equipo.value = o.t || "";
-            controlador.value = o.p || "";
-            escuela.value = o.s || "";
-
-            peso_g.value = (o.w ?? "");
-            dimensiones_mm.value = o.d || "";
-            tipo_control.value = o.y || "";
-            frecuencia_protocolo.value = o.f || "";
-            contacto.value = o.k || "";
-            inspeccion_estado.value = o.a || "pendiente";
-            inspeccion_checklist.value = (o.l || []).join("\n");
-            foto_url.value = o.u || "";
-            logo_url.value = o.g || "";
-
-            renderPreviewFromCompact(o);
-            drawQR(payloadLink(o));
-        };
-
-        btnClear.onclick = () => {
-            ["robot_id", "robot_nombre", "categoria", "equipo", "controlador", "escuela",
+        $("btnClear").onclick = () => {
+            [
+                "robot_id", "robot_nombre", "categoria", "equipo", "controlador", "escuela",
                 "peso_g", "dimensiones_mm", "tipo_control", "frecuencia_protocolo", "contacto",
                 "inspeccion_estado", "inspeccion_checklist", "foto_url", "logo_url"
-            ].forEach(id => document.getElementById(id).value = "");
-            chipRow.innerHTML = "";
-            previewKV.innerHTML = "";
-            payloadPreview.textContent = "Payload (preview): —";
-            const ctx = qrCanvas.getContext("2d");
-            ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, qrCanvas.width, qrCanvas.height);
+            ].forEach(id => $(id).value = "");
+            $("chipRow").innerHTML = "";
+            $("previewKV").innerHTML = "";
+            $("payloadPreview").textContent = "Link (preview): —";
+            const ctx = $("qrCanvas").getContext("2d");
+            ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, $("qrCanvas").width, $("qrCanvas").height);
             lastPayload = "";
         };
 
-        btnBack.onclick = () => {
+        $("btnBack").onclick = () => {
             location.hash = "";
-            viewer.style.display = "none";
-            generator.style.display = "grid";
+            $("viewer").style.display = "none";
+            $("generator").style.display = "grid";
         };
 
-        /* --------------------------
-           Boot: handle #view=
-        --------------------------- */
-        (function boot() {
-            const ctx = qrCanvas.getContext("2d");
-            ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, qrCanvas.width, qrCanvas.height);
+        /*******************************
+         * 8) Boot: if #r=... load from DB
+         *******************************/
+        (async function boot() {
+            // init canvas white
+            const ctx = $("qrCanvas").getContext("2d");
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, $("qrCanvas").width, $("qrCanvas").height);
 
             const hash = location.hash || "";
-            if (hash.startsWith("#view=")) {
-                const b64u = hash.slice(6);
+
+            if (hash.startsWith("#r=")) {
+                const rid = decodeURIComponent(hash.slice(3));
                 try {
-                    const json = base64UrlDecode(b64u);
-                    const compact = JSON.parse(json);
-                    showViewer(compact);
+                    const row = await fetchRobotById(rid);
+                    showViewer(dbRowToCompact(row));
                     return;
-                } catch (err) {
-                    console.warn(err);
+                } catch (e) {
+                    alert("Robot no encontrado en la base.");
+                    console.error(e);
                 }
             }
 
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                try {
-                    const o = JSON.parse(saved);
-                    renderPreviewFromCompact(o);
-                    drawQR(payloadLink(o));
-                } catch (_) { }
-            }
+            // default generator visible
+            $("viewer").style.display = "none";
+            $("generator").style.display = "grid";
         })();
     </script>
+
+    <!--
+    SUPABASE SQL (córrelo una vez en SQL Editor):
+
+    create table if not exists public.robots (
+      id text primary key,
+      name text not null,
+      category text,
+      team text,
+      pilot text,
+      school text,
+      weight_g int,
+      dimensions_mm text,
+      control_type text,
+      freq_proto text,
+      contact text,
+      inspection_status text not null default 'pendiente',
+      checklist text[],
+      photo_url text,
+      logo_url text,
+      created_at timestamptz not null default now()
+    );
+
+    alter table public.robots enable row level security;
+
+    drop policy if exists robots_select_public on public.robots;
+    create policy robots_select_public
+    on public.robots for select
+    to anon, authenticated
+    using (true);
+
+    drop policy if exists robots_insert_public on public.robots;
+    create policy robots_insert_public
+    on public.robots for insert
+    to anon, authenticated
+    with check (true);
+
+    (No crees policies de update/delete => quedan bloqueadas)
+  -->
 </body>
 
 </html>
