@@ -1,0 +1,1682 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>MINISUMO ROBOT DASHBOARD</title>
+
+    <!-- Supabase JS (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- QR engine estable -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+
+    <style>
+        :root {
+            --bg: #070A10;
+            --panel: #0B1020;
+            --panel2: #0C142A;
+            --stroke: rgba(122, 63, 255, .55);
+            --neon: #7A3FFF;
+            --neon2: #2FE6FF;
+            --hot: #FF2E88;
+            --text: #EAF0FF;
+            --muted: rgba(234, 240, 255, .65);
+            --good: #2FE6FF;
+            --warn: #FFB020;
+            --bad: #FF2E88;
+            --r: 18px;
+            --shadow: 0 10px 30px rgba(0, 0, 0, .45);
+            --glass: rgba(255, 255, 255, .03);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            color: var(--text);
+            background:
+                radial-gradient(1200px 600px at 20% -10%, rgba(122, 63, 255, .22), transparent 60%),
+                radial-gradient(900px 500px at 110% 10%, rgba(47, 230, 255, .16), transparent 55%),
+                radial-gradient(900px 700px at 30% 110%, rgba(255, 46, 136, .12), transparent 55%),
+                linear-gradient(180deg, #05060A 0%, #060816 50%, #040510 100%);
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+            overflow-x: hidden;
+        }
+
+        /* Layout */
+        .wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 22px 16px 40px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background:
+                radial-gradient(circle at 30% 30%, rgba(47, 230, 255, .35), transparent 55%),
+                radial-gradient(circle at 70% 70%, rgba(255, 46, 136, .22), transparent 55%),
+                linear-gradient(135deg, rgba(122, 63, 255, .55), rgba(47, 230, 255, .25));
+            border: 1px solid rgba(122, 63, 255, .35);
+            box-shadow: 0 0 0 4px rgba(122, 63, 255, .08), 0 10px 30px rgba(0, 0, 0, .5);
+            position: relative;
+        }
+
+        .logo:after {
+            content: "";
+            position: absolute;
+            inset: 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(234, 240, 255, .18);
+            background: rgba(0, 0, 0, .12);
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 18px;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+
+        .brand .sub {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid rgba(234, 240, 255, .10);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(8px);
+            font-size: 12px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: var(--neon2);
+            box-shadow: 0 0 12px rgba(47, 230, 255, .6);
+        }
+
+        /* Nav */
+        .nav {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            appearance: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text);
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid rgba(234, 240, 255, .10);
+            padding: 10px 12px;
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(8px);
+            transition: transform .12s ease, border-color .12s ease, background .12s ease;
+            font-weight: 700;
+            letter-spacing: .02em;
+            font-size: 13px;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            border-color: rgba(122, 63, 255, .38);
+            background: rgba(122, 63, 255, .08);
+        }
+
+        .btn:active {
+            transform: translateY(0px) scale(.99);
+        }
+
+        .btn.ghost {
+            background: transparent;
+            border-color: rgba(234, 240, 255, .12);
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, rgba(122, 63, 255, .25), rgba(47, 230, 255, .12));
+            border-color: rgba(122, 63, 255, .45);
+        }
+
+        .btn.hot {
+            background: linear-gradient(135deg, rgba(255, 46, 136, .18), rgba(122, 63, 255, .15));
+            border-color: rgba(255, 46, 136, .38);
+        }
+
+        /* Panels */
+        .panel {
+            background: linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(255, 255, 255, .015));
+            border: 1px solid rgba(234, 240, 255, .10);
+            border-radius: var(--r);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .panel:before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(600px 200px at 10% 0%, rgba(122, 63, 255, .12), transparent 60%),
+                radial-gradient(500px 200px at 90% 0%, rgba(47, 230, 255, .10), transparent 60%);
+            pointer-events: none;
+        }
+
+        .panel .inner {
+            position: relative;
+            padding: 16px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.2fr .8fr;
+            gap: 14px;
+            align-items: start;
+        }
+
+        @media (max-width: 980px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav {
+                justify-content: flex-start;
+            }
+        }
+
+        .sectionTitle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin: 0 0 10px 0;
+            padding: 0;
+        }
+
+        .sectionTitle h2 {
+            margin: 0;
+            font-size: 14px;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: rgba(234, 240, 255, .85);
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        /* Big cards (Inicio/Registrar/Mis Robots) */
+        .heroCards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        @media (max-width: 980px) {
+            .heroCards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .heroCard {
+            border-radius: 22px;
+            border: 1px solid rgba(234, 240, 255, .10);
+            background:
+                radial-gradient(500px 140px at 0% 0%, rgba(47, 230, 255, .12), transparent 60%),
+                radial-gradient(500px 140px at 100% 0%, rgba(255, 46, 136, .10), transparent 60%),
+                linear-gradient(180deg, rgba(255, 255, 255, .035), rgba(255, 255, 255, .015));
+            padding: 18px;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: transform .12s ease, border-color .12s ease, background .12s ease;
+            position: relative;
+            overflow: hidden;
+            min-height: 110px;
+        }
+
+        .heroCard:hover {
+            transform: translateY(-2px);
+            border-color: rgba(122, 63, 255, .40);
+            background:
+                radial-gradient(600px 180px at 0% 0%, rgba(47, 230, 255, .16), transparent 60%),
+                radial-gradient(600px 180px at 100% 0%, rgba(255, 46, 136, .14), transparent 60%),
+                linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .02));
+        }
+
+        .heroIcon {
+            width: 44px;
+            height: 44px;
+            border-radius: 16px;
+            border: 1px solid rgba(234, 240, 255, .16);
+            background: rgba(0, 0, 0, .20);
+            display: grid;
+            place-items: center;
+            box-shadow: 0 0 0 4px rgba(122, 63, 255, .07);
+            margin-bottom: 10px;
+        }
+
+        .heroCard .t {
+            font-size: 18px;
+            margin: 0;
+            font-weight: 900;
+            letter-spacing: .02em;
+        }
+
+        .heroCard .d {
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.35;
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat {
+            padding: 14px;
+            border-radius: 18px;
+            border: 1px solid rgba(234, 240, 255, .10);
+            background: rgba(255, 255, 255, .02);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat:before {
+            content: "";
+            position: absolute;
+            inset: -1px;
+            background:
+                radial-gradient(380px 120px at 0% 0%, rgba(122, 63, 255, .12), transparent 60%),
+                radial-gradient(380px 120px at 100% 0%, rgba(47, 230, 255, .10), transparent 60%);
+            pointer-events: none;
+        }
+
+        .stat .k {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .stat .v {
+            position: relative;
+            font-size: 28px;
+            font-weight: 900;
+            margin-top: 6px;
+            letter-spacing: .02em;
+        }
+
+        .miniIcon {
+            width: 24px;
+            height: 24px;
+            border-radius: 10px;
+            border: 1px solid rgba(234, 240, 255, .12);
+            display: grid;
+            place-items: center;
+            background: rgba(0, 0, 0, .15);
+        }
+
+        /* Lists */
+        .list {
+            border: 1px solid rgba(234, 240, 255, .10);
+            border-radius: 18px;
+            overflow: hidden;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 12px;
+            background: rgba(0, 0, 0, .10);
+            border-top: 1px solid rgba(234, 240, 255, .08);
+        }
+
+        .row:first-child {
+            border-top: none;
+        }
+
+        .row:hover {
+            background: rgba(122, 63, 255, .06);
+        }
+
+        .row .left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 14px;
+            border: 1px solid rgba(234, 240, 255, .14);
+            background: rgba(255, 255, 255, .03);
+            display: grid;
+            place-items: center;
+            flex: 0 0 auto;
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .name {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .name b {
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .name span {
+            font-size: 12px;
+            color: var(--muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 0 0 auto;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .badge {
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(234, 240, 255, .12);
+            background: rgba(0, 0, 0, .15);
+            font-weight: 800;
+            letter-spacing: .02em;
+            color: rgba(234, 240, 255, .85);
+        }
+
+        .badge.good {
+            border-color: rgba(47, 230, 255, .35);
+            color: rgba(47, 230, 255, .95);
+        }
+
+        .badge.hot {
+            border-color: rgba(255, 46, 136, .35);
+            color: rgba(255, 46, 136, .95);
+        }
+
+        .badge.neon {
+            border-color: rgba(122, 63, 255, .40);
+            color: rgba(122, 63, 255, .95);
+        }
+
+        /* Search */
+        .search {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 12px;
+            border-radius: 18px;
+            border: 1px solid rgba(234, 240, 255, .10);
+            background: rgba(0, 0, 0, .10);
+        }
+
+        .search input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        /* Forms */
+        .formGrid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 980px) {
+            .formGrid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            margin: 0 0 6px 2px;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(234, 240, 255, .12);
+            background: rgba(0, 0, 0, .18);
+            color: var(--text);
+            outline: none;
+        }
+
+        textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .formActions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        /* QR */
+        .qrBox {
+            border: 1px dashed rgba(234, 240, 255, .18);
+            border-radius: 18px;
+            padding: 12px;
+            background: rgba(0, 0, 0, .12);
+            display: grid;
+            gap: 10px;
+            justify-items: center;
+        }
+
+        .qrBox .cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .12em;
+        }
+
+        .qrCanvas {
+            width: 240px;
+            height: 240px;
+            background: #fff;
+            border-radius: 16px;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, .35);
+        }
+
+        .qrCanvas img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            left: 16px;
+            right: 16px;
+            bottom: 18px;
+            display: flex;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .toast .msg {
+            pointer-events: auto;
+            max-width: 920px;
+            width: 100%;
+            border-radius: 16px;
+            padding: 12px 14px;
+            border: 1px solid rgba(234, 240, 255, .14);
+            background: rgba(0, 0, 0, .55);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            color: rgba(234, 240, 255, .92);
+            font-size: 13px;
+        }
+
+        .toast .msg b {
+            color: var(--neon2);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        a.link {
+            color: rgba(47, 230, 255, .95);
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(47, 230, 255, .35);
+        }
+
+        a.link:hover {
+            opacity: .9;
+        }
+
+        /* Simple icons (SVG) */
+        .svg {
+            width: 18px;
+            height: 18px;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+
+        <!-- TOPBAR -->
+        <div class="topbar">
+            <div class="brand" role="banner">
+                <div class="logo" aria-hidden="true"></div>
+                <div>
+                    <h1>MINISUMO ROBOT DASHBOARD</h1>
+                    <div class="sub">APEX ROBOT ID • QR Profiles • GitHub Pages + Supabase</div>
+                </div>
+            </div>
+
+            <div class="nav" role="navigation" aria-label="Navegación">
+                <button class="btn ghost" id="btnHome">Inicio</button>
+                <button class="btn primary" id="btnRegister">Registrar Robot</button>
+                <button class="btn" id="btnMine">Mis Robots</button>
+                <button class="btn hot" id="btnRefresh">Actualizar</button>
+            </div>
+        </div>
+
+        <!-- STATUS CHIP -->
+        <div class="chip" id="statusChip">
+            <span class="dot" aria-hidden="true"></span>
+            <span id="statusText">Conectando a Supabase...</span>
+            <span class="muted" id="ownerShort" style="margin-left:10px;"></span>
+        </div>
+
+        <!-- VIEWS -->
+        <div style="height:14px;"></div>
+
+        <!-- VIEW: DASHBOARD -->
+        <section class="panel" id="viewDashboard">
+            <div class="inner">
+
+                <div class="heroCards">
+                    <div class="heroCard" id="cardInicio">
+                        <div class="heroIcon">
+                            <svg class="svg" viewBox="0 0 24 24" fill="none">
+                                <path d="M3 10.5L12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10.5Z"
+                                    stroke="currentColor" stroke-width="2" opacity=".9" />
+                            </svg>
+                        </div>
+                        <p class="t">Inicio</p>
+                        <div class="d">Resumen, estadísticas y últimos robots registrados.</div>
+                    </div>
+
+                    <div class="heroCard" id="cardRegistrar">
+                        <div class="heroIcon">
+                            <svg class="svg" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" opacity=".9" />
+                            </svg>
+                        </div>
+                        <p class="t">Registrar Robot</p>
+                        <div class="d">Crea un perfil único + QR público para tu robot.</div>
+                    </div>
+
+                    <div class="heroCard" id="cardMisRobots">
+                        <div class="heroIcon">
+                            <svg class="svg" viewBox="0 0 24 24" fill="none">
+                                <path d="M7 7h10v10H7V7Z" stroke="currentColor" stroke-width="2" opacity=".9" />
+                                <path
+                                    d="M4 10V6a2 2 0 0 1 2-2h4M20 10V6a2 2 0 0 0-2-2h-4M4 14v4a2 2 0 0 0 2 2h4M20 14v4a2 2 0 0 1-2 2h-4"
+                                    stroke="currentColor" stroke-width="2" opacity=".55" />
+                            </svg>
+                        </div>
+                        <p class="t">Mis Robots</p>
+                        <div class="d">Ve los robots registrados desde este dispositivo.</div>
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <!-- LEFT -->
+                    <div class="panel">
+                        <div class="inner">
+                            <div class="sectionTitle">
+                                <h2>Estadísticas</h2>
+                                <span class="muted" id="statsHint">—</span>
+                            </div>
+
+                            <div class="stats">
+                                <div class="stat">
+                                    <div class="k">
+                                        <span class="miniIcon" aria-hidden="true">
+                                            <svg class="svg" viewBox="0 0 24 24" fill="none">
+                                                <path d="M7 7h10v10H7V7Z" stroke="currentColor" stroke-width="2"
+                                                    opacity=".85" />
+                                            </svg>
+                                        </span>
+                                        Robots registrados
+                                    </div>
+                                    <div class="v" id="statTotal">—</div>
+                                </div>
+
+                                <div class="stat">
+                                    <div class="k">
+                                        <span class="miniIcon" aria-hidden="true">
+                                            <svg class="svg" viewBox="0 0 24 24" fill="none">
+                                                <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2"
+                                                    opacity=".85" />
+                                                <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="currentColor"
+                                                    stroke-width="2" opacity=".55" />
+                                            </svg>
+                                        </span>
+                                        Registrados hoy
+                                    </div>
+                                    <div class="v" id="statToday">—</div>
+                                </div>
+
+                                <div class="stat">
+                                    <div class="k">
+                                        <span class="miniIcon" aria-hidden="true">
+                                            <svg class="svg" viewBox="0 0 24 24" fill="none">
+                                                <path d="M4 12h16" stroke="currentColor" stroke-width="2"
+                                                    opacity=".85" />
+                                                <path d="M12 4v16" stroke="currentColor" stroke-width="2"
+                                                    opacity=".55" />
+                                            </svg>
+                                        </span>
+                                        Mis robots
+                                    </div>
+                                    <div class="v" id="statMine">—</div>
+                                </div>
+                            </div>
+
+                            <div style="height:14px;"></div>
+
+                            <div class="sectionTitle">
+                                <h2>Últimos robots</h2>
+                                <span class="muted">Top 6</span>
+                            </div>
+
+                            <div class="list" id="latestList"></div>
+
+                            <div class="formActions" style="justify-content:flex-end;">
+                                <button class="btn" id="btnGoAll">Ver todos</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT -->
+                    <div class="panel">
+                        <div class="inner">
+                            <div class="sectionTitle">
+                                <h2>Buscar robot</h2>
+                                <span class="muted">por nombre o slug</span>
+                            </div>
+
+                            <div class="search">
+                                <svg class="svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <path d="M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor"
+                                        stroke-width="2" opacity=".8" />
+                                    <path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="2" opacity=".6" />
+                                </svg>
+                                <input id="searchPublic" placeholder="Ej. shadowbot, torito, raptor-x..." />
+                                <button class="btn primary" id="btnSearchPublic">Abrir</button>
+                            </div>
+
+                            <div style="height:14px;"></div>
+
+                            <div class="sectionTitle">
+                                <h2>QR de ejemplo</h2>
+                                <span class="muted">link público</span>
+                            </div>
+
+                            <div class="qrBox">
+                                <div class="cap">APEX ROBOT ID</div>
+                                <div class="qrCanvas" id="qrExample"></div>
+                                <div class="muted" id="qrExampleText" style="text-align:center; font-size:12px;"></div>
+                                <button class="btn" id="btnCopyExample">Copiar link</button>
+                            </div>
+
+                            <div style="height:12px;"></div>
+
+                            <div class="muted" style="font-size:12px; line-height:1.45;">
+                                Tip: comparte el link o imprime el QR. Cuando alguien escanea, ve el perfil público del
+                                robot.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <div style="height:14px;"></div>
+
+        <!-- VIEW: REGISTER -->
+        <section class="panel hidden" id="viewRegister">
+            <div class="inner">
+                <div class="sectionTitle">
+                    <h2>Registrar Robot</h2>
+                    <span class="muted">crea perfil + QR</span>
+                </div>
+
+                <div class="grid">
+                    <!-- form -->
+                    <div class="panel">
+                        <div class="inner">
+                            <div class="formGrid">
+
+                                <div>
+                                    <label>Nombre del robot</label>
+                                    <input id="f_name" placeholder="Ej. ShadowBot" />
+                                </div>
+
+                                <div>
+                                    <label>Team / Escuela (opcional)</label>
+                                    <input id="f_team" placeholder="Ej. ESIME / APEX Team" />
+                                </div>
+
+                                <div>
+                                    <label>Slug (único, sin espacios)</label>
+                                    <input id="f_slug" placeholder="ej. shadowbot" />
+                                </div>
+
+                                <div>
+                                    <label>Peso (g)</label>
+                                    <input id="f_weight" type="number" inputmode="numeric" placeholder="500" />
+                                </div>
+
+                                <div>
+                                    <label>Dimensiones (mm)</label>
+                                    <input id="f_dims" placeholder="Ej. 100x100" />
+                                </div>
+
+                                <div>
+                                    <label>Estado</label>
+                                    <select id="f_status">
+                                        <option value="Activo">Activo</option>
+                                        <option value="Inactivo">Inactivo</option>
+                                    </select>
+                                </div>
+
+                                <div style="grid-column:1/-1;">
+                                    <label>Descripción / Notas</label>
+                                    <textarea id="f_desc"
+                                        placeholder="Sensores, estrategia, categoría, etc."></textarea>
+                                </div>
+
+                                <div style="grid-column:1/-1;">
+                                    <label>Foto (URL) opcional</label>
+                                    <input id="f_photo"
+                                        placeholder="https://... (si usas Supabase Storage después, pegamos la URL aquí)" />
+                                </div>
+
+                            </div>
+
+                            <div class="formActions">
+                                <button class="btn primary" id="btnSubmit">Guardar robot</button>
+                                <button class="btn ghost" id="btnAutofill">Autollenar ejemplo</button>
+                                <button class="btn" id="btnBackFromRegister">Volver</button>
+                            </div>
+
+                            <div class="muted" style="margin-top:10px; font-size:12px; line-height:1.45;">
+                                Nota: sin login, “Mis Robots” funciona por dispositivo usando un <b>owner_key</b>
+                                guardado en tu navegador.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- preview -->
+                    <div class="panel">
+                        <div class="inner">
+                            <div class="sectionTitle">
+                                <h2>Preview</h2>
+                                <span class="muted">perfil + QR</span>
+                            </div>
+
+                            <div class="qrBox">
+                                <div class="cap" id="prevTitle">Robot</div>
+                                <div class="qrCanvas" id="qrPreview"></div>
+                                <div class="muted" id="prevLink" style="text-align:center; font-size:12px;"></div>
+                                <div class="formActions" style="justify-content:center;">
+                                    <button class="btn" id="btnCopyPreview">Copiar link</button>
+                                    <button class="btn" id="btnOpenPreview">Abrir perfil</button>
+                                </div>
+                            </div>
+
+                            <div style="height:12px;"></div>
+
+                            <div class="panel">
+                                <div class="inner">
+                                    <div class="sectionTitle">
+                                        <h2>Tips de slug</h2>
+                                        <span class="muted">evita errores</span>
+                                    </div>
+                                    <div class="muted" style="font-size:12px; line-height:1.5;">
+                                        • Solo minúsculas, números y guiones: <b>shadowbot</b>, <b>raptor-x</b><br />
+                                        • Debe ser único (si ya existe, te avisará).<br />
+                                        • Se usa en el link y en el QR.
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <div style="height:14px;"></div>
+
+        <!-- VIEW: MY ROBOTS -->
+        <section class="panel hidden" id="viewMine">
+            <div class="inner">
+                <div class="sectionTitle">
+                    <h2>Mis Robots</h2>
+                    <span class="muted" id="mineHint">—</span>
+                </div>
+
+                <div class="search">
+                    <svg class="svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2"
+                            opacity=".8" />
+                        <path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="2" opacity=".6" />
+                    </svg>
+                    <input id="searchMine" placeholder="Buscar dentro de mis robots..." />
+                    <button class="btn primary" id="btnReloadMine">Actualizar</button>
+                    <button class="btn" id="btnBackFromMine">Volver</button>
+                </div>
+
+                <div style="height:14px;"></div>
+
+                <div class="panel">
+                    <div class="inner">
+                        <div class="list" id="mineList"></div>
+                        <div class="muted" style="margin-top:10px; font-size:12px; line-height:1.45;">
+                            Si cambias de navegador/PC/celular, esta lista no se “mueve” porque es por dispositivo
+                            (owner_key en localStorage).
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div style="height:14px;"></div>
+
+        <!-- VIEW: PUBLIC PROFILE -->
+        <section class="panel hidden" id="viewProfile">
+            <div class="inner">
+                <div class="sectionTitle">
+                    <h2 id="p_title">Perfil del Robot</h2>
+                    <span class="muted" id="p_sub">—</span>
+                </div>
+
+                <div class="grid">
+                    <div class="panel">
+                        <div class="inner">
+                            <div style="display:flex; gap:12px; align-items:center;">
+                                <div class="avatar" style="width:64px; height:64px; border-radius:22px;" id="p_avatar">
+                                </div>
+                                <div style="min-width:0;">
+                                    <div style="font-size:22px; font-weight: 950; letter-spacing:.01em;" id="p_name">—
+                                    </div>
+                                    <div class="muted" style="font-size:12px;" id="p_team">—</div>
+                                    <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+                                        <span class="badge neon" id="p_slug">slug</span>
+                                        <span class="badge good" id="p_status">Activo</span>
+                                        <span class="badge" id="p_weight">— g</span>
+                                        <span class="badge" id="p_dims">—</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="height:14px;"></div>
+
+                            <div class="panel">
+                                <div class="inner">
+                                    <div class="sectionTitle">
+                                        <h2>Descripción</h2>
+                                        <span class="muted">notas</span>
+                                    </div>
+                                    <div class="muted" style="font-size:13px; line-height:1.55;" id="p_desc">—</div>
+                                </div>
+                            </div>
+
+                            <div class="formActions" style="margin-top:12px;">
+                                <button class="btn" id="btnBackFromProfile">Volver</button>
+                                <button class="btn primary" id="btnCopyProfile">Copiar link</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="inner">
+                            <div class="sectionTitle">
+                                <h2>QR</h2>
+                                <span class="muted">escanea para abrir</span>
+                            </div>
+
+                            <div class="qrBox">
+                                <div class="cap">APEX ROBOT ID</div>
+                                <div class="qrCanvas" id="qrProfile"></div>
+                                <div class="muted" id="p_link" style="text-align:center; font-size:12px;"></div>
+                            </div>
+
+                            <div style="height:12px;"></div>
+
+                            <div class="panel">
+                                <div class="inner">
+                                    <div class="sectionTitle">
+                                        <h2>Compartir</h2>
+                                        <span class="muted">rápido</span>
+                                    </div>
+                                    <div class="muted" style="font-size:12px; line-height:1.45;">
+                                        Puedes mandar el link por WhatsApp, o imprimir el QR y pegarlo en el robot.
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast hidden" id="toast">
+        <div class="msg">
+            <div id="toastText">—</div>
+            <button class="btn ghost" id="toastClose">Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+        /* =========================
+           CONFIG (PÉGALO TAL CUAL)
+           ========================= */
+
+        // ✅ Pega tu URL + ANON KEY aquí (publishable)
+        // (ya los compartiste antes: supabase.co + sb_publishable_...)
+        const SUPABASE_URL = "https://TU-PROYECTO.supabase.co";
+        const SUPABASE_ANON_KEY = "TU_SB_PUBLISHABLE_ANON_KEY";
+
+        // ✅ Nombre de la tabla
+        // IMPORTANTE: este index espera que exista una tabla llamada "robots" con columnas mínimas:
+        // - id (uuid) o id (int) -> cualquiera sirve si usas slug único
+        // - created_at (timestamp) (opcional pero recomendado)
+        // - owner_key (text)
+        // - slug (text, UNIQUE)
+        // - name (text)
+        // - team (text) (opcional)
+        // - weight_g (int) (opcional)
+        // - dims (text) (opcional)
+        // - status (text) (opcional)
+        // - description (text) (opcional)
+        // - photo_url (text) (opcional)
+        const TABLE_ROBOTS = "robots";
+
+        /* =========================
+           INIT
+           ========================= */
+
+        let supabase = null;
+        let OWNER_KEY = null;
+
+        const el = (id) => document.getElementById(id);
+
+        const views = {
+            dashboard: el("viewDashboard"),
+            register: el("viewRegister"),
+            mine: el("viewMine"),
+            profile: el("viewProfile")
+        };
+
+        function showView(name) {
+            Object.values(views).forEach(v => v.classList.add("hidden"));
+            views[name].classList.remove("hidden");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function toast(msg, emphasis = "") {
+            el("toastText").innerHTML = emphasis ? `<b>${emphasis}</b> ${msg}` : msg;
+            el("toast").classList.remove("hidden");
+        }
+        el("toastClose").onclick = () => el("toast").classList.add("hidden");
+
+        function shortKey(k) {
+            if (!k) return "";
+            return `owner: ${k.slice(0, 6)}…${k.slice(-4)}`;
+        }
+
+        function getOrCreateOwnerKey() {
+            const KEY = "apex_owner_key_v1";
+            let k = localStorage.getItem(KEY);
+            if (!k) {
+                // uuid v4 simple (suficiente para owner_key local)
+                k = crypto.randomUUID ? crypto.randomUUID() : (Date.now().toString(16) + Math.random().toString(16).slice(2));
+                localStorage.setItem(KEY, k);
+            }
+            return k;
+        }
+
+        function slugify(s) {
+            return (s || "")
+                .toLowerCase()
+                .trim()
+                .replace(/[\s_]+/g, "-")
+                .replace(/[^a-z0-9-]/g, "")
+                .replace(/-+/g, "-")
+                .replace(/^-|-$/g, "");
+        }
+
+        function getBaseLink() {
+            // Para GitHub Pages, esto suele quedar como:
+            // https://areivan.github.io/Minisumo_QR/
+            // Mantiene pathname actual y usa hash routing.
+            const base = location.origin + location.pathname;
+            return base.endsWith("/") ? base : (base + "/");
+        }
+
+        function linkForSlug(slug) {
+            return `${getBaseLink()}#/r/${encodeURIComponent(slug)}`;
+        }
+
+        /* =========================
+           QR
+           ========================= */
+
+        function renderQR(targetEl, text) {
+            targetEl.innerHTML = "";
+            try {
+                const qr = qrcode(0, "M");
+                qr.addData(text);
+                qr.make();
+                // Create <img> (data URI)
+                const img = document.createElement("img");
+                img.alt = "QR";
+                img.src = qr.createDataURL(10, 0);
+                targetEl.appendChild(img);
+            } catch (err) {
+                targetEl.innerHTML = `<div class="muted" style="padding:10px; text-align:center;">No se pudo generar QR</div>`;
+            }
+        }
+
+        /* =========================
+           ROUTER (hash)
+           - #/           dashboard
+           - #/new        register
+           - #/mine       my robots
+           - #/r/<slug>   public profile
+           También soporta ?id=<slug>
+           ========================= */
+
+        function parseRoute() {
+            const h = location.hash || "#/";
+            const parts = h.replace(/^#\/?/, "").split("/").filter(Boolean);
+
+            // Query param fallback: ?id=slug
+            const url = new URL(location.href);
+            const qp = url.searchParams.get("id");
+            if (qp && (!parts.length || parts[0] !== "r")) {
+                return { name: "profile", slug: qp };
+            }
+
+            if (parts.length === 0) return { name: "dashboard" };
+            if (parts[0] === "new") return { name: "register" };
+            if (parts[0] === "mine") return { name: "mine" };
+            if (parts[0] === "r" && parts[1]) return { name: "profile", slug: decodeURIComponent(parts[1]) };
+            return { name: "dashboard" };
+        }
+
+        async function route() {
+            const r = parseRoute();
+            if (r.name === "dashboard") {
+                showView("dashboard");
+                await loadDashboard();
+            } else if (r.name === "register") {
+                showView("register");
+                updateRegisterPreview();
+            } else if (r.name === "mine") {
+                showView("mine");
+                await loadMine();
+            } else if (r.name === "profile") {
+                showView("profile");
+                await loadProfile(r.slug);
+            }
+        }
+
+        /* =========================
+           SUPABASE HELPERS
+           ========================= */
+
+        async function safeCountToday() {
+            // Cuenta registros de hoy (UTC-ish). Si created_at no existe, regresa null.
+            try {
+                const start = new Date();
+                start.setHours(0, 0, 0, 0);
+                const iso = start.toISOString();
+                const { count, error } = await supabase
+                    .from(TABLE_ROBOTS)
+                    .select("*", { count: "exact", head: true })
+                    .gte("created_at", iso);
+                if (error) return null;
+                return count ?? null;
+            } catch (_) {
+                return null;
+            }
+        }
+
+        function rowTemplate(item) {
+            const name = item.name || "(sin nombre)";
+            const slug = item.slug ? String(item.slug) : "";
+            const team = item.team || "";
+            const status = item.status || "Activo";
+            const weight = (item.weight_g != null && item.weight_g !== "") ? `${item.weight_g} g` : "";
+            const photo = item.photo_url || "";
+
+            const badgeClass = (status.toLowerCase() === "activo") ? "good" : "hot";
+            const when = item.created_at ? new Date(item.created_at).toLocaleString("es-MX", { dateStyle: "medium", timeStyle: "short" }) : "";
+
+            return `
+    <div class="row">
+      <div class="left">
+        <div class="avatar">${photo ? `<img src="${photo}" alt="">` : `
+          <svg class="svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M7 7h10v10H7V7Z" stroke="currentColor" stroke-width="2" opacity=".85"/>
+            <path d="M10 10h4v4h-4v-4Z" stroke="currentColor" stroke-width="2" opacity=".55"/>
+          </svg>
+        `}</div>
+        <div class="name">
+          <b title="${escapeHtml(name)}">${escapeHtml(name)}</b>
+          <span title="${escapeHtml(team || slug)}">${escapeHtml(team || slug || "")}</span>
+        </div>
+      </div>
+      <div class="right">
+        ${weight ? `<span class="muted">${escapeHtml(weight)}</span>` : ""}
+        <span class="badge ${badgeClass}">${escapeHtml(status)}</span>
+        <button class="btn ghost" data-open="${escapeAttr(slug)}">Ver</button>
+      </div>
+    </div>
+  `;
+        }
+
+        function escapeHtml(s) {
+            return String(s ?? "").replace(/[&<>"']/g, (m) => ({
+                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+            }[m]));
+        }
+        function escapeAttr(s) { return escapeHtml(s).replace(/"/g, "&quot;"); }
+
+        /* =========================
+           LOAD: DASHBOARD
+           ========================= */
+
+        async function loadDashboard() {
+            if (!supabase) return;
+
+            // Example QR
+            const exampleSlug = "ejemplo-robot";
+            const exampleLink = linkForSlug(exampleSlug);
+            el("qrExampleText").textContent = exampleLink;
+            renderQR(el("qrExample"), exampleLink);
+
+            // Total robots
+            const { count: totalCount, error: totalErr } = await supabase
+                .from(TABLE_ROBOTS)
+                .select("*", { count: "exact", head: true });
+
+            if (totalErr) {
+                toast("No pude leer la tabla. Revisa RLS/policies y el nombre de la tabla.", "Supabase:");
+                el("statTotal").textContent = "—";
+            } else {
+                el("statTotal").textContent = (totalCount ?? 0).toLocaleString("es-MX");
+            }
+
+            // Today
+            const today = await safeCountToday();
+            el("statToday").textContent = (today == null) ? "—" : today.toLocaleString("es-MX");
+
+            // Mine count
+            const { count: mineCount, error: mineErr } = await supabase
+                .from(TABLE_ROBOTS)
+                .select("*", { count: "exact", head: true })
+                .eq("owner_key", OWNER_KEY);
+
+            el("statMine").textContent = mineErr ? "—" : (mineCount ?? 0).toLocaleString("es-MX");
+
+            // Latest list
+            const { data: latest, error: latestErr } = await supabase
+                .from(TABLE_ROBOTS)
+                .select("id, created_at, slug, name, team, weight_g, status, photo_url")
+                .order("created_at", { ascending: false })
+                .limit(6);
+
+            const list = el("latestList");
+            if (latestErr) {
+                list.innerHTML = `<div class="row"><div class="muted">No pude cargar últimos robots. (${escapeHtml(latestErr.message)})</div></div>`;
+            } else if (!latest || latest.length === 0) {
+                list.innerHTML = `<div class="row"><div class="muted">Aún no hay robots registrados.</div></div>`;
+            } else {
+                list.innerHTML = latest.map(rowTemplate).join("");
+                list.querySelectorAll("[data-open]").forEach(btn => {
+                    btn.addEventListener("click", () => goProfile(btn.getAttribute("data-open")));
+                });
+            }
+
+            el("statsHint").textContent = `Tabla: ${TABLE_ROBOTS}`;
+        }
+
+        /* =========================
+           LOAD: MY ROBOTS
+           ========================= */
+
+        let mineCache = [];
+        async function loadMine() {
+            if (!supabase) return;
+
+            el("mineHint").textContent = `owner_key: ${OWNER_KEY.slice(0, 8)}…`;
+
+            const { data, error } = await supabase
+                .from(TABLE_ROBOTS)
+                .select("id, created_at, slug, name, team, weight_g, status, photo_url")
+                .eq("owner_key", OWNER_KEY)
+                .order("created_at", { ascending: false });
+
+            const list = el("mineList");
+            if (error) {
+                list.innerHTML = `<div class="row"><div class="muted">No pude cargar tus robots. (${escapeHtml(error.message)})</div></div>`;
+                mineCache = [];
+                return;
+            }
+
+            mineCache = data || [];
+            renderMineList(mineCache);
+        }
+
+        function renderMineList(items) {
+            const list = el("mineList");
+            if (!items || items.length === 0) {
+                list.innerHTML = `<div class="row"><div class="muted">Aún no tienes robots registrados desde este dispositivo.</div></div>`;
+                return;
+            }
+            list.innerHTML = items.map(rowTemplate).join("");
+            list.querySelectorAll("[data-open]").forEach(btn => {
+                btn.addEventListener("click", () => goProfile(btn.getAttribute("data-open")));
+            });
+        }
+
+        /* =========================
+           LOAD: PROFILE
+           ========================= */
+
+        async function loadProfile(slug) {
+            if (!supabase) return;
+
+            const clean = slugify(slug);
+            el("p_title").textContent = "Perfil del Robot";
+            el("p_sub").textContent = clean ? `slug: ${clean}` : "—";
+
+            const { data, error } = await supabase
+                .from(TABLE_ROBOTS)
+                .select("id, created_at, slug, name, team, weight_g, dims, status, description, photo_url, owner_key")
+                .eq("slug", clean)
+                .maybeSingle();
+
+            if (error || !data) {
+                toast("No encontré ese robot. Revisa el slug o si está público.", "Perfil:");
+                el("p_name").textContent = "No encontrado";
+                el("p_team").textContent = "—";
+                el("p_desc").textContent = "—";
+                el("p_avatar").innerHTML = "";
+                el("p_slug").textContent = clean || "—";
+                el("p_status").textContent = "—";
+                el("p_weight").textContent = "—";
+                el("p_dims").textContent = "—";
+                const link = linkForSlug(clean || "robot");
+                el("p_link").textContent = link;
+                renderQR(el("qrProfile"), link);
+                return;
+            }
+
+            const link = linkForSlug(data.slug);
+            el("p_link").textContent = link;
+
+            el("p_name").textContent = data.name || "—";
+            el("p_team").textContent = data.team ? `Team: ${data.team}` : "Team: —";
+            el("p_desc").textContent = data.description || "—";
+
+            el("p_slug").textContent = data.slug || "—";
+            el("p_status").textContent = data.status || "Activo";
+            el("p_weight").textContent = (data.weight_g != null && data.weight_g !== "") ? `${data.weight_g} g` : "—";
+            el("p_dims").textContent = data.dims || "—";
+
+            // avatar
+            if (data.photo_url) {
+                el("p_avatar").innerHTML = `<img src="${escapeAttr(data.photo_url)}" alt="">`;
+            } else {
+                el("p_avatar").innerHTML = `
+      <svg class="svg" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="width:26px;height:26px;">
+        <path d="M7 7h10v10H7V7Z" stroke="currentColor" stroke-width="2" opacity=".85"/>
+        <path d="M10 10h4v4h-4v-4Z" stroke="currentColor" stroke-width="2" opacity=".55"/>
+      </svg>`;
+            }
+
+            renderQR(el("qrProfile"), link);
+        }
+
+        /* =========================
+           REGISTER
+           ========================= */
+
+        function updateRegisterPreview() {
+            const name = el("f_name").value.trim();
+            let slug = el("f_slug").value.trim();
+            if (!slug && name) slug = slugify(name);
+            slug = slugify(slug);
+
+            const link = linkForSlug(slug || "robot");
+            el("prevTitle").textContent = name ? name : "Robot";
+            el("prevLink").textContent = link;
+
+            renderQR(el("qrPreview"), link);
+        }
+
+        async function submitRobot() {
+            const name = el("f_name").value.trim();
+            const team = el("f_team").value.trim();
+            const slug = slugify(el("f_slug").value.trim() || name);
+            const weight_g = el("f_weight").value.trim();
+            const dims = el("f_dims").value.trim();
+            const status = el("f_status").value;
+            const description = el("f_desc").value.trim();
+            const photo_url = el("f_photo").value.trim();
+
+            if (!name) {
+                toast("Ponle nombre al robot.", "Falta:");
+                return;
+            }
+            if (!slug) {
+                toast("No pude generar slug. Revisa el nombre.", "Error:");
+                return;
+            }
+
+            // Inserta
+            const payload = {
+                owner_key: OWNER_KEY,
+                slug,
+                name,
+                team: team || null,
+                weight_g: weight_g ? Number(weight_g) : null,
+                dims: dims || null,
+                status: status || "Activo",
+                description: description || null,
+                photo_url: photo_url || null
+            };
+
+            const { error } = await supabase
+                .from(TABLE_ROBOTS)
+                .insert(payload);
+
+            if (error) {
+                // Si slug unique, aquí te salta
+                toast(error.message, "No se pudo guardar:");
+                return;
+            }
+
+            toast("Robot guardado. Ya tienes tu link y QR.", "Listo:");
+            // abre perfil
+            goProfile(slug);
+        }
+
+        function autofillExample() {
+            el("f_name").value = "ShadowBot";
+            el("f_team").value = "APEX Team";
+            el("f_slug").value = "shadowbot";
+            el("f_weight").value = "500";
+            el("f_dims").value = "100x100";
+            el("f_status").value = "Activo";
+            el("f_desc").value = "Minisumo • Sensores IR • Estrategia: empuje + borde.\nNotas: batería 2S, DRV8871, ESP32-S3.";
+            el("f_photo").value = "";
+            updateRegisterPreview();
+        }
+
+        /* =========================
+           NAV HELPERS
+           ========================= */
+
+        function goHome() { location.hash = "#/"; }
+        function goRegister() { location.hash = "#/new"; }
+        function goMine() { location.hash = "#/mine"; }
+        function goProfile(slug) {
+            const s = slugify(slug);
+            location.hash = `#/r/${encodeURIComponent(s)}`;
+        }
+
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                toast("Copiado al portapapeles.", "OK:");
+            } catch (_) {
+                toast("No se pudo copiar. Copia manualmente.", "Aviso:");
+            }
+        }
+
+        /* =========================
+           EVENTS
+           ========================= */
+
+        function wireUI() {
+            // top buttons
+            el("btnHome").onclick = goHome;
+            el("btnRegister").onclick = goRegister;
+            el("btnMine").onclick = goMine;
+            el("btnRefresh").onclick = () => route();
+
+            // hero cards
+            el("cardInicio").onclick = goHome;
+            el("cardRegistrar").onclick = goRegister;
+            el("cardMisRobots").onclick = goMine;
+
+            // dashboard actions
+            el("btnGoAll").onclick = goMine;
+
+            el("btnSearchPublic").onclick = () => {
+                const q = el("searchPublic").value.trim();
+                if (!q) return toast("Escribe un nombre o slug.", "Falta:");
+                goProfile(q);
+            };
+            el("searchPublic").addEventListener("keydown", (e) => {
+                if (e.key === "Enter") el("btnSearchPublic").click();
+            });
+
+            el("btnCopyExample").onclick = () => copyToClipboard(el("qrExampleText").textContent || "");
+
+            // register events
+            ["f_name", "f_slug"].forEach(id => {
+                el(id).addEventListener("input", () => {
+                    if (id === "f_name" && !el("f_slug").value.trim()) {
+                        el("f_slug").value = slugify(el("f_name").value);
+                    }
+                    updateRegisterPreview();
+                });
+            });
+            ["f_team", "f_weight", "f_dims", "f_status", "f_desc", "f_photo"].forEach(id => {
+                el(id).addEventListener("input", updateRegisterPreview);
+                el(id).addEventListener("change", updateRegisterPreview);
+            });
+
+            el("btnSubmit").onclick = submitRobot;
+            el("btnAutofill").onclick = autofillExample;
+            el("btnBackFromRegister").onclick = goHome;
+
+            el("btnCopyPreview").onclick = () => copyToClipboard(el("prevLink").textContent || "");
+            el("btnOpenPreview").onclick = () => {
+                const slug = slugify(el("f_slug").value.trim() || el("f_name").value.trim());
+                if (!slug) return toast("Primero define nombre/slug.", "Falta:");
+                goProfile(slug);
+            };
+
+            // mine events
+            el("btnReloadMine").onclick = loadMine;
+            el("btnBackFromMine").onclick = goHome;
+            el("searchMine").addEventListener("input", () => {
+                const q = el("searchMine").value.trim().toLowerCase();
+                if (!q) return renderMineList(mineCache);
+                const filtered = mineCache.filter(r =>
+                    (r.name || "").toLowerCase().includes(q) ||
+                    (r.slug || "").toLowerCase().includes(q) ||
+                    (r.team || "").toLowerCase().includes(q)
+                );
+                renderMineList(filtered);
+            });
+
+            // profile events
+            el("btnBackFromProfile").onclick = () => history.length > 1 ? history.back() : goHome;
+            el("btnCopyProfile").onclick = () => copyToClipboard(el("p_link").textContent || "");
+
+            // hash route
+            window.addEventListener("hashchange", route);
+        }
+
+        /* =========================
+           STARTUP
+           ========================= */
+
+        (async function start() {
+            wireUI();
+
+            OWNER_KEY = getOrCreateOwnerKey();
+            el("ownerShort").textContent = shortKey(OWNER_KEY);
+
+            // Init supabase
+            try {
+                if (!SUPABASE_URL.includes("supabase.co") || SUPABASE_ANON_KEY.startsWith("TU_")) {
+                    el("statusText").textContent = "Configura SUPABASE_URL y SUPABASE_ANON_KEY en el index.html";
+                    toast("Pega tu SUPABASE_URL y tu SB publishable key en el código.", "Config:");
+                    // Aun así muestra dashboard local
+                    renderQR(el("qrExample"), linkForSlug("ejemplo-robot"));
+                    el("qrExampleText").textContent = linkForSlug("ejemplo-robot");
+                    updateRegisterPreview();
+                    showView("dashboard");
+                    return;
+                }
+
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                el("statusText").textContent = "Conectado a Supabase ✅";
+
+            } catch (err) {
+                el("statusText").textContent = "No se pudo iniciar Supabase";
+                toast(String(err), "Error:");
+            }
+
+            // Route initial
+            await route();
+
+        })();
+    </script>
+
+    <!--
+=========================================
+NOTAS IMPORTANTES (para que funcione al 100%)
+=========================================
+
+1) TABLA EN SUPABASE
+Este frontend espera una tabla "robots" con al menos:
+- owner_key (text)
+- slug (text) UNIQUE
+- name (text)
+Opcionales: created_at, team, weight_g, dims, status, description, photo_url
+
+2) RLS / POLICIES (sin login)
+Para MVP, puedes:
+- Permitir SELECT público (para que cualquiera vea perfiles)
+- Permitir INSERT público (para que cualquiera registre)
+- Permitir UPDATE/DELETE solo si owner_key coincide (si luego agregas editar/borrar)
+
+Si todavía no tienes las policies, dímelo y te paso el SQL completo.
+
+3) LINKS / QR
+Este proyecto usa hash routing:
+- https://areivan.github.io/Minisumo_QR/#/r/shadowbot
+También soporta:
+- https://areivan.github.io/Minisumo_QR/?id=shadowbot
+
+4) FOTO
+Aquí se pega una URL. Si quieres, en el siguiente paso te lo conecto a Supabase Storage para subir imagen desde la web.
+
+-->
+</body>
+
+</html>
