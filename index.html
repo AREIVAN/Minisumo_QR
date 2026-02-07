@@ -93,6 +93,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         .badge b {
@@ -382,6 +383,155 @@
             font-weight: 900;
             letter-spacing: .8px
         }
+
+        /* =========================
+       ✅ DASHBOARD + LISTS
+       ========================= */
+        .hidden {
+            display: none !important;
+        }
+
+        .heroGrid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 980px) {
+            .heroGrid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .heroCard {
+            border-radius: 18px;
+            border: 1px solid rgba(47, 230, 255, .18);
+            background:
+                radial-gradient(700px 220px at 0% 0%, rgba(47, 230, 255, .10), transparent 55%),
+                radial-gradient(700px 220px at 100% 0%, rgba(255, 46, 136, .08), transparent 55%),
+                rgba(7, 10, 16, .25);
+            padding: 16px;
+            cursor: pointer;
+            transition: filter .12s ease, transform .12s ease;
+            min-height: 110px;
+        }
+
+        .heroCard:hover {
+            filter: brightness(1.07);
+            transform: translateY(-1px);
+        }
+
+        .heroCard b {
+            font-size: 18px;
+            display: block;
+            margin-top: 6px;
+        }
+
+        .heroCard .mut {
+            color: rgba(234, 240, 255, .60);
+            font-size: 12px;
+            margin-top: 8px;
+            line-height: 1.35;
+        }
+
+        .statsGrid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 700px) {
+            .statsGrid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .statBox {
+            border-radius: 18px;
+            border: 1px solid rgba(122, 63, 255, .22);
+            background: rgba(7, 10, 16, .25);
+            padding: 14px;
+        }
+
+        .statBox .lbl {
+            color: rgba(234, 240, 255, .60);
+            font-size: 12px;
+            letter-spacing: .6px;
+            text-transform: uppercase;
+        }
+
+        .statBox .val {
+            font-size: 30px;
+            font-weight: 900;
+            margin-top: 6px;
+        }
+
+        .searchRow {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 12px;
+            border-radius: 18px;
+            border: 1px solid rgba(47, 230, 255, .18);
+            background: rgba(7, 10, 16, .25);
+        }
+
+        .searchRow input {
+            flex: 1 1 240px;
+        }
+
+        .list {
+            border-radius: 18px;
+            border: 1px solid rgba(122, 63, 255, .22);
+            overflow: hidden;
+            background: rgba(7, 10, 16, .18);
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px;
+            border-top: 1px solid rgba(122, 63, 255, .18);
+        }
+
+        .row:first-child {
+            border-top: none;
+        }
+
+        .row:hover {
+            background: rgba(122, 63, 255, .07);
+        }
+
+        .row .left {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .row .left b {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .row .left span {
+            color: rgba(234, 240, 255, .60);
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .row .right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 0 0 auto;
+        }
     </style>
 </head>
 
@@ -391,11 +541,131 @@
             <div class="brand">
                 <div class="dot"></div><span>APEX ROBOT ID QR</span>
             </div>
-            <div class="badge"><b>offline / 1 archivo</b> · Identificador (no competencia)</div>
+
+            <div class="badge">
+                <b id="modeBadge">dashboard</b>
+                · GitHub Pages + Supabase
+                <span id="miniStatus" style="opacity:.9;"></span>
+            </div>
         </div>
 
-        <!-- GENERATOR -->
-        <div id="generator" class="grid">
+        <!-- =========================
+         ✅ DASHBOARD
+         ========================= -->
+        <section id="dashboard" class="panel">
+            <div class="panelHead">
+                <div class="title">
+                    <h2>Pantalla principal</h2>
+                    <b>MiniSumo Robot Dashboard</b>
+                </div>
+                <div class="btnRow">
+                    <button class="btn primary" id="goRegister">Registrar Robot</button>
+                    <button class="btn" id="goMine">Mis Robots</button>
+                    <button class="btn hot" id="refreshDash">Actualizar</button>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="heroGrid">
+                    <div class="heroCard" id="cardHome">
+                        <div class="chip good">Inicio</div>
+                        <b>Dashboard</b>
+                        <div class="mut">Estadísticas, búsqueda rápida y últimos robots.</div>
+                    </div>
+
+                    <div class="heroCard" id="cardNew">
+                        <div class="chip warn">Nuevo</div>
+                        <b>Registrar Robot</b>
+                        <div class="mut">Usa tu generador actual (offline o link) y guarda en Supabase.</div>
+                    </div>
+
+                    <div class="heroCard" id="cardMine">
+                        <div class="chip">Lista</div>
+                        <b>Mis Robots</b>
+                        <div class="mut">Robots que tú registraste desde este navegador (sin login).</div>
+                    </div>
+                </div>
+
+                <div class="sectionTitle">Estadísticas</div>
+                <div class="statsGrid">
+                    <div class="statBox">
+                        <div class="lbl">Robots registrados</div>
+                        <div class="val" id="statTotal">—</div>
+                    </div>
+                    <div class="statBox">
+                        <div class="lbl">Registrados hoy</div>
+                        <div class="val" id="statToday">—</div>
+                    </div>
+                    <div class="statBox">
+                        <div class="lbl">Mis robots</div>
+                        <div class="val" id="statMine">—</div>
+                    </div>
+                </div>
+
+                <div class="sectionTitle">Buscar robot (por Robot ID)</div>
+                <div class="searchRow">
+                    <input id="searchRid" placeholder="Ej. MS-014" />
+                    <button class="btn primary" id="btnSearchRid">Abrir</button>
+                </div>
+
+                <div class="sectionTitle">Últimos robots (Supabase)</div>
+                <div class="list" id="latestList">
+                    <div class="row">
+                        <div class="left"><b>Cargando…</b><span>—</span></div>
+                    </div>
+                </div>
+
+                <div class="hint" style="margin-top:12px">
+                    Tip: El QR “link” apunta a <b>#id=ROBOT_ID</b> y por eso el viewer abre desde Supabase.
+                </div>
+            </div>
+        </section>
+
+        <div style="height:14px;"></div>
+
+        <!-- =========================
+         ✅ MIS ROBOTS (SIN LOGIN)
+         ========================= -->
+        <section id="minePanel" class="panel hidden">
+            <div class="panelHead">
+                <div class="title">
+                    <h2>Robots del dispositivo</h2>
+                    <b>Mis Robots</b>
+                </div>
+                <div class="btnRow">
+                    <button class="btn" id="backFromMine">Volver</button>
+                    <button class="btn primary" id="reloadMine">Actualizar</button>
+                    <button class="btn hot" id="clearMine">Borrar lista local</button>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="sectionTitle">Buscar en mis robots</div>
+                <div class="searchRow">
+                    <input id="mineSearch" placeholder="Ej. MS-014 o KRAKEN" />
+                    <button class="btn primary" id="mineSearchBtn">Filtrar</button>
+                </div>
+
+                <div class="sectionTitle">Lista</div>
+                <div class="list" id="mineList">
+                    <div class="row">
+                        <div class="left"><b>Cargando…</b><span>—</span></div>
+                    </div>
+                </div>
+
+                <div class="hint" style="margin-top:12px">
+                    “Mis Robots” se arma con los Robot ID que tú registras desde este navegador (localStorage).
+                    Si cambias de PC/cel, no se “mueve” (a menos que luego metamos login o un admin-code).
+                </div>
+            </div>
+        </section>
+
+        <div style="height:14px;"></div>
+
+        <!-- =========================
+         ✅ GENERATOR (TU CÓDIGO ORIGINAL)
+         ========================= -->
+        <div id="generator" class="grid hidden">
             <!-- LEFT -->
             <section class="panel">
                 <div class="panelHead">
@@ -404,6 +674,7 @@
                         <b>Robot</b>
                     </div>
                     <div class="btnRow">
+                        <button class="btn" id="btnBackToDash">Volver</button>
                         <button class="btn primary" id="btnGenOffline">Generar QR</button>
                         <button class="btn" id="btnGenLink">Generar QR (link)</button>
                     </div>
@@ -512,11 +783,9 @@ Batería segura"></textarea>
 
                     <div class="hint">
                         Nota: <b>offline</b> mete los datos dentro del QR como JSON compacto. El modo <b>link</b> genera
-                        un QR que abre
-                        una credencial visual (requiere que el archivo esté alojado en una URL).
+                        un QR que abre una credencial visual.
                         <br><br>
-                        ✅ Con Supabase: al generar/guardar, también se sube a la base de datos para que quede “para
-                        siempre”.
+                        ✅ Con Supabase: al generar/guardar, también se sube a la base de datos.
                     </div>
                 </div>
             </section>
@@ -552,6 +821,8 @@ Batería segura"></textarea>
                 </div>
             </section>
         </div>
+
+        <div style="height:14px;"></div>
 
         <!-- VIEWER -->
         <section id="viewer" class="panel viewer">
@@ -606,11 +877,34 @@ Batería segura"></textarea>
 
     <script>
         /* =========================================================
-           ✅ SUPABASE CONFIG (PEGA TUS DATOS AQUÍ)
+           ✅ SUPABASE CONFIG (TUS DATOS)
            ========================================================= */
         const SUPABASE_URL = "https://pddjulxliqlqoopveugh.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_BgfIRiHsUgqPhCqZ4L8yEA_wjarKci0";
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const TABLE = "robot_cards";
+
+        /* =========================================================
+           ✅ LOCAL "MIS ROBOTS" (SIN LOGIN)
+           ========================================================= */
+        const MY_LIST_KEY = "apex_my_robot_ids_v1";
+        function getMyList() {
+            try { return JSON.parse(localStorage.getItem(MY_LIST_KEY) || "[]"); }
+            catch (_) { return []; }
+        }
+        function addToMyList(robotId) {
+            const rid = (robotId || "").trim();
+            if (!rid) return;
+            const list = getMyList();
+            if (!list.includes(rid)) {
+                list.unshift(rid);
+                localStorage.setItem(MY_LIST_KEY, JSON.stringify(list.slice(0, 200)));
+            }
+        }
+        function clearMyList() {
+            localStorage.removeItem(MY_LIST_KEY);
+        }
 
         /* --------------------------
            Compact payload + Base64URL (legacy soporte #view=)
@@ -694,6 +988,7 @@ Batería segura"></textarea>
                 container.appendChild(kEl); container.appendChild(vEl);
             }
         }
+
         function setChips(container, chips) {
             container.innerHTML = "";
             chips.forEach(ch => {
@@ -703,6 +998,7 @@ Batería segura"></textarea>
                 container.appendChild(el);
             });
         }
+
         function statusCls(state) {
             if (state === "aprobado") return "good";
             if (state === "rechazado") return "bad";
@@ -711,12 +1007,8 @@ Batería segura"></textarea>
 
         /* =========================================================
            ✅ PAYLOADS
-           - Offline: JSON compacto dentro del QR
-           - Link: URL corta persistente (#id=ROBOT_ID) + datos en Supabase
-           ========================================================= */
-        function payloadOffline(robotObj) {
-            return JSON.stringify(robotObj);
-        }
+        ========================================================= */
+        function payloadOffline(robotObj) { return JSON.stringify(robotObj); }
         function payloadLink(robotObj) {
             const base = "https://areivan.github.io/Minisumo_QR/";
             const rid = encodeURIComponent(robotObj.i || "");
@@ -724,9 +1016,7 @@ Batería segura"></textarea>
         }
 
         /* =========================================================
-           ✅ SUPABASE CRUD (sin login / sin RLS)
-           Tabla esperada: public.robot_cards
-           Campos: robot_id (unique), data (jsonb), qr_link, qr_offline, created_at, updated_at
+           ✅ SUPABASE CRUD (tu tabla robot_cards)
            ========================================================= */
         async function saveToSupabase(compact) {
             const robot_id = (compact.i || "").trim();
@@ -740,9 +1030,9 @@ Batería segura"></textarea>
             };
 
             const { data, error } = await sb
-                .from("robot_cards")
+                .from(TABLE)
                 .upsert(row, { onConflict: "robot_id" })
-                .select("robot_id, qr_link, updated_at")
+                .select("robot_id, qr_link, updated_at, created_at")
                 .single();
 
             if (error) throw error;
@@ -751,8 +1041,8 @@ Batería segura"></textarea>
 
         async function loadFromSupabaseByRobotId(robot_id) {
             const { data, error } = await sb
-                .from("robot_cards")
-                .select("robot_id, data, qr_link, qr_offline, updated_at")
+                .from(TABLE)
+                .select("robot_id, data, qr_link, qr_offline, updated_at, created_at")
                 .eq("robot_id", robot_id)
                 .single();
 
@@ -760,7 +1050,9 @@ Batería segura"></textarea>
             return data;
         }
 
-        /* ✅ QR render estable */
+        /* =========================================================
+           ✅ QR render estable
+           ========================================================= */
         const STORAGE_KEY = "apex_robot_qr_saved_v1";
         let lastPayload = "";
         let lastPayloadType = ""; // "offline" | "link"
@@ -769,7 +1061,7 @@ Batería segura"></textarea>
             try {
                 lastPayload = text;
 
-                const qr = qrcode(0, "Q"); // 0=auto version, "Q" buena corrección
+                const qr = qrcode(0, "Q");
                 qr.addData(text);
                 qr.make();
 
@@ -831,8 +1123,12 @@ Batería segura"></textarea>
         function showViewer(compact) {
             const o = prettyFromCompact(compact);
 
-            generator.style.display = "none";
+            dashboard.classList.add("hidden");
+            minePanel.classList.add("hidden");
+            generator.classList.add("hidden");
             viewer.style.display = "block";
+
+            modeBadge.textContent = "viewer";
 
             v_name.textContent = o.robot_nombre || "Robot";
             v_title.textContent = (o.robot_nombre || "—") + (o.robot_id ? ` · ${o.robot_id}` : "");
@@ -881,8 +1177,228 @@ Batería segura"></textarea>
             }
         }
 
+        /* =========================
+           ✅ ROUTER
+           - #/         dashboard
+           - #/new      generator
+           - #/mine     mine list
+           - #id=RID    viewer (compat con tus QRs)
+           ========================= */
+        function showDashboard() {
+            viewer.style.display = "none";
+            generator.classList.add("hidden");
+            minePanel.classList.add("hidden");
+            dashboard.classList.remove("hidden");
+            modeBadge.textContent = "dashboard";
+            refreshDashboard().catch(console.error);
+        }
+
+        function showGenerator() {
+            viewer.style.display = "none";
+            dashboard.classList.add("hidden");
+            minePanel.classList.add("hidden");
+            generator.classList.remove("hidden");
+            modeBadge.textContent = "generator";
+            // pinta canvas blanco si está vacío
+            const ctx = qrCanvas.getContext("2d");
+            ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, qrCanvas.width, qrCanvas.height);
+        }
+
+        function showMine() {
+            viewer.style.display = "none";
+            dashboard.classList.add("hidden");
+            generator.classList.add("hidden");
+            minePanel.classList.remove("hidden");
+            modeBadge.textContent = "mine";
+            loadMineList().catch(console.error);
+        }
+
+        async function route() {
+            const hash = location.hash || "";
+
+            // ✅ Viewer por #id=
+            if (hash.startsWith("#id=")) {
+                const rid = decodeURIComponent(hash.slice(4));
+                try {
+                    const rec = await loadFromSupabaseByRobotId(rid);
+                    showViewer(rec.data);
+                    return;
+                } catch (e) {
+                    console.error(e);
+                    alert("No se encontró este Robot ID en Supabase: " + rid);
+                    location.hash = "#/";
+                    return;
+                }
+            }
+
+            // ✅ Legacy viewer por #view=
+            if (hash.startsWith("#view=")) {
+                const b64u = hash.slice(6);
+                try {
+                    const json = base64UrlDecode(b64u);
+                    const compact = JSON.parse(json);
+                    showViewer(compact);
+                    return;
+                } catch (err) {
+                    console.warn(err);
+                    location.hash = "#/";
+                    return;
+                }
+            }
+
+            // ✅ App routes
+            if (hash === "#/new") return showGenerator();
+            if (hash === "#/mine") return showMine();
+            return showDashboard();
+        }
+
+        /* =========================
+           ✅ DASHBOARD DATA
+           ========================= */
+        function esc(s) { return (s || "").toString().replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[m])); }
+
+        async function refreshDashboard() {
+            miniStatus.textContent = "· cargando…";
+
+            // Total count
+            const totalRes = await sb.from(TABLE).select("*", { count: "exact", head: true });
+            const total = totalRes.count ?? 0;
+            statTotal.textContent = total.toLocaleString("es-MX");
+
+            // Today count (si created_at existe)
+            let todayCount = "—";
+            try {
+                const start = new Date();
+                start.setHours(0, 0, 0, 0);
+                const iso = start.toISOString();
+                const r = await sb.from(TABLE).select("*", { count: "exact", head: true }).gte("created_at", iso);
+                if (!r.error) todayCount = (r.count ?? 0).toLocaleString("es-MX");
+            } catch (_) { }
+            statToday.textContent = todayCount;
+
+            // Mine count
+            const mineIds = getMyList();
+            statMine.textContent = mineIds.length.toLocaleString("es-MX");
+
+            // Latest list
+            const { data, error } = await sb
+                .from(TABLE)
+                .select("robot_id, data, created_at, updated_at")
+                .order("updated_at", { ascending: false })
+                .limit(8);
+
+            if (error) {
+                latestList.innerHTML = `<div class="row"><div class="left"><b>Error</b><span>${esc(error.message)}</span></div></div>`;
+            } else if (!data || data.length === 0) {
+                latestList.innerHTML = `<div class="row"><div class="left"><b>Sin registros</b><span>Aún no hay robots.</span></div></div>`;
+            } else {
+                latestList.innerHTML = data.map(r => {
+                    const name = r?.data?.n || "Robot";
+                    const team = r?.data?.t || "";
+                    const cat = r?.data?.c || "";
+                    const sub = [r.robot_id, cat, team].filter(Boolean).join(" · ");
+                    return `
+            <div class="row">
+              <div class="left">
+                <b title="${esc(name)}">${esc(name)}</b>
+                <span title="${esc(sub)}">${esc(sub)}</span>
+              </div>
+              <div class="right">
+                <button class="btn" data-open="${esc(r.robot_id)}">Ver</button>
+              </div>
+            </div>
+          `;
+                }).join("");
+
+                latestList.querySelectorAll("[data-open]").forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        const rid = btn.getAttribute("data-open");
+                        location.hash = "#id=" + encodeURIComponent(rid);
+                    });
+                });
+            }
+
+            miniStatus.textContent = "· listo ✅";
+        }
+
+        /* =========================
+           ✅ MINE LIST
+           ========================= */
+        let mineCache = []; // array de registros supabase
+        async function loadMineList() {
+            const ids = getMyList();
+
+            if (!ids.length) {
+                mineList.innerHTML = `<div class="row"><div class="left"><b>Vacío</b><span>Aún no registras robots desde este navegador.</span></div></div>`;
+                mineCache = [];
+                return;
+            }
+
+            // Traer en batch
+            const { data, error } = await sb
+                .from(TABLE)
+                .select("robot_id, data, updated_at, created_at")
+                .in("robot_id", ids);
+
+            if (error) {
+                mineList.innerHTML = `<div class="row"><div class="left"><b>Error</b><span>${esc(error.message)}</span></div></div>`;
+                mineCache = [];
+                return;
+            }
+
+            // Ordenar según el orden local (más reciente primero)
+            const map = new Map((data || []).map(r => [r.robot_id, r]));
+            mineCache = ids.map(id => map.get(id)).filter(Boolean);
+
+            renderMine(mineCache);
+        }
+
+        function renderMine(rows) {
+            if (!rows.length) {
+                mineList.innerHTML = `<div class="row"><div class="left"><b>Sin datos</b><span>No pude cargar tus robots (quizá los borraste en DB).</span></div></div>`;
+                return;
+            }
+
+            mineList.innerHTML = rows.map(r => {
+                const name = r?.data?.n || "Robot";
+                const team = r?.data?.t || "";
+                const cat = r?.data?.c || "";
+                const sub = [r.robot_id, cat, team].filter(Boolean).join(" · ");
+                return `
+          <div class="row">
+            <div class="left">
+              <b title="${esc(name)}">${esc(name)}</b>
+              <span title="${esc(sub)}">${esc(sub)}</span>
+            </div>
+            <div class="right">
+              <button class="btn" data-open="${esc(r.robot_id)}">Ver</button>
+            </div>
+          </div>
+        `;
+            }).join("");
+
+            mineList.querySelectorAll("[data-open]").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const rid = btn.getAttribute("data-open");
+                    location.hash = "#id=" + encodeURIComponent(rid);
+                });
+            });
+        }
+
+        function filterMine() {
+            const q = (mineSearch.value || "").trim().toLowerCase();
+            if (!q) return renderMine(mineCache);
+            const filtered = mineCache.filter(r => {
+                const rid = (r.robot_id || "").toLowerCase();
+                const name = (r?.data?.n || "").toLowerCase();
+                const team = (r?.data?.t || "").toLowerCase();
+                return rid.includes(q) || name.includes(q) || team.includes(q);
+            });
+            renderMine(filtered);
+        }
+
         /* --------------------------
-           Buttons
+           Buttons (GENERATOR)
         --------------------------- */
         function validateBasic() {
             const id = cleanStr(robot_id.value);
@@ -894,7 +1410,7 @@ Batería segura"></textarea>
             return true;
         }
 
-        // ✅ Generar OFFLINE (JSON dentro del QR) + guardar en Supabase
+        // ✅ Generar OFFLINE + guardar en Supabase
         btnGenOffline.onclick = async () => {
             if (!validateBasic()) return;
             const compact = buildRobotObj();
@@ -903,18 +1419,18 @@ Batería segura"></textarea>
             lastPayloadType = "offline";
             drawQR(payloadOffline(compact));
 
-            // cache local opcional (para que no pierdas lo último)
             localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
 
             try {
-                await saveToSupabase(compact);
+                const saved = await saveToSupabase(compact);
+                addToMyList(saved.robot_id); // ✅ agrega a "Mis Robots"
             } catch (e) {
                 console.error(e);
                 alert("No se pudo guardar en Supabase: " + (e.message || e));
             }
         };
 
-        // ✅ Generar LINK (QR apunta a #id=ROBOT_ID) + guardar en Supabase
+        // ✅ Generar LINK + guardar en Supabase
         btnGenLink.onclick = async () => {
             if (!validateBasic()) return;
             const compact = buildRobotObj();
@@ -927,7 +1443,8 @@ Batería segura"></textarea>
             localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
 
             try {
-                await saveToSupabase(compact);
+                const saved = await saveToSupabase(compact);
+                addToMyList(saved.robot_id); // ✅ agrega a "Mis Robots"
             } catch (e) {
                 console.error(e);
                 alert("No se pudo guardar en Supabase: " + (e.message || e));
@@ -961,7 +1478,6 @@ Batería segura"></textarea>
             a.click();
         };
 
-        // Mantiene el botón y el diseño original:
         // Guardar en navegador + también subir a Supabase
         btnSave.onclick = async () => {
             const compact = buildRobotObj();
@@ -972,7 +1488,8 @@ Batería segura"></textarea>
                     alert("Guardado local. Para Supabase, pon al menos Robot ID y Nombre.");
                     return;
                 }
-                await saveToSupabase(compact);
+                const saved = await saveToSupabase(compact);
+                addToMyList(saved.robot_id);
                 alert("Guardado (local + Supabase).");
             } catch (e) {
                 console.error(e);
@@ -981,8 +1498,6 @@ Batería segura"></textarea>
         };
 
         // Cargar guardado:
-        // - Si hay Robot ID en el input: carga desde Supabase
-        // - Si no: carga localStorage
         btnLoad.onclick = async () => {
             const rid = cleanStr(robot_id.value);
 
@@ -1010,11 +1525,9 @@ Batería segura"></textarea>
 
                     renderPreviewFromCompact(o);
 
-                    // Por defecto, dibuja el QR link persistente
                     lastPayloadType = "link";
                     drawQR(rec.qr_link);
 
-                    // cache local para el próximo arranque
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(o));
                     return;
                 } catch (e) {
@@ -1051,13 +1564,11 @@ Batería segura"></textarea>
         };
 
         btnClear.onclick = () => {
-            // inputs
             ["robot_id", "robot_nombre", "equipo", "controlador", "escuela",
                 "peso_g", "dimensiones_mm", "frecuencia_protocolo", "contacto",
                 "inspeccion_checklist", "foto_url", "logo_url"
             ].forEach(id => document.getElementById(id).value = "");
 
-            // selects
             categoria.value = "";
             tipo_control.value = "";
             inspeccion_estado.value = "pendiente";
@@ -1073,49 +1584,55 @@ Batería segura"></textarea>
             lastPayloadType = "";
         };
 
+        /* =========================
+           ✅ DASHBOARD / MINE UI EVENTS
+           ========================= */
+        goRegister.onclick = () => location.hash = "#/new";
+        goMine.onclick = () => location.hash = "#/mine";
+        refreshDash.onclick = () => refreshDashboard().catch(console.error);
+
+        cardHome.onclick = () => location.hash = "#/";
+        cardNew.onclick = () => location.hash = "#/new";
+        cardMine.onclick = () => location.hash = "#/mine";
+
+        btnBackToDash.onclick = () => location.hash = "#/";
+
+        btnSearchRid.onclick = () => {
+            const rid = (searchRid.value || "").trim();
+            if (!rid) return alert("Escribe un Robot ID.");
+            location.hash = "#id=" + encodeURIComponent(rid);
+        };
+        searchRid.addEventListener("keydown", (e) => { if (e.key === "Enter") btnSearchRid.click(); });
+
+        backFromMine.onclick = () => location.hash = "#/";
+        reloadMine.onclick = () => loadMineList().catch(console.error);
+        clearMine.onclick = () => {
+            if (!confirm("¿Borrar tu lista local de Mis Robots? (No borra la base de datos)")) return;
+            clearMyList();
+            loadMineList().catch(console.error);
+            refreshDashboard().catch(console.error);
+        };
+
+        mineSearchBtn.onclick = filterMine;
+        mineSearch.addEventListener("input", filterMine);
+        mineSearch.addEventListener("keydown", (e) => { if (e.key === "Enter") mineSearchBtn.click(); });
+
         btnBack.onclick = () => {
-            location.hash = "";
-            viewer.style.display = "none";
-            generator.style.display = "grid";
+            // volver a dashboard (más consistente)
+            location.hash = "#/";
         };
 
         /* --------------------------
-           Boot: handle #id=... (Supabase) y #view=... (legacy)
+           Boot
         --------------------------- */
         (async function boot() {
-            const ctx = qrCanvas.getContext("2d");
-            ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, qrCanvas.width, qrCanvas.height);
+            // canvas blanco inicial
+            try {
+                const ctx = qrCanvas.getContext("2d");
+                ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, qrCanvas.width, qrCanvas.height);
+            } catch (_) { }
 
-            const hash = location.hash || "";
-
-            // ✅ Nuevo: abrir credencial por ID (persistente)
-            if (hash.startsWith("#id=")) {
-                const rid = decodeURIComponent(hash.slice(4));
-                try {
-                    const rec = await loadFromSupabaseByRobotId(rid);
-                    showViewer(rec.data);
-                    return;
-                } catch (e) {
-                    console.error(e);
-                    alert("No se encontró este Robot ID en Supabase: " + rid);
-                    location.hash = "";
-                }
-            }
-
-            // ✅ Legacy: abrir credencial con JSON embebido (por si ya imprimiste QRs antiguos)
-            if (hash.startsWith("#view=")) {
-                const b64u = hash.slice(6);
-                try {
-                    const json = base64UrlDecode(b64u);
-                    const compact = JSON.parse(json);
-                    showViewer(compact);
-                    return;
-                } catch (err) {
-                    console.warn(err);
-                }
-            }
-
-            // Inicial: carga el cache local si existe
+            // carga el cache local si existe (para que el generator tenga algo al abrir)
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
                 try {
@@ -1125,6 +1642,10 @@ Batería segura"></textarea>
                     drawQR(payloadLink(o));
                 } catch (_) { }
             }
+
+            // router
+            window.addEventListener("hashchange", route);
+            await route();
         })();
     </script>
 </body>
