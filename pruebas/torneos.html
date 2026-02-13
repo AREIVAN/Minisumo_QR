@@ -1,0 +1,1348 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>APEX TOURNAMENT ORGANIZER</title>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --bg: #070A10;
+            --panel: #0B1020;
+            --panel2: #0C142A;
+            --stroke: rgba(122, 63, 255, .55);
+            --neon: #7A3FFF;
+            --neon2: #2FE6FF;
+            --hot: #FF2E88;
+            --text: #EAF0FF;
+            --muted: rgba(234, 240, 255, .65);
+            --good: #2FE6FF;
+            --warn: #FFB020;
+            --bad: #FF2E88;
+            --r: 16px;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+            color: var(--text);
+            background:
+                radial-gradient(1100px 700px at 10% -10%, rgba(122, 63, 255, .25), transparent 60%),
+                radial-gradient(900px 600px at 110% 0%, rgba(47, 230, 255, .18), transparent 55%),
+                radial-gradient(900px 700px at 50% 120%, rgba(255, 46, 136, .10), transparent 55%),
+                var(--bg);
+        }
+
+        .wrap {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 18px
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 6px 0 14px;
+            flex-wrap: wrap;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border: 1px solid rgba(122, 63, 255, .35);
+            background: linear-gradient(180deg, rgba(11, 16, 32, .85), rgba(12, 20, 42, .55));
+            border-radius: 999px;
+            box-shadow: 0 0 0 1px rgba(47, 230, 255, .08) inset;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: conic-gradient(from 210deg, var(--neon), var(--neon2), var(--hot), var(--neon));
+            filter: drop-shadow(0 0 10px rgba(122, 63, 255, .6));
+        }
+
+        .brand span {
+            font-weight: 800;
+            letter-spacing: .6px
+        }
+
+        .badge {
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(47, 230, 255, .25);
+            background: rgba(12, 20, 42, .55);
+            color: var(--muted);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .badge b {
+            color: var(--text)
+        }
+
+        .panel {
+            border-radius: calc(var(--r) + 6px);
+            background: linear-gradient(180deg, rgba(11, 16, 32, .92), rgba(12, 20, 42, .68));
+            border: 1px solid rgba(122, 63, 255, .35);
+            box-shadow: 0 0 0 1px rgba(47, 230, 255, .08) inset, 0 18px 60px rgba(0, 0, 0, .55);
+            overflow: hidden;
+        }
+
+        .panelHead {
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(122, 63, 255, .25);
+        }
+
+        .panelHead h2 {
+            margin: 0;
+            font-size: 14px;
+            letter-spacing: .6px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .panelHead .title {
+            display: flex;
+            flex-direction: column;
+            gap: 3px
+        }
+
+        .panelHead .title b {
+            font-size: 18px;
+            color: var(--text);
+            letter-spacing: .2px
+        }
+
+        .btnRow {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap
+        }
+
+        .btn {
+            border: 1px solid rgba(47, 230, 255, .25);
+            background: rgba(12, 20, 42, .55);
+            color: var(--text);
+            padding: 10px 12px;
+            border-radius: 14px;
+            font-weight: 800;
+            letter-spacing: .2px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            filter: brightness(1.08)
+        }
+
+        .btn.primary {
+            border-color: rgba(122, 63, 255, .45);
+            background: linear-gradient(90deg, rgba(122, 63, 255, .28), rgba(47, 230, 255, .10));
+            box-shadow: 0 0 0 1px rgba(122, 63, 255, .12) inset;
+        }
+
+        .btn.hot {
+            border-color: rgba(255, 46, 136, .45);
+            background: rgba(255, 46, 136, .10)
+        }
+
+        .btn.ghost {
+            background: transparent
+        }
+
+        .content {
+            padding: 16px
+        }
+
+        .sectionTitle {
+            margin: 12px 0 10px;
+            color: rgba(234, 240, 255, .55);
+            font-size: 12px;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            color: rgba(234, 240, 255, .60);
+            margin: 4px 0 6px
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(122, 63, 255, .22);
+            background: rgba(7, 10, 16, .35);
+            color: var(--text);
+            outline: none;
+        }
+
+        textarea {
+            min-height: 90px;
+            resize: vertical
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: rgba(47, 230, 255, .35);
+            box-shadow: 0 0 0 1px rgba(47, 230, 255, .10) inset;
+        }
+
+        .hint {
+            color: rgba(234, 240, 255, .45);
+            font-size: 12px;
+            line-height: 1.35;
+            margin-top: 10px
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            align-items: start;
+        }
+
+        @media (max-width: 1100px) {
+            .grid {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .miniGrid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        @media (max-width: 700px) {
+            .miniGrid {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .list {
+            border-radius: 18px;
+            border: 1px solid rgba(122, 63, 255, .22);
+            overflow: hidden;
+            background: rgba(7, 10, 16, .18);
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px;
+            border-top: 1px solid rgba(122, 63, 255, .18);
+        }
+
+        .row:first-child {
+            border-top: none
+        }
+
+        .row:hover {
+            background: rgba(122, 63, 255, .07)
+        }
+
+        .row .left {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px
+        }
+
+        .row .left b {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .row .left span {
+            color: rgba(234, 240, 255, .60);
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .row .right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 0 0 auto
+        }
+
+        .chipRow {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .chip {
+            padding: 7px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            border: 1px solid rgba(122, 63, 255, .28);
+            background: rgba(7, 10, 16, .35);
+            color: var(--muted);
+        }
+
+        .chip.good {
+            border-color: rgba(47, 230, 255, .55);
+            color: var(--text)
+        }
+
+        .chip.warn {
+            border-color: rgba(255, 176, 32, .55);
+            color: var(--text)
+        }
+
+        .chip.bad {
+            border-color: rgba(255, 46, 136, .55);
+            color: var(--text)
+        }
+
+        /* Bracket */
+        .bracketWrap {
+            overflow: auto;
+            border-radius: 18px;
+            border: 1px solid rgba(47, 230, 255, .18);
+            background: rgba(7, 10, 16, .22);
+            padding: 14px;
+            min-height: 420px;
+        }
+
+        .bracket {
+            display: flex;
+            gap: 18px;
+            align-items: flex-start;
+            min-width: 900px;
+        }
+
+        .round {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-width: 240px;
+        }
+
+        .roundTitle {
+            font-size: 12px;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            color: rgba(234, 240, 255, .55);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .match {
+            border-radius: 16px;
+            border: 1px solid rgba(122, 63, 255, .22);
+            background: linear-gradient(180deg, rgba(11, 16, 32, .86), rgba(12, 20, 42, .55));
+            padding: 10px;
+        }
+
+        .slot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 14px;
+            border: 1px solid rgba(47, 230, 255, .16);
+            background: rgba(7, 10, 16, .22);
+            margin-top: 8px;
+        }
+
+        .slot:first-child {
+            margin-top: 0
+        }
+
+        .slot .name {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .slot .name b {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 13px;
+        }
+
+        .slot .name span {
+            color: rgba(234, 240, 255, .55);
+            font-size: 11px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .score {
+            width: 56px;
+            text-align: center;
+            padding: 8px 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(122, 63, 255, .22);
+            background: rgba(0, 0, 0, .12);
+            color: var(--text);
+            font-weight: 900;
+        }
+
+        .win {
+            border-color: rgba(47, 230, 255, .45) !important;
+            box-shadow: 0 0 0 1px rgba(47, 230, 255, .10) inset;
+        }
+
+        .toast {
+            position: fixed;
+            left: 14px;
+            right: 14px;
+            bottom: 16px;
+            display: flex;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .toast .msg {
+            pointer-events: auto;
+            max-width: 1200px;
+            width: 100%;
+            border-radius: 16px;
+            padding: 12px 14px;
+            border: 1px solid rgba(234, 240, 255, .14);
+            background: rgba(0, 0, 0, .55);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 18px 60px rgba(0, 0, 0, .55);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .toast b {
+            color: var(--neon2)
+        }
+
+        .hidden {
+            display: none !important
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="topbar">
+            <div class="brand">
+                <div class="dot"></div><span>APEX TOURNAMENT ORGANIZER</span>
+            </div>
+            <div class="badge"><b id="mode">organizador</b> · conecta con <b>robot_cards</b> · sin login (demo)</div>
+        </div>
+
+        <section class="panel">
+            <div class="panelHead">
+                <div class="title">
+                    <h2>Panel de organizador</h2>
+                    <b>Crear torneo · Inscripciones · Llaves</b>
+                </div>
+                <div class="btnRow">
+                    <button class="btn" id="btnNew">Nuevo torneo</button>
+                    <button class="btn" id="btnLoadLocal">Abrir local</button>
+                    <button class="btn primary" id="btnSaveLocal">Guardar local</button>
+                    <button class="btn" id="btnLoadDb">Abrir Supabase</button>
+                    <button class="btn primary" id="btnSaveDb">Guardar Supabase</button>
+                    <button class="btn hot" id="btnReset">Reset</button>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="grid">
+
+                    <!-- LEFT: Tournament config + registration -->
+                    <div class="panel">
+                        <div class="panelHead">
+                            <div class="title">
+                                <h2>Torneo</h2>
+                                <b id="tTitle">Sin nombre</b>
+                            </div>
+                            <div class="chipRow" id="tChips"></div>
+                        </div>
+
+                        <div class="content">
+                            <div class="sectionTitle">Datos del torneo</div>
+                            <div class="miniGrid">
+                                <div>
+                                    <label>Nombre del torneo</label>
+                                    <input id="t_name" placeholder="Ej. Copa MiniSumo CDMX 2026" />
+                                </div>
+                                <div>
+                                    <label>Categoría</label>
+                                    <select id="t_category">
+                                        <option>Mini Sumo</option>
+                                        <option>Mini Sumo 500g</option>
+                                        <option>Sumo 3kg</option>
+                                        <option>Combate</option>
+                                        <option>Seguidor de línea</option>
+                                        <option>Otro</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Sede</label>
+                                    <input id="t_venue" placeholder="Ej. ESIME Azcapotzalco" />
+                                </div>
+                                <div>
+                                    <label>Fecha</label>
+                                    <input id="t_date" type="date" />
+                                </div>
+                                <div>
+                                    <label>Formato</label>
+                                    <select id="t_format">
+                                        <option value="single">Eliminación directa (Single)</option>
+                                        <option value="groups" disabled>Grupos + eliminatoria (próximamente)</option>
+                                        <option value="double" disabled>Doble eliminación (próximamente)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Tamaño de llave</label>
+                                    <select id="t_size">
+                                        <option value="4">4</option>
+                                        <option value="8" selected>8</option>
+                                        <option value="16">16</option>
+                                        <option value="32">32</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="sectionTitle">Búsqueda de robots (robot_cards)</div>
+                            <div class="miniGrid">
+                                <div>
+                                    <label>Buscar (Robot ID / Nombre / Equipo)</label>
+                                    <input id="r_search" placeholder="Ej. MS-014 o KRAKEN o RoboDragons" />
+                                </div>
+                                <div>
+                                    <label>&nbsp;</label>
+                                    <div class="btnRow">
+                                        <button class="btn primary" id="btnSearch">Buscar</button>
+                                        <button class="btn" id="btnClearSearch">Limpiar</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="list" id="searchList" style="margin-top:10px">
+                                <div class="row">
+                                    <div class="left"><b>Tip</b><span>Escribe y busca para traer robots desde
+                                            Supabase.</span></div>
+                                </div>
+                            </div>
+
+                            <div class="sectionTitle">Participantes del torneo</div>
+                            <div class="list" id="playersList">
+                                <div class="row">
+                                    <div class="left"><b>Vacío</b><span>Agrega robots desde la búsqueda.</span></div>
+                                </div>
+                            </div>
+
+                            <div class="hint">
+                                Reglas demo: puedes agregar robots hasta llenar el tamaño de llave. Si faltan, el
+                                sistema agrega <b>BYE</b>.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Bracket -->
+                    <div class="panel">
+                        <div class="panelHead">
+                            <div class="title">
+                                <h2>Llaves</h2>
+                                <b>Bracket (Single Elimination)</b>
+                            </div>
+                            <div class="btnRow">
+                                <button class="btn primary" id="btnGenerate">Generar llave</button>
+                                <button class="btn" id="btnShuffle">Mezclar seeds</button>
+                                <button class="btn" id="btnClearBracket">Limpiar bracket</button>
+                            </div>
+                        </div>
+
+                        <div class="content">
+                            <div class="bracketWrap">
+                                <div class="bracket" id="bracket"></div>
+                            </div>
+
+                            <div class="hint">
+                                Aquí luego metemos: check-in, pesaje, inspector, rondas, mesas, árbitros, cronómetro, y
+                                export PDF.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <div class="toast hidden" id="toast">
+            <div class="msg">
+                <div id="toastText">—</div>
+                <button class="btn ghost" id="toastClose">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* =========================
+           CONFIG (tus credenciales)
+           ========================= */
+        const SUPABASE_URL = "https://pddjulxliqlqoopveugh.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_BgfIRiHsUgqPhCqZ4L8yEA_wjarKci0";
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Robots table (ya la usas)
+        const ROBOT_TABLE = "robot_cards";
+
+        // Torneos (opcional) -> si no existe, se guardará solo en local
+        const TOURN_TABLE = "tournaments";
+
+        /* =========================
+           State
+           ========================= */
+        const state = {
+            tournament: {
+                id: null,
+                name: "",
+                category: "Mini Sumo",
+                venue: "",
+                date: "",
+                format: "single",
+                size: 8
+            },
+            // players: array of compact robot objects { i, n, t, c, ... } from robot_cards.data
+            players: [],
+            // bracket structure
+            bracket: null,
+        };
+
+        const $ = (id) => document.getElementById(id);
+
+        function toast(msg, bold = "") {
+            $("toastText").innerHTML = bold ? `<b>${escapeHtml(bold)}</b> ${escapeHtml(msg)}` : escapeHtml(msg);
+            $("toast").classList.remove("hidden");
+        }
+        $("toastClose").onclick = () => $("toast").classList.add("hidden");
+
+        function escapeHtml(s) {
+            return String(s ?? "").replace(/[&<>"']/g, (m) => ({
+                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+            }[m]));
+        }
+
+        function setChips() {
+            const t = state.tournament;
+            const chips = [
+                { text: `Cat: ${t.category}`, cls: "good" },
+                { text: `Formato: Single`, cls: "" },
+                { text: `Llave: ${t.size}`, cls: "warn" },
+                { text: t.date ? `Fecha: ${t.date}` : `Fecha: —`, cls: "" },
+            ];
+            const wrap = $("tChips");
+            wrap.innerHTML = "";
+            for (const c of chips) {
+                const d = document.createElement("div");
+                d.className = "chip " + (c.cls || "");
+                d.textContent = c.text;
+                wrap.appendChild(d);
+            }
+            $("tTitle").textContent = t.name || "Sin nombre";
+        }
+
+        function syncTournamentFromForm() {
+            state.tournament.name = $("t_name").value.trim();
+            state.tournament.category = $("t_category").value;
+            state.tournament.venue = $("t_venue").value.trim();
+            state.tournament.date = $("t_date").value;
+            state.tournament.format = $("t_format").value;
+            state.tournament.size = parseInt($("t_size").value, 10);
+            setChips();
+        }
+
+        ["t_name", "t_category", "t_venue", "t_date", "t_format", "t_size"].forEach(id => {
+            $(id).addEventListener("input", syncTournamentFromForm);
+            $(id).addEventListener("change", syncTournamentFromForm);
+        });
+
+        /* =========================
+           Robots search
+           ========================= */
+        function robotLabel(compact) {
+            const rid = compact?.i || "";
+            const name = compact?.n || "Robot";
+            const team = compact?.t || "";
+            const cat = compact?.c || "";
+            return { rid, name, sub: [rid, cat, team].filter(Boolean).join(" · ") };
+        }
+
+        async function searchRobots() {
+            const q = $("r_search").value.trim();
+            if (!q) {
+                toast("Escribe algo para buscar.", "Falta:");
+                return;
+            }
+
+            $("searchList").innerHTML = `<div class="row"><div class="left"><b>Buscando…</b><span>Supabase</span></div></div>`;
+
+            // Buscar por robot_id exacto o parcial (si la columna robot_id es text)
+            // y/o por data->>n (nombre) y data->>t (equipo) con ilike.
+            // Nota: el filtro JSON puede variar, por eso hacemos dos pasos:
+            // 1) Trae últimos N y filtra en cliente (demo simple, robusto).
+            const { data, error } = await sb
+                .from(ROBOT_TABLE)
+                .select("robot_id, data, updated_at, created_at")
+                .order("updated_at", { ascending: false })
+                .limit(200);
+
+            if (error) {
+                $("searchList").innerHTML = `<div class="row"><div class="left"><b>Error</b><span>${escapeHtml(error.message)}</span></div></div>`;
+                return;
+            }
+
+            const qq = q.toLowerCase();
+            const res = (data || []).filter(r => {
+                const rid = (r.robot_id || "").toLowerCase();
+                const n = (r?.data?.n || "").toLowerCase();
+                const t = (r?.data?.t || "").toLowerCase();
+                return rid.includes(qq) || n.includes(qq) || t.includes(qq);
+            }).slice(0, 30);
+
+            if (!res.length) {
+                $("searchList").innerHTML = `<div class="row"><div class="left"><b>Sin resultados</b><span>Prueba otro texto.</span></div></div>`;
+                return;
+            }
+
+            $("searchList").innerHTML = res.map(r => {
+                const info = robotLabel(r.data);
+                const already = state.players.some(p => p.i === r.data.i);
+                return `
+      <div class="row">
+        <div class="left">
+          <b title="${escapeHtml(info.name)}">${escapeHtml(info.name)}</b>
+          <span title="${escapeHtml(info.sub)}">${escapeHtml(info.sub)}</span>
+        </div>
+        <div class="right">
+          <button class="btn ${already ? "ghost" : "primary"}" data-add="${escapeHtml(r.robot_id)}">
+            ${already ? "Agregado" : "Agregar"}
+          </button>
+          <button class="btn" data-open="${escapeHtml(r.robot_id)}">Ver</button>
+        </div>
+      </div>
+    `;
+            }).join("");
+
+            $("searchList").querySelectorAll("[data-add]").forEach(b => {
+                b.addEventListener("click", () => {
+                    const rid = b.getAttribute("data-add");
+                    const row = res.find(x => x.robot_id === rid);
+                    if (!row) return;
+                    addPlayer(row.data);
+                    renderPlayers();
+                    b.textContent = "Agregado";
+                    b.classList.remove("primary");
+                    b.classList.add("ghost");
+                });
+            });
+
+            $("searchList").querySelectorAll("[data-open]").forEach(b => {
+                b.addEventListener("click", () => {
+                    const rid = b.getAttribute("data-open");
+                    // abre tu viewer normal (index.html) si lo tienes publicado
+                    window.open(`https://areivan.github.io/Minisumo_QR/#id=${encodeURIComponent(rid)}`, "_blank");
+                });
+            });
+        }
+
+        $("btnSearch").onclick = searchRobots;
+        $("r_search").addEventListener("keydown", (e) => { if (e.key === "Enter") searchRobots(); });
+        $("btnClearSearch").onclick = () => {
+            $("r_search").value = "";
+            $("searchList").innerHTML = `<div class="row"><div class="left"><b>Tip</b><span>Escribe y busca para traer robots desde Supabase.</span></div></div>`;
+        };
+
+        /* =========================
+           Players list
+           ========================= */
+        function addPlayer(compact) {
+            syncTournamentFromForm();
+            if (!compact?.i) return;
+
+            // no dupes
+            if (state.players.some(p => p.i === compact.i)) return;
+
+            const max = state.tournament.size;
+            if (state.players.length >= max) {
+                toast(`La llave es de ${max}. Quita uno o cambia el tamaño.`, "Límite:");
+                return;
+            }
+
+            state.players.push(compact);
+        }
+
+        function removePlayer(robotId) {
+            state.players = state.players.filter(p => p.i !== robotId);
+        }
+
+        function renderPlayers() {
+            const list = $("playersList");
+            if (!state.players.length) {
+                list.innerHTML = `<div class="row"><div class="left"><b>Vacío</b><span>Agrega robots desde la búsqueda.</span></div></div>`;
+                return;
+            }
+
+            list.innerHTML = state.players.map((p, idx) => {
+                const info = robotLabel(p);
+                return `
+      <div class="row">
+        <div class="left">
+          <b>${escapeHtml((idx + 1) + ". " + info.name)}</b>
+          <span>${escapeHtml(info.sub)}</span>
+        </div>
+        <div class="right">
+          <button class="btn" data-up="${escapeHtml(p.i)}">↑</button>
+          <button class="btn" data-down="${escapeHtml(p.i)}">↓</button>
+          <button class="btn hot" data-remove="${escapeHtml(p.i)}">Quitar</button>
+        </div>
+      </div>
+    `;
+            }).join("");
+
+            list.querySelectorAll("[data-remove]").forEach(b => {
+                b.addEventListener("click", () => {
+                    removePlayer(b.getAttribute("data-remove"));
+                    renderPlayers();
+                });
+            });
+
+            // reorder (seed control)
+            list.querySelectorAll("[data-up]").forEach(b => {
+                b.addEventListener("click", () => {
+                    const id = b.getAttribute("data-up");
+                    const i = state.players.findIndex(x => x.i === id);
+                    if (i > 0) {
+                        const tmp = state.players[i - 1]; state.players[i - 1] = state.players[i]; state.players[i] = tmp;
+                        renderPlayers();
+                    }
+                });
+            });
+            list.querySelectorAll("[data-down]").forEach(b => {
+                b.addEventListener("click", () => {
+                    const id = b.getAttribute("data-down");
+                    const i = state.players.findIndex(x => x.i === id);
+                    if (i >= 0 && i < state.players.length - 1) {
+                        const tmp = state.players[i + 1]; state.players[i + 1] = state.players[i]; state.players[i] = tmp;
+                        renderPlayers();
+                    }
+                });
+            });
+        }
+
+        /* =========================
+           Bracket generation (single elimination)
+           ========================= */
+        function isPowerOfTwo(n) { return (n & (n - 1)) === 0; }
+
+        function shuffleArray(arr) {
+            const a = arr.slice();
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function buildBracket(players, size) {
+            // Fill to size with BYE
+            const slots = players.slice(0, size).map(p => ({
+                id: p.i,
+                name: p.n || "Robot",
+                rid: p.i,
+                team: p.t || "",
+                compact: p
+            }));
+
+            while (slots.length < size) {
+                slots.push({
+                    id: "BYE_" + slots.length,
+                    name: "BYE",
+                    rid: "",
+                    team: "",
+                    compact: null,
+                    bye: true
+                });
+            }
+
+            // Rounds = log2(size)
+            const rounds = [];
+            let current = [];
+
+            // First round matches
+            for (let i = 0; i < size; i += 2) {
+                current.push({
+                    id: `R1M${i / 2 + 1}`,
+                    a: { ...slots[i], score: "" },
+                    b: { ...slots[i + 1], score: "" },
+                    winner: null
+                });
+            }
+            rounds.push(current);
+
+            // Next rounds
+            const totalRounds = Math.log2(size);
+            for (let r = 2; r <= totalRounds; r++) {
+                const prev = rounds[r - 2];
+                const matches = [];
+                for (let m = 0; m < prev.length; m += 2) {
+                    matches.push({
+                        id: `R${r}M${m / 2 + 1}`,
+                        a: { id: "", name: "—", rid: "", team: "", score: "" },
+                        b: { id: "", name: "—", rid: "", team: "", score: "" },
+                        winner: null
+                    });
+                }
+                rounds.push(matches);
+            }
+
+            return { size, rounds };
+        }
+
+        function renderBracket() {
+            const wrap = $("bracket");
+            wrap.innerHTML = "";
+
+            if (!state.bracket) {
+                wrap.innerHTML = `<div class="round"><div class="roundTitle"><span>Bracket</span><span class="chip">—</span></div>
+      <div class="match"><div class="hint">Genera una llave para ver el bracket.</div></div></div>`;
+                return;
+            }
+
+            const rounds = state.bracket.rounds;
+            rounds.forEach((matches, ri) => {
+                const roundEl = document.createElement("div");
+                roundEl.className = "round";
+                const title = ri === rounds.length - 1 ? "Final" : `Ronda ${ri + 1}`;
+                roundEl.innerHTML = `<div class="roundTitle"><span>${title}</span><span class="chip">${matches.length} matches</span></div>`;
+                matches.forEach((m, mi) => {
+                    const matchEl = document.createElement("div");
+                    matchEl.className = "match";
+                    matchEl.innerHTML = `
+        <div class="slot ${m.winner === "a" ? "win" : ""}">
+          <div class="name">
+            <b>${escapeHtml(m.a.name)}</b>
+            <span>${escapeHtml([m.a.rid, m.a.team].filter(Boolean).join(" · "))}</span>
+          </div>
+          <input class="score" inputmode="numeric" placeholder="—" value="${escapeHtml(m.a.score || "")}" data-score="a" data-ri="${ri}" data-mi="${mi}"/>
+        </div>
+        <div class="slot ${m.winner === "b" ? "win" : ""}">
+          <div class="name">
+            <b>${escapeHtml(m.b.name)}</b>
+            <span>${escapeHtml([m.b.rid, m.b.team].filter(Boolean).join(" · "))}</span>
+          </div>
+          <input class="score" inputmode="numeric" placeholder="—" value="${escapeHtml(m.b.score || "")}" data-score="b" data-ri="${ri}" data-mi="${mi}"/>
+        </div>
+        <div class="btnRow" style="margin-top:10px">
+          <button class="btn primary" data-win="a" data-ri="${ri}" data-mi="${mi}">Gana A</button>
+          <button class="btn primary" data-win="b" data-ri="${ri}" data-mi="${mi}">Gana B</button>
+          <button class="btn" data-clear="1" data-ri="${ri}" data-mi="${mi}">Limpiar</button>
+        </div>
+      `;
+                    roundEl.appendChild(matchEl);
+                });
+                wrap.appendChild(roundEl);
+            });
+
+            // score handlers
+            wrap.querySelectorAll("[data-score]").forEach(inp => {
+                inp.addEventListener("input", () => {
+                    const ri = parseInt(inp.getAttribute("data-ri"), 10);
+                    const mi = parseInt(inp.getAttribute("data-mi"), 10);
+                    const side = inp.getAttribute("data-score");
+                    const v = inp.value;
+                    if (side === "a") state.bracket.rounds[ri][mi].a.score = v;
+                    if (side === "b") state.bracket.rounds[ri][mi].b.score = v;
+                });
+            });
+
+            // winner handlers
+            wrap.querySelectorAll("[data-win]").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const ri = parseInt(btn.getAttribute("data-ri"), 10);
+                    const mi = parseInt(btn.getAttribute("data-mi"), 10);
+                    const w = btn.getAttribute("data-win");
+                    setWinner(ri, mi, w);
+                    renderBracket();
+                });
+            });
+
+            // clear match
+            wrap.querySelectorAll("[data-clear]").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const ri = parseInt(btn.getAttribute("data-ri"), 10);
+                    const mi = parseInt(btn.getAttribute("data-mi"), 10);
+                    const m = state.bracket.rounds[ri][mi];
+                    m.winner = null;
+                    m.a.score = "";
+                    m.b.score = "";
+                    // also clear propagation to next round
+                    propagateClear(ri, mi);
+                    renderBracket();
+                });
+            });
+        }
+
+        function setWinner(ri, mi, side) {
+            const m = state.bracket.rounds[ri][mi];
+            m.winner = side;
+
+            // BYE auto-advance: if opponent is BYE, force winner
+            if (m.a.name === "BYE" && m.b.name !== "BYE") m.winner = "b";
+            if (m.b.name === "BYE" && m.a.name !== "BYE") m.winner = "a";
+            if (m.a.name === "BYE" && m.b.name === "BYE") m.winner = null;
+
+            // propagate to next round slot
+            const nextRound = state.bracket.rounds[ri + 1];
+            if (!nextRound) return;
+
+            const targetMatchIndex = Math.floor(mi / 2);
+            const targetSide = (mi % 2 === 0) ? "a" : "b";
+
+            const winnerSlot = (m.winner === "a") ? m.a : (m.winner === "b" ? m.b : null);
+
+            if (winnerSlot) {
+                nextRound[targetMatchIndex][targetSide] = {
+                    id: winnerSlot.id,
+                    name: winnerSlot.name,
+                    rid: winnerSlot.rid,
+                    team: winnerSlot.team,
+                    score: ""
+                };
+                // if winner came from BYE, still ok
+            } else {
+                nextRound[targetMatchIndex][targetSide] = { id: "", name: "—", rid: "", team: "", score: "" };
+            }
+
+            // clearing further rounds downstream for consistency
+            clearDownstream(ri + 1, targetMatchIndex);
+        }
+
+        function clearDownstream(fromRoundIndex, fromMatchIndex) {
+            // When upstream changes, wipe winners in deeper rounds along that path
+            for (let r = fromRoundIndex; r < state.bracket.rounds.length; r++) {
+                const next = state.bracket.rounds[r];
+                const mi = (r === fromRoundIndex) ? fromMatchIndex : Math.floor(fromMatchIndex / Math.pow(2, (r - fromRoundIndex)));
+                const m = next[mi];
+                if (!m) continue;
+                m.winner = null;
+                m.a.score = m.a.score || "";
+                m.b.score = m.b.score || "";
+            }
+        }
+
+        function propagateClear(ri, mi) {
+            const nextRound = state.bracket.rounds[ri + 1];
+            if (!nextRound) return;
+            const targetMatchIndex = Math.floor(mi / 2);
+            const targetSide = (mi % 2 === 0) ? "a" : "b";
+            nextRound[targetMatchIndex][targetSide] = { id: "", name: "—", rid: "", team: "", score: "" };
+            clearDownstream(ri + 1, targetMatchIndex);
+        }
+
+        function autoAdvanceByes() {
+            // Set winners for matches with BYE in round 1
+            const r1 = state.bracket.rounds[0];
+            r1.forEach((m, mi) => {
+                if (m.a.name === "BYE" && m.b.name !== "BYE") {
+                    m.winner = "b"; setWinner(0, mi, "b");
+                } else if (m.b.name === "BYE" && m.a.name !== "BYE") {
+                    m.winner = "a"; setWinner(0, mi, "a");
+                }
+            });
+        }
+
+        /* =========================
+           Actions
+           ========================= */
+        $("btnGenerate").onclick = () => {
+            syncTournamentFromForm();
+            const size = state.tournament.size;
+
+            if (!isPowerOfTwo(size)) {
+                toast("El tamaño debe ser potencia de 2 (4/8/16/32).", "Error:");
+                return;
+            }
+
+            state.bracket = buildBracket(state.players, size);
+            autoAdvanceByes();
+            renderBracket();
+        };
+
+        $("btnShuffle").onclick = () => {
+            state.players = shuffleArray(state.players);
+            renderPlayers();
+            toast("Se reordenaron los participantes (seeds).", "OK:");
+        };
+
+        $("btnClearBracket").onclick = () => {
+            state.bracket = null;
+            renderBracket();
+        };
+
+        $("btnNew").onclick = () => {
+            if (!confirm("¿Nuevo torneo? Se borrará el estado actual (no la DB).")) return;
+            state.tournament = { id: null, name: "", category: "Mini Sumo", venue: "", date: "", format: "single", size: 8 };
+            state.players = [];
+            state.bracket = null;
+
+            $("t_name").value = "";
+            $("t_category").value = "Mini Sumo";
+            $("t_venue").value = "";
+            $("t_date").value = "";
+            $("t_format").value = "single";
+            $("t_size").value = "8";
+            $("r_search").value = "";
+
+            renderPlayers();
+            renderBracket();
+            setChips();
+        };
+
+        $("btnReset").onclick = () => {
+            location.reload();
+        };
+
+        /* =========================
+           Save / Load Local
+           ========================= */
+        const LOCAL_KEY = "apex_tournament_demo_v1";
+
+        $("btnSaveLocal").onclick = () => {
+            syncTournamentFromForm();
+            const payload = {
+                tournament: state.tournament,
+                players: state.players,
+                bracket: state.bracket
+            };
+            localStorage.setItem(LOCAL_KEY, JSON.stringify(payload));
+            toast("Torneo guardado en este navegador.", "Local:");
+        };
+
+        $("btnLoadLocal").onclick = () => {
+            const raw = localStorage.getItem(LOCAL_KEY);
+            if (!raw) return toast("No hay nada guardado local.", "Local:");
+            try {
+                const payload = JSON.parse(raw);
+                state.tournament = payload.tournament || state.tournament;
+                state.players = payload.players || [];
+                state.bracket = payload.bracket || null;
+
+                // fill form
+                $("t_name").value = state.tournament.name || "";
+                $("t_category").value = state.tournament.category || "Mini Sumo";
+                $("t_venue").value = state.tournament.venue || "";
+                $("t_date").value = state.tournament.date || "";
+                $("t_format").value = state.tournament.format || "single";
+                $("t_size").value = String(state.tournament.size || 8);
+
+                setChips();
+                renderPlayers();
+                renderBracket();
+                toast("Torneo cargado del navegador.", "Local:");
+            } catch (e) {
+                toast("No pude abrir el guardado local.", "Error:");
+            }
+        };
+
+        /* =========================
+           Save / Load Supabase (opcional)
+           - Requiere tabla tournaments
+           ========================= */
+        async function saveTournamentToDb() {
+            syncTournamentFromForm();
+            const row = {
+                id: state.tournament.id || undefined,
+                name: state.tournament.name || "Sin nombre",
+                category: state.tournament.category,
+                venue: state.tournament.venue,
+                date: state.tournament.date || null,
+                format: state.tournament.format,
+                size: state.tournament.size,
+                players: state.players,
+                bracket: state.bracket,
+                updated_at: new Date().toISOString()
+            };
+
+            const { data, error } = await sb
+                .from(TOURN_TABLE)
+                .upsert(row, { onConflict: "id" })
+                .select("id, name, updated_at")
+                .single();
+
+            if (error) throw error;
+            state.tournament.id = data.id;
+            return data;
+        }
+
+        async function listTournamentsFromDb() {
+            const { data, error } = await sb
+                .from(TOURN_TABLE)
+                .select("id, name, category, date, updated_at")
+                .order("updated_at", { ascending: false })
+                .limit(25);
+
+            if (error) throw error;
+            return data || [];
+        }
+
+        async function loadTournamentFromDb(id) {
+            const { data, error } = await sb
+                .from(TOURN_TABLE)
+                .select("*")
+                .eq("id", id)
+                .single();
+
+            if (error) throw error;
+            return data;
+        }
+
+        $("btnSaveDb").onclick = async () => {
+            try {
+                const saved = await saveTournamentToDb();
+                toast(`Guardado en Supabase (id: ${saved.id})`, "DB:");
+            } catch (e) {
+                toast(`No se pudo guardar en Supabase. Probable: no existe la tabla '${TOURN_TABLE}'.`, "DB:");
+                console.error(e);
+            }
+        };
+
+        $("btnLoadDb").onclick = async () => {
+            try {
+                const list = await listTournamentsFromDb();
+                if (!list.length) {
+                    toast("No hay torneos en Supabase.", "DB:");
+                    return;
+                }
+
+                // selector simple por prompt (demo)
+                const pick = prompt(
+                    "Escribe el ID del torneo a abrir:\n\n" +
+                    list.map(x => `${x.id} — ${x.name}`).join("\n")
+                );
+                if (!pick) return;
+
+                const rec = await loadTournamentFromDb(pick.trim());
+                state.tournament = {
+                    id: rec.id,
+                    name: rec.name || "",
+                    category: rec.category || "Mini Sumo",
+                    venue: rec.venue || "",
+                    date: rec.date || "",
+                    format: rec.format || "single",
+                    size: rec.size || 8
+                };
+                state.players = rec.players || [];
+                state.bracket = rec.bracket || null;
+
+                $("t_name").value = state.tournament.name || "";
+                $("t_category").value = state.tournament.category || "Mini Sumo";
+                $("t_venue").value = state.tournament.venue || "";
+                $("t_date").value = state.tournament.date || "";
+                $("t_format").value = state.tournament.format || "single";
+                $("t_size").value = String(state.tournament.size || 8);
+
+                setChips();
+                renderPlayers();
+                renderBracket();
+                toast("Torneo cargado desde Supabase.", "DB:");
+            } catch (e) {
+                toast(`No se pudo abrir desde Supabase. Probable: no existe tabla '${TOURN_TABLE}'.`, "DB:");
+                console.error(e);
+            }
+        };
+
+        /* =========================
+           Boot
+           ========================= */
+        function boot() {
+            setChips();
+            renderPlayers();
+            renderBracket();
+        }
+        boot();
+    </script>
+
+    <!--
+=========================================================
+SQL OPCIONAL (para persistir torneos en Supabase)
+=========================================================
+
+create table if not exists public.tournaments (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  category text,
+  venue text,
+  date date,
+  format text,
+  size int,
+  players jsonb,
+  bracket jsonb,
+  updated_at timestamptz default now(),
+  created_at timestamptz default now()
+);
+
+-- MVP sin login: permitir select/insert/update (no recomendado para público final)
+alter table public.tournaments enable row level security;
+
+create policy "public read tournaments"
+on public.tournaments for select
+to anon
+using (true);
+
+create policy "public upsert tournaments"
+on public.tournaments for insert
+to anon
+with check (true);
+
+create policy "public update tournaments"
+on public.tournaments for update
+to anon
+using (true);
+
+=========================================================
+-->
+</body>
+
+</html>
