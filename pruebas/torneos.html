@@ -5,8 +5,6 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>APEX TOURNAMENT ORGANIZER</title>
-
-    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -42,7 +40,7 @@
         }
 
         .wrap {
-            max-width: 1300px;
+            max-width: 1360px;
             margin: 0 auto;
             padding: 18px
         }
@@ -53,7 +51,7 @@
             justify-content: space-between;
             gap: 12px;
             margin: 6px 0 14px;
-            flex-wrap: wrap;
+            flex-wrap: wrap
         }
 
         .brand {
@@ -72,7 +70,7 @@
             height: 10px;
             border-radius: 50%;
             background: conic-gradient(from 210deg, var(--neon), var(--neon2), var(--hot), var(--neon));
-            filter: drop-shadow(0 0 10px rgba(122, 63, 255, .6));
+            filter: drop-shadow(0 0 10px rgba(122, 63, 255, .6))
         }
 
         .brand span {
@@ -120,7 +118,7 @@
             font-size: 14px;
             letter-spacing: .6px;
             text-transform: uppercase;
-            color: var(--muted);
+            color: var(--muted)
         }
 
         .panelHead .title {
@@ -328,6 +326,11 @@
             color: var(--text)
         }
 
+        .chip.mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+            font-size: 11px;
+        }
+
         /* Bracket */
         .bracketWrap {
             overflow: auto;
@@ -335,21 +338,21 @@
             border: 1px solid rgba(47, 230, 255, .18);
             background: rgba(7, 10, 16, .22);
             padding: 14px;
-            min-height: 420px;
+            min-height: 440px;
         }
 
         .bracket {
             display: flex;
             gap: 18px;
             align-items: flex-start;
-            min-width: 900px;
+            min-width: 980px;
         }
 
         .round {
             display: flex;
             flex-direction: column;
             gap: 12px;
-            min-width: 240px;
+            min-width: 260px;
         }
 
         .roundTitle {
@@ -389,14 +392,14 @@
             min-width: 0;
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 2px
         }
 
         .slot .name b {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            font-size: 13px;
+            font-size: 13px
         }
 
         .slot .name span {
@@ -404,7 +407,7 @@
             font-size: 11px;
             white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis;
+            text-overflow: ellipsis
         }
 
         .score {
@@ -423,35 +426,68 @@
             box-shadow: 0 0 0 1px rgba(47, 230, 255, .10) inset;
         }
 
-        .toast {
-            position: fixed;
-            left: 14px;
-            right: 14px;
-            bottom: 16px;
-            display: flex;
-            justify-content: center;
-            pointer-events: none;
+        /* Groups */
+        .groupsWrap {
+            border-radius: 18px;
+            border: 1px solid rgba(47, 230, 255, .18);
+            background: rgba(7, 10, 16, .22);
+            padding: 14px;
         }
 
-        .toast .msg {
-            pointer-events: auto;
-            max-width: 1200px;
-            width: 100%;
+        .groupsGrid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 1100px) {
+            .groupsGrid {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .groupCard {
             border-radius: 16px;
-            padding: 12px 14px;
-            border: 1px solid rgba(234, 240, 255, .14);
-            background: rgba(0, 0, 0, .55);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 18px 60px rgba(0, 0, 0, .55);
+            border: 1px solid rgba(122, 63, 255, .22);
+            background: rgba(0, 0, 0, .12);
+            padding: 12px;
+        }
+
+        .groupCard h3 {
+            margin: 0 0 8px;
+            font-size: 12px;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            color: rgba(234, 240, 255, .55);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
+        }
+
+        .groupLine {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 14px;
+            border: 1px solid rgba(47, 230, 255, .14);
+            background: rgba(7, 10, 16, .18);
+            margin-top: 8px;
             font-size: 13px;
         }
 
-        .toast b {
-            color: var(--neon2)
+        .groupLine:first-child {
+            margin-top: 0
+        }
+
+        .groupLine span {
+            color: rgba(234, 240, 255, .55);
+            font-size: 11px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 55%
         }
 
         .hidden {
@@ -466,21 +502,22 @@
             <div class="brand">
                 <div class="dot"></div><span>APEX TOURNAMENT ORGANIZER</span>
             </div>
-            <div class="badge"><b id="mode">organizador</b> · conecta con <b>robot_cards</b> · sin login (demo)</div>
+            <div class="badge">
+                <b id="mode">demo</b> · tamaños flexibles · single / groups / double
+                <span id="miniStatus" style="opacity:.9"></span>
+            </div>
         </div>
 
         <section class="panel">
             <div class="panelHead">
                 <div class="title">
-                    <h2>Panel de organizador</h2>
-                    <b>Crear torneo · Inscripciones · Llaves</b>
+                    <h2>Panel organizador</h2>
+                    <b>Crear torneo · inscripciones · llaves</b>
                 </div>
                 <div class="btnRow">
-                    <button class="btn" id="btnNew">Nuevo torneo</button>
-                    <button class="btn" id="btnLoadLocal">Abrir local</button>
+                    <button class="btn" id="btnNew">Nuevo</button>
                     <button class="btn primary" id="btnSaveLocal">Guardar local</button>
-                    <button class="btn" id="btnLoadDb">Abrir Supabase</button>
-                    <button class="btn primary" id="btnSaveDb">Guardar Supabase</button>
+                    <button class="btn" id="btnLoadLocal">Abrir local</button>
                     <button class="btn hot" id="btnReset">Reset</button>
                 </div>
             </div>
@@ -488,7 +525,7 @@
             <div class="content">
                 <div class="grid">
 
-                    <!-- LEFT: Tournament config + registration -->
+                    <!-- LEFT -->
                     <div class="panel">
                         <div class="panelHead">
                             <div class="title">
@@ -502,7 +539,7 @@
                             <div class="sectionTitle">Datos del torneo</div>
                             <div class="miniGrid">
                                 <div>
-                                    <label>Nombre del torneo</label>
+                                    <label>Nombre</label>
                                     <input id="t_name" placeholder="Ej. Copa MiniSumo CDMX 2026" />
                                 </div>
                                 <div>
@@ -524,22 +561,27 @@
                                     <label>Fecha</label>
                                     <input id="t_date" type="date" />
                                 </div>
+
                                 <div>
                                     <label>Formato</label>
                                     <select id="t_format">
                                         <option value="single">Eliminación directa (Single)</option>
-                                        <option value="groups" disabled>Grupos + eliminatoria (próximamente)</option>
-                                        <option value="double" disabled>Doble eliminación (próximamente)</option>
+                                        <option value="groups">Grupos + Eliminación</option>
+                                        <option value="double">Doble eliminación (W/L bracket)</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label>Tamaño de llave</label>
-                                    <select id="t_size">
-                                        <option value="4">4</option>
-                                        <option value="8" selected>8</option>
-                                        <option value="16">16</option>
-                                        <option value="32">32</option>
-                                    </select>
+                                    <label>Número de participantes (N)</label>
+                                    <input id="t_n" type="number" min="2" value="8" />
+                                </div>
+
+                                <div>
+                                    <label>Regla (Grupos): # Grupos</label>
+                                    <input id="t_groups" type="number" min="2" value="4" />
+                                </div>
+                                <div>
+                                    <label>Regla (Grupos): avanzan por grupo</label>
+                                    <input id="t_adv" type="number" min="1" value="2" />
                                 </div>
                             </div>
 
@@ -560,12 +602,12 @@
 
                             <div class="list" id="searchList" style="margin-top:10px">
                                 <div class="row">
-                                    <div class="left"><b>Tip</b><span>Escribe y busca para traer robots desde
-                                            Supabase.</span></div>
+                                    <div class="left"><b>Tip</b><span>Busca robots en Supabase y agrégalos como
+                                            participantes.</span></div>
                                 </div>
                             </div>
 
-                            <div class="sectionTitle">Participantes del torneo</div>
+                            <div class="sectionTitle">Participantes (seeds)</div>
                             <div class="list" id="playersList">
                                 <div class="row">
                                     <div class="left"><b>Vacío</b><span>Agrega robots desde la búsqueda.</span></div>
@@ -573,34 +615,45 @@
                             </div>
 
                             <div class="hint">
-                                Reglas demo: puedes agregar robots hasta llenar el tamaño de llave. Si faltan, el
-                                sistema agrega <b>BYE</b>.
+                                N puede ser cualquier número. El sistema calcula BYEs automáticamente (nextPow2 - N).
+                                En grupos, se reparte en “serpiente” para balancear.
                             </div>
                         </div>
                     </div>
 
-                    <!-- RIGHT: Bracket -->
+                    <!-- RIGHT -->
                     <div class="panel">
                         <div class="panelHead">
                             <div class="title">
-                                <h2>Llaves</h2>
-                                <b>Bracket (Single Elimination)</b>
+                                <h2>Vista</h2>
+                                <b id="viewTitle">Llaves / grupos</b>
                             </div>
                             <div class="btnRow">
-                                <button class="btn primary" id="btnGenerate">Generar llave</button>
+                                <button class="btn primary" id="btnGenerate">Generar</button>
                                 <button class="btn" id="btnShuffle">Mezclar seeds</button>
-                                <button class="btn" id="btnClearBracket">Limpiar bracket</button>
+                                <button class="btn" id="btnClearView">Limpiar vista</button>
                             </div>
                         </div>
 
                         <div class="content">
-                            <div class="bracketWrap">
+                            <!-- Groups -->
+                            <div id="groupsArea" class="groupsWrap hidden">
+                                <div class="sectionTitle">Grupos</div>
+                                <div class="groupsGrid" id="groupsGrid"></div>
+                                <div class="sectionTitle" style="margin-top:14px">Fase final</div>
+                                <div class="bracketWrap">
+                                    <div class="bracket" id="finalBracket"></div>
+                                </div>
+                            </div>
+
+                            <!-- Single / Double Brackets -->
+                            <div id="bracketArea" class="bracketWrap">
                                 <div class="bracket" id="bracket"></div>
                             </div>
 
-                            <div class="hint">
-                                Aquí luego metemos: check-in, pesaje, inspector, rondas, mesas, árbitros, cronómetro, y
-                                export PDF.
+                            <div class="hint" style="margin-top:12px">
+                                Doble eliminación aquí es estructura visual (Winners + Losers + Grand Final). Luego
+                                metemos propagación completa.
                             </div>
                         </div>
                     </div>
@@ -609,78 +662,70 @@
             </div>
         </section>
 
-        <div class="toast hidden" id="toast">
-            <div class="msg">
-                <div id="toastText">—</div>
-                <button class="btn ghost" id="toastClose">Cerrar</button>
-            </div>
-        </div>
     </div>
 
     <script>
         /* =========================
-           CONFIG (tus credenciales)
+           SUPABASE
            ========================= */
         const SUPABASE_URL = "https://pddjulxliqlqoopveugh.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_BgfIRiHsUgqPhCqZ4L8yEA_wjarKci0";
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        // Robots table (ya la usas)
         const ROBOT_TABLE = "robot_cards";
 
-        // Torneos (opcional) -> si no existe, se guardará solo en local
-        const TOURN_TABLE = "tournaments";
-
         /* =========================
-           State
+           Helpers / State
            ========================= */
+        const $ = (id) => document.getElementById(id);
+
         const state = {
             tournament: {
-                id: null,
                 name: "",
                 category: "Mini Sumo",
                 venue: "",
                 date: "",
                 format: "single",
-                size: 8
+                n: 8,
+                groups: 4,
+                adv: 2
             },
-            // players: array of compact robot objects { i, n, t, c, ... } from robot_cards.data
             players: [],
-            // bracket structure
-            bracket: null,
+            view: null, // { type, data }
         };
 
-        const $ = (id) => document.getElementById(id);
+        function esc(s) { return String(s ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[m])); }
 
-        function toast(msg, bold = "") {
-            $("toastText").innerHTML = bold ? `<b>${escapeHtml(bold)}</b> ${escapeHtml(msg)}` : escapeHtml(msg);
-            $("toast").classList.remove("hidden");
-        }
-        $("toastClose").onclick = () => $("toast").classList.add("hidden");
-
-        function escapeHtml(s) {
-            return String(s ?? "").replace(/[&<>"']/g, (m) => ({
-                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
-            }[m]));
+        function nextPow2(n) {
+            let p = 1;
+            while (p < n) p <<= 1;
+            return p;
         }
 
         function setChips() {
             const t = state.tournament;
-            const chips = [
-                { text: `Cat: ${t.category}`, cls: "good" },
-                { text: `Formato: Single`, cls: "" },
-                { text: `Llave: ${t.size}`, cls: "warn" },
-                { text: t.date ? `Fecha: ${t.date}` : `Fecha: —`, cls: "" },
-            ];
+            const np2 = nextPow2(Math.max(2, t.n));
+            const byes = np2 - t.n;
             const wrap = $("tChips");
             wrap.innerHTML = "";
-            for (const c of chips) {
+
+            const chips = [
+                { text: `Cat: ${t.category}`, cls: "good" },
+                { text: `Formato: ${t.format}`, cls: "" },
+                { text: `N: ${t.n}`, cls: "warn" },
+                { text: `Bracket: ${np2}`, cls: "" },
+                { text: `BYEs: ${byes}`, cls: byes ? "warn" : "good" },
+                { text: t.date ? `Fecha: ${t.date}` : "Fecha: —", cls: "" }
+            ];
+
+            chips.forEach(c => {
                 const d = document.createElement("div");
                 d.className = "chip " + (c.cls || "");
                 d.textContent = c.text;
                 wrap.appendChild(d);
-            }
+            });
+
             $("tTitle").textContent = t.name || "Sin nombre";
+            $("mode").textContent = t.format;
         }
 
         function syncTournamentFromForm() {
@@ -689,18 +734,20 @@
             state.tournament.venue = $("t_venue").value.trim();
             state.tournament.date = $("t_date").value;
             state.tournament.format = $("t_format").value;
-            state.tournament.size = parseInt($("t_size").value, 10);
+
+            state.tournament.n = Math.max(2, parseInt($("t_n").value || "2", 10));
+            state.tournament.groups = Math.max(2, parseInt($("t_groups").value || "2", 10));
+            state.tournament.adv = Math.max(1, parseInt($("t_adv").value || "1", 10));
+
             setChips();
+            updateViewMode();
         }
 
-        ["t_name", "t_category", "t_venue", "t_date", "t_format", "t_size"].forEach(id => {
+        ["t_name", "t_category", "t_venue", "t_date", "t_format", "t_n", "t_groups", "t_adv"].forEach(id => {
             $(id).addEventListener("input", syncTournamentFromForm);
             $(id).addEventListener("change", syncTournamentFromForm);
         });
 
-        /* =========================
-           Robots search
-           ========================= */
         function robotLabel(compact) {
             const rid = compact?.i || "";
             const name = compact?.n || "Robot";
@@ -709,27 +756,34 @@
             return { rid, name, sub: [rid, cat, team].filter(Boolean).join(" · ") };
         }
 
+        function shuffleArray(arr) {
+            const a = arr.slice();
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        /* =========================
+           Search robots (demo robust)
+           ========================= */
         async function searchRobots() {
             const q = $("r_search").value.trim();
-            if (!q) {
-                toast("Escribe algo para buscar.", "Falta:");
-                return;
-            }
+            if (!q) { $("searchList").innerHTML = `<div class="row"><div class="left"><b>Tip</b><span>Escribe algo para buscar.</span></div></div>`; return; }
 
+            $("miniStatus").textContent = "· buscando…";
             $("searchList").innerHTML = `<div class="row"><div class="left"><b>Buscando…</b><span>Supabase</span></div></div>`;
 
-            // Buscar por robot_id exacto o parcial (si la columna robot_id es text)
-            // y/o por data->>n (nombre) y data->>t (equipo) con ilike.
-            // Nota: el filtro JSON puede variar, por eso hacemos dos pasos:
-            // 1) Trae últimos N y filtra en cliente (demo simple, robusto).
             const { data, error } = await sb
                 .from(ROBOT_TABLE)
                 .select("robot_id, data, updated_at, created_at")
                 .order("updated_at", { ascending: false })
-                .limit(200);
+                .limit(250);
 
             if (error) {
-                $("searchList").innerHTML = `<div class="row"><div class="left"><b>Error</b><span>${escapeHtml(error.message)}</span></div></div>`;
+                $("searchList").innerHTML = `<div class="row"><div class="left"><b>Error</b><span>${esc(error.message)}</span></div></div>`;
+                $("miniStatus").textContent = "";
                 return;
             }
 
@@ -743,6 +797,7 @@
 
             if (!res.length) {
                 $("searchList").innerHTML = `<div class="row"><div class="left"><b>Sin resultados</b><span>Prueba otro texto.</span></div></div>`;
+                $("miniStatus").textContent = "";
                 return;
             }
 
@@ -752,14 +807,12 @@
                 return `
       <div class="row">
         <div class="left">
-          <b title="${escapeHtml(info.name)}">${escapeHtml(info.name)}</b>
-          <span title="${escapeHtml(info.sub)}">${escapeHtml(info.sub)}</span>
+          <b title="${esc(info.name)}">${esc(info.name)}</b>
+          <span title="${esc(info.sub)}">${esc(info.sub)}</span>
         </div>
         <div class="right">
-          <button class="btn ${already ? "ghost" : "primary"}" data-add="${escapeHtml(r.robot_id)}">
-            ${already ? "Agregado" : "Agregar"}
-          </button>
-          <button class="btn" data-open="${escapeHtml(r.robot_id)}">Ver</button>
+          <button class="btn ${already ? "ghost" : "primary"}" data-add="${esc(r.robot_id)}">${already ? "Agregado" : "Agregar"}</button>
+          <button class="btn" data-open="${esc(r.robot_id)}">Ver</button>
         </div>
       </div>
     `;
@@ -772,6 +825,7 @@
                     if (!row) return;
                     addPlayer(row.data);
                     renderPlayers();
+                    syncParticipantsToN();
                     b.textContent = "Agregado";
                     b.classList.remove("primary");
                     b.classList.add("ghost");
@@ -781,35 +835,42 @@
             $("searchList").querySelectorAll("[data-open]").forEach(b => {
                 b.addEventListener("click", () => {
                     const rid = b.getAttribute("data-open");
-                    // abre tu viewer normal (index.html) si lo tienes publicado
                     window.open(`https://areivan.github.io/Minisumo_QR/#id=${encodeURIComponent(rid)}`, "_blank");
                 });
             });
+
+            $("miniStatus").textContent = "· listo ✅";
         }
 
         $("btnSearch").onclick = searchRobots;
         $("r_search").addEventListener("keydown", (e) => { if (e.key === "Enter") searchRobots(); });
         $("btnClearSearch").onclick = () => {
             $("r_search").value = "";
-            $("searchList").innerHTML = `<div class="row"><div class="left"><b>Tip</b><span>Escribe y busca para traer robots desde Supabase.</span></div></div>`;
+            $("searchList").innerHTML = `<div class="row"><div class="left"><b>Tip</b><span>Busca robots en Supabase y agrégalos como participantes.</span></div></div>`;
         };
 
         /* =========================
-           Players list
+           Players (respect N)
            ========================= */
+        function syncParticipantsToN() {
+            const N = state.tournament.n;
+            if (state.players.length > N) {
+                state.players = state.players.slice(0, N);
+                renderPlayers();
+            }
+        }
+
         function addPlayer(compact) {
             syncTournamentFromForm();
             if (!compact?.i) return;
 
-            // no dupes
             if (state.players.some(p => p.i === compact.i)) return;
 
-            const max = state.tournament.size;
-            if (state.players.length >= max) {
-                toast(`La llave es de ${max}. Quita uno o cambia el tamaño.`, "Límite:");
+            const N = state.tournament.n;
+            if (state.players.length >= N) {
+                alert(`Ya tienes ${N} participantes (N). Sube N o quita uno.`);
                 return;
             }
-
             state.players.push(compact);
         }
 
@@ -829,13 +890,13 @@
                 return `
       <div class="row">
         <div class="left">
-          <b>${escapeHtml((idx + 1) + ". " + info.name)}</b>
-          <span>${escapeHtml(info.sub)}</span>
+          <b>${esc((idx + 1) + ". " + info.name)}</b>
+          <span>${esc(info.sub)}</span>
         </div>
         <div class="right">
-          <button class="btn" data-up="${escapeHtml(p.i)}">↑</button>
-          <button class="btn" data-down="${escapeHtml(p.i)}">↓</button>
-          <button class="btn hot" data-remove="${escapeHtml(p.i)}">Quitar</button>
+          <button class="btn" data-up="${esc(p.i)}">↑</button>
+          <button class="btn" data-down="${esc(p.i)}">↓</button>
+          <button class="btn hot" data-remove="${esc(p.i)}">Quitar</button>
         </div>
       </div>
     `;
@@ -848,23 +909,23 @@
                 });
             });
 
-            // reorder (seed control)
             list.querySelectorAll("[data-up]").forEach(b => {
                 b.addEventListener("click", () => {
                     const id = b.getAttribute("data-up");
                     const i = state.players.findIndex(x => x.i === id);
                     if (i > 0) {
-                        const tmp = state.players[i - 1]; state.players[i - 1] = state.players[i]; state.players[i] = tmp;
+                        [state.players[i - 1], state.players[i]] = [state.players[i], state.players[i - 1]];
                         renderPlayers();
                     }
                 });
             });
+
             list.querySelectorAll("[data-down]").forEach(b => {
                 b.addEventListener("click", () => {
                     const id = b.getAttribute("data-down");
                     const i = state.players.findIndex(x => x.i === id);
                     if (i >= 0 && i < state.players.length - 1) {
-                        const tmp = state.players[i + 1]; state.players[i + 1] = state.players[i]; state.players[i] = tmp;
+                        [state.players[i + 1], state.players[i]] = [state.players[i], state.players[i + 1]];
                         renderPlayers();
                     }
                 });
@@ -872,22 +933,28 @@
         }
 
         /* =========================
-           Bracket generation (single elimination)
+           View mode switch
            ========================= */
-        function isPowerOfTwo(n) { return (n & (n - 1)) === 0; }
+        function updateViewMode() {
+            const f = state.tournament.format;
+            $("viewTitle").textContent = (f === "groups") ? "Grupos + Fase final" : (f === "double" ? "Double (W/L)" : "Single Bracket");
 
-        function shuffleArray(arr) {
-            const a = arr.slice();
-            for (let i = a.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [a[i], a[j]] = [a[j], a[i]];
+            if (f === "groups") {
+                $("groupsArea").classList.remove("hidden");
+                $("bracketArea").classList.add("hidden");
+            } else {
+                $("groupsArea").classList.add("hidden");
+                $("bracketArea").classList.remove("hidden");
             }
-            return a;
         }
 
-        function buildBracket(players, size) {
-            // Fill to size with BYE
-            const slots = players.slice(0, size).map(p => ({
+        /* =========================
+           Bracket builders
+           ========================= */
+        function buildSingleBracket(players, N) {
+            // For single: bracket size = nextPow2(N)
+            const size = nextPow2(N);
+            const slots = players.slice(0, N).map(p => ({
                 id: p.i,
                 name: p.n || "Robot",
                 rid: p.i,
@@ -896,21 +963,12 @@
             }));
 
             while (slots.length < size) {
-                slots.push({
-                    id: "BYE_" + slots.length,
-                    name: "BYE",
-                    rid: "",
-                    team: "",
-                    compact: null,
-                    bye: true
-                });
+                slots.push({ id: `BYE_${slots.length}`, name: "BYE", rid: "", team: "", compact: null, bye: true });
             }
 
-            // Rounds = log2(size)
             const rounds = [];
+            // R1
             let current = [];
-
-            // First round matches
             for (let i = 0; i < size; i += 2) {
                 current.push({
                     id: `R1M${i / 2 + 1}`,
@@ -921,7 +979,6 @@
             }
             rounds.push(current);
 
-            // Next rounds
             const totalRounds = Math.log2(size);
             for (let r = 2; r <= totalRounds; r++) {
                 const prev = rounds[r - 2];
@@ -937,359 +994,452 @@
                 rounds.push(matches);
             }
 
-            return { size, rounds };
+            return { type: "single", size, rounds };
         }
 
-        function renderBracket() {
-            const wrap = $("bracket");
+        function renderBracket(bracket, mountId) {
+            const wrap = document.getElementById(mountId);
             wrap.innerHTML = "";
 
-            if (!state.bracket) {
-                wrap.innerHTML = `<div class="round"><div class="roundTitle"><span>Bracket</span><span class="chip">—</span></div>
-      <div class="match"><div class="hint">Genera una llave para ver el bracket.</div></div></div>`;
+            if (!bracket) {
+                wrap.innerHTML = `<div class="round"><div class="roundTitle"><span>Vista</span><span class="chip">—</span></div>
+      <div class="match"><div class="hint">Genera para ver.</div></div></div>`;
                 return;
             }
 
-            const rounds = state.bracket.rounds;
+            const rounds = bracket.rounds;
             rounds.forEach((matches, ri) => {
                 const roundEl = document.createElement("div");
                 roundEl.className = "round";
-                const title = ri === rounds.length - 1 ? "Final" : `Ronda ${ri + 1}`;
-                roundEl.innerHTML = `<div class="roundTitle"><span>${title}</span><span class="chip">${matches.length} matches</span></div>`;
+                const title = (ri === rounds.length - 1) ? "Final" : `Ronda ${ri + 1}`;
+                roundEl.innerHTML = `<div class="roundTitle"><span>${title}</span><span class="chip mono">${matches.length} matches</span></div>`;
+
                 matches.forEach((m, mi) => {
                     const matchEl = document.createElement("div");
                     matchEl.className = "match";
                     matchEl.innerHTML = `
         <div class="slot ${m.winner === "a" ? "win" : ""}">
           <div class="name">
-            <b>${escapeHtml(m.a.name)}</b>
-            <span>${escapeHtml([m.a.rid, m.a.team].filter(Boolean).join(" · "))}</span>
+            <b>${esc(m.a.name)}</b>
+            <span>${esc([m.a.rid, m.a.team].filter(Boolean).join(" · "))}</span>
           </div>
-          <input class="score" inputmode="numeric" placeholder="—" value="${escapeHtml(m.a.score || "")}" data-score="a" data-ri="${ri}" data-mi="${mi}"/>
+          <input class="score" inputmode="numeric" placeholder="—" value="${esc(m.a.score || "")}" data-score="a" data-ri="${ri}" data-mi="${mi}" data-mount="${mountId}"/>
         </div>
         <div class="slot ${m.winner === "b" ? "win" : ""}">
           <div class="name">
-            <b>${escapeHtml(m.b.name)}</b>
-            <span>${escapeHtml([m.b.rid, m.b.team].filter(Boolean).join(" · "))}</span>
+            <b>${esc(m.b.name)}</b>
+            <span>${esc([m.b.rid, m.b.team].filter(Boolean).join(" · "))}</span>
           </div>
-          <input class="score" inputmode="numeric" placeholder="—" value="${escapeHtml(m.b.score || "")}" data-score="b" data-ri="${ri}" data-mi="${mi}"/>
+          <input class="score" inputmode="numeric" placeholder="—" value="${esc(m.b.score || "")}" data-score="b" data-ri="${ri}" data-mi="${mi}" data-mount="${mountId}"/>
         </div>
         <div class="btnRow" style="margin-top:10px">
-          <button class="btn primary" data-win="a" data-ri="${ri}" data-mi="${mi}">Gana A</button>
-          <button class="btn primary" data-win="b" data-ri="${ri}" data-mi="${mi}">Gana B</button>
-          <button class="btn" data-clear="1" data-ri="${ri}" data-mi="${mi}">Limpiar</button>
+          <button class="btn primary" data-win="a" data-ri="${ri}" data-mi="${mi}" data-mount="${mountId}">Gana A</button>
+          <button class="btn primary" data-win="b" data-ri="${ri}" data-mi="${mi}" data-mount="${mountId}">Gana B</button>
+          <button class="btn" data-clear="1" data-ri="${ri}" data-mi="${mi}" data-mount="${mountId}">Limpiar</button>
         </div>
       `;
                     roundEl.appendChild(matchEl);
                 });
+
                 wrap.appendChild(roundEl);
             });
 
-            // score handlers
+            // Score
             wrap.querySelectorAll("[data-score]").forEach(inp => {
                 inp.addEventListener("input", () => {
+                    const mount = inp.getAttribute("data-mount");
                     const ri = parseInt(inp.getAttribute("data-ri"), 10);
                     const mi = parseInt(inp.getAttribute("data-mi"), 10);
                     const side = inp.getAttribute("data-score");
-                    const v = inp.value;
-                    if (side === "a") state.bracket.rounds[ri][mi].a.score = v;
-                    if (side === "b") state.bracket.rounds[ri][mi].b.score = v;
+
+                    const b = (mount === "finalBracket") ? state.view.finalBracket : state.view.bracket;
+                    if (!b) return;
+                    if (side === "a") b.rounds[ri][mi].a.score = inp.value;
+                    if (side === "b") b.rounds[ri][mi].b.score = inp.value;
                 });
             });
 
-            // winner handlers
+            // Winner + clear (propagación simple solo en single demo)
             wrap.querySelectorAll("[data-win]").forEach(btn => {
                 btn.addEventListener("click", () => {
+                    const mount = btn.getAttribute("data-mount");
                     const ri = parseInt(btn.getAttribute("data-ri"), 10);
                     const mi = parseInt(btn.getAttribute("data-mi"), 10);
                     const w = btn.getAttribute("data-win");
-                    setWinner(ri, mi, w);
-                    renderBracket();
+
+                    const b = (mount === "finalBracket") ? state.view.finalBracket : state.view.bracket;
+                    if (!b) return;
+
+                    setWinnerSingle(b, ri, mi, w);
+                    renderBracket(b, mount);
                 });
             });
 
-            // clear match
             wrap.querySelectorAll("[data-clear]").forEach(btn => {
                 btn.addEventListener("click", () => {
+                    const mount = btn.getAttribute("data-mount");
                     const ri = parseInt(btn.getAttribute("data-ri"), 10);
                     const mi = parseInt(btn.getAttribute("data-mi"), 10);
-                    const m = state.bracket.rounds[ri][mi];
-                    m.winner = null;
-                    m.a.score = "";
-                    m.b.score = "";
-                    // also clear propagation to next round
-                    propagateClear(ri, mi);
-                    renderBracket();
+                    const b = (mount === "finalBracket") ? state.view.finalBracket : state.view.bracket;
+                    if (!b) return;
+
+                    const m = b.rounds[ri][mi];
+                    m.winner = null; m.a.score = ""; m.b.score = "";
+                    propagateClearSingle(b, ri, mi);
+                    renderBracket(b, mount);
                 });
             });
         }
 
-        function setWinner(ri, mi, side) {
-            const m = state.bracket.rounds[ri][mi];
+        function setWinnerSingle(bracket, ri, mi, side) {
+            const m = bracket.rounds[ri][mi];
             m.winner = side;
 
-            // BYE auto-advance: if opponent is BYE, force winner
+            // auto BYE
             if (m.a.name === "BYE" && m.b.name !== "BYE") m.winner = "b";
             if (m.b.name === "BYE" && m.a.name !== "BYE") m.winner = "a";
             if (m.a.name === "BYE" && m.b.name === "BYE") m.winner = null;
 
-            // propagate to next round slot
-            const nextRound = state.bracket.rounds[ri + 1];
+            const nextRound = bracket.rounds[ri + 1];
             if (!nextRound) return;
 
             const targetMatchIndex = Math.floor(mi / 2);
             const targetSide = (mi % 2 === 0) ? "a" : "b";
 
             const winnerSlot = (m.winner === "a") ? m.a : (m.winner === "b" ? m.b : null);
-
             if (winnerSlot) {
                 nextRound[targetMatchIndex][targetSide] = {
-                    id: winnerSlot.id,
-                    name: winnerSlot.name,
-                    rid: winnerSlot.rid,
-                    team: winnerSlot.team,
-                    score: ""
+                    id: winnerSlot.id, name: winnerSlot.name, rid: winnerSlot.rid, team: winnerSlot.team, score: ""
                 };
-                // if winner came from BYE, still ok
             } else {
                 nextRound[targetMatchIndex][targetSide] = { id: "", name: "—", rid: "", team: "", score: "" };
             }
 
-            // clearing further rounds downstream for consistency
-            clearDownstream(ri + 1, targetMatchIndex);
+            clearDownstreamSingle(bracket, ri + 1, targetMatchIndex);
         }
 
-        function clearDownstream(fromRoundIndex, fromMatchIndex) {
-            // When upstream changes, wipe winners in deeper rounds along that path
-            for (let r = fromRoundIndex; r < state.bracket.rounds.length; r++) {
-                const next = state.bracket.rounds[r];
-                const mi = (r === fromRoundIndex) ? fromMatchIndex : Math.floor(fromMatchIndex / Math.pow(2, (r - fromRoundIndex)));
-                const m = next[mi];
-                if (!m) continue;
-                m.winner = null;
-                m.a.score = m.a.score || "";
-                m.b.score = m.b.score || "";
-            }
-        }
-
-        function propagateClear(ri, mi) {
-            const nextRound = state.bracket.rounds[ri + 1];
+        function propagateClearSingle(bracket, ri, mi) {
+            const nextRound = bracket.rounds[ri + 1];
             if (!nextRound) return;
             const targetMatchIndex = Math.floor(mi / 2);
             const targetSide = (mi % 2 === 0) ? "a" : "b";
             nextRound[targetMatchIndex][targetSide] = { id: "", name: "—", rid: "", team: "", score: "" };
-            clearDownstream(ri + 1, targetMatchIndex);
+            clearDownstreamSingle(bracket, ri + 1, targetMatchIndex);
         }
 
-        function autoAdvanceByes() {
-            // Set winners for matches with BYE in round 1
-            const r1 = state.bracket.rounds[0];
+        function clearDownstreamSingle(bracket, fromRoundIndex, fromMatchIndex) {
+            for (let r = fromRoundIndex; r < bracket.rounds.length; r++) {
+                const next = bracket.rounds[r];
+                const mi = (r === fromRoundIndex) ? fromMatchIndex : Math.floor(fromMatchIndex / Math.pow(2, (r - fromRoundIndex)));
+                const m = next[mi];
+                if (!m) continue;
+                m.winner = null;
+            }
+        }
+
+        function autoAdvanceByesSingle(bracket) {
+            const r1 = bracket.rounds[0];
             r1.forEach((m, mi) => {
-                if (m.a.name === "BYE" && m.b.name !== "BYE") {
-                    m.winner = "b"; setWinner(0, mi, "b");
-                } else if (m.b.name === "BYE" && m.a.name !== "BYE") {
-                    m.winner = "a"; setWinner(0, mi, "a");
-                }
+                if (m.a.name === "BYE" && m.b.name !== "BYE") setWinnerSingle(bracket, 0, mi, "b");
+                else if (m.b.name === "BYE" && m.a.name !== "BYE") setWinnerSingle(bracket, 0, mi, "a");
             });
         }
 
         /* =========================
-           Actions
+           Groups builder (demo)
            ========================= */
-        $("btnGenerate").onclick = () => {
-            syncTournamentFromForm();
-            const size = state.tournament.size;
+        function assignGroupsSnake(players, g) {
+            const groups = Array.from({ length: g }, () => []);
+            const ps = players.slice();
+            // serpiente: 0..g-1, g-1..0 ...
+            let dir = 1, idx = 0;
+            for (let i = 0; i < ps.length; i++) {
+                groups[idx].push(ps[i]);
+                if (dir === 1) {
+                    idx++;
+                    if (idx === g) { idx = g - 1; dir = -1; }
+                } else {
+                    idx--;
+                    if (idx < 0) { idx = 0; dir = 1; }
+                }
+            }
+            return groups;
+        }
 
-            if (!isPowerOfTwo(size)) {
-                toast("El tamaño debe ser potencia de 2 (4/8/16/32).", "Error:");
+        function renderGroups(groups) {
+            const grid = $("groupsGrid");
+            grid.innerHTML = "";
+            groups.forEach((arr, i) => {
+                const card = document.createElement("div");
+                card.className = "groupCard";
+                const title = document.createElement("h3");
+                title.innerHTML = `<span>Grupo ${String.fromCharCode(65 + i)}</span><span class="chip mono">${arr.length} robots</span>`;
+                card.appendChild(title);
+
+                arr.forEach((p, j) => {
+                    const info = robotLabel(p);
+                    const line = document.createElement("div");
+                    line.className = "groupLine";
+                    line.innerHTML = `<b>${esc(info.name)}</b><span>${esc([info.rid, p.t || ""].filter(Boolean).join(" · "))}</span>`;
+                    card.appendChild(line);
+                });
+
+                grid.appendChild(card);
+            });
+        }
+
+        /* =========================
+           Double elimination (structure demo)
+           ========================= */
+        function buildDoubleStructure(players, N) {
+            // Winners bracket uses nextPow2(N) like single
+            const wb = buildSingleBracket(players, N);
+            // Losers bracket structure size is more complex; for demo show placeholder rounds count
+            const size = wb.size;
+            const wbRounds = wb.rounds.length;
+
+            // Losers rounds count (common pattern): 2*(wbRounds-1)
+            const lbRoundsCount = 2 * (wbRounds - 1);
+            const lb = {
+                type: "losers",
+                rounds: Array.from({ length: lbRoundsCount }, (_, i) => {
+                    // matches count pattern is tricky; for demo decreasing
+                    const approxMatches = Math.max(1, Math.floor(size / Math.pow(2, Math.floor((i + 2) / 2) + 1)));
+                    return Array.from({ length: approxMatches }, (__, mi) => ({
+                        id: `L${i + 1}M${mi + 1}`,
+                        a: { id: "", name: "—", rid: "", team: "", score: "" },
+                        b: { id: "", name: "—", rid: "", team: "", score: "" },
+                        winner: null
+                    }));
+                })
+            };
+
+            const gf = {
+                type: "grand_final",
+                rounds: [[
+                    {
+                        id: "GF",
+                        a: { id: "", name: "Winners Champ", rid: "", team: "", score: "" },
+                        b: { id: "", name: "Losers Champ", rid: "", team: "", score: "" },
+                        winner: null
+                    }
+                ]]
+            };
+
+            return { type: "double", winners: wb, losers: lb, grandFinal: gf };
+        }
+
+        /* =========================
+           Generate view
+           ========================= */
+        function clearView() {
+            state.view = null;
+            $("bracket").innerHTML = "";
+            $("finalBracket").innerHTML = "";
+            $("groupsGrid").innerHTML = "";
+            renderBracket(null, "bracket");
+        }
+
+        function generate() {
+            syncTournamentFromForm();
+            syncParticipantsToN();
+
+            const t = state.tournament;
+            const N = t.n;
+
+            if (state.players.length < 2) {
+                alert("Agrega al menos 2 participantes.");
                 return;
             }
 
-            state.bracket = buildBracket(state.players, size);
-            autoAdvanceByes();
-            renderBracket();
-        };
+            if (state.players.length > N) {
+                alert(`Tienes más de N=${N}. Quita participantes o sube N.`);
+                return;
+            }
 
+            const fmt = t.format;
+
+            if (fmt === "single") {
+                const bracket = buildSingleBracket(state.players, N);
+                autoAdvanceByesSingle(bracket);
+                state.view = { type: "single", bracket };
+                renderBracket(bracket, "bracket");
+            }
+
+            if (fmt === "groups") {
+                const g = Math.min(t.groups, Math.max(2, state.players.length)); // no más grupos que players
+                const adv = Math.max(1, t.adv);
+
+                const groups = assignGroupsSnake(state.players, g);
+                renderGroups(groups);
+
+                // demo: “avanzan” los primeros adv de cada grupo (por seed order)
+                let qualifiers = [];
+                groups.forEach(arr => {
+                    qualifiers = qualifiers.concat(arr.slice(0, adv));
+                });
+
+                // fase final
+                const finalN = Math.max(2, qualifiers.length);
+                const bracket = buildSingleBracket(qualifiers, finalN);
+                autoAdvanceByesSingle(bracket);
+
+                state.view = { type: "groups", groups, qualifiers, finalBracket: bracket };
+                renderBracket(bracket, "finalBracket");
+            }
+
+            if (fmt === "double") {
+                const dbl = buildDoubleStructure(state.players, N);
+                state.view = { type: "double", dbl };
+
+                // Render winners on main bracket area, then append losers + GF below as “round columns”
+                // (Para demo visual: lo mostramos todo dentro del mismo contenedor como columnas extra)
+                const mount = $("bracket");
+                mount.innerHTML = "";
+
+                // Winners label
+                const winnersLabel = document.createElement("div");
+                winnersLabel.className = "round";
+                winnersLabel.innerHTML = `<div class="roundTitle"><span>Winners Bracket</span><span class="chip mono">${dbl.winners.size}</span></div>`;
+                mount.appendChild(winnersLabel);
+
+                // Render winners bracket columns
+                renderBracketInline(dbl.winners, mount);
+
+                // Losers
+                const losersLabel = document.createElement("div");
+                losersLabel.className = "round";
+                losersLabel.innerHTML = `<div class="roundTitle"><span>Losers Bracket</span><span class="chip mono">${dbl.losers.rounds.length} rounds</span></div>
+      <div class="match"><div class="hint">Estructura demo: falta conectar derrotados → LB.</div></div>`;
+                mount.appendChild(losersLabel);
+
+                renderBracketInline(dbl.losers, mount, true);
+
+                // Grand Final
+                const gfLabel = document.createElement("div");
+                gfLabel.className = "round";
+                gfLabel.innerHTML = `<div class="roundTitle"><span>Grand Final</span><span class="chip mono">GF</span></div>`;
+                mount.appendChild(gfLabel);
+
+                renderBracketInline(dbl.grandFinal, mount);
+            }
+        }
+
+        function renderBracketInline(bracket, container, isLosers = false) {
+            const rounds = bracket.rounds;
+            rounds.forEach((matches, ri) => {
+                const roundEl = document.createElement("div");
+                roundEl.className = "round";
+                const title =
+                    bracket.type === "losers" ? `LB R${ri + 1}` :
+                        (ri === rounds.length - 1 ? "Final" : `Ronda ${ri + 1}`);
+
+                roundEl.innerHTML = `<div class="roundTitle"><span>${title}</span><span class="chip mono">${matches.length}</span></div>`;
+
+                matches.forEach((m) => {
+                    const matchEl = document.createElement("div");
+                    matchEl.className = "match";
+                    matchEl.innerHTML = `
+        <div class="slot">
+          <div class="name"><b>${esc(m.a.name)}</b><span>${esc([m.a.rid, m.a.team].filter(Boolean).join(" · "))}</span></div>
+          <input class="score" placeholder="—" value="${esc(m.a.score || "")}" disabled/>
+        </div>
+        <div class="slot">
+          <div class="name"><b>${esc(m.b.name)}</b><span>${esc([m.b.rid, m.b.team].filter(Boolean).join(" · "))}</span></div>
+          <input class="score" placeholder="—" value="${esc(m.b.score || "")}" disabled/>
+        </div>
+      `;
+                    roundEl.appendChild(matchEl);
+                });
+
+                container.appendChild(roundEl);
+            });
+        }
+
+        /* =========================
+           Buttons
+           ========================= */
+        $("btnGenerate").onclick = generate;
         $("btnShuffle").onclick = () => {
             state.players = shuffleArray(state.players);
             renderPlayers();
-            toast("Se reordenaron los participantes (seeds).", "OK:");
         };
-
-        $("btnClearBracket").onclick = () => {
-            state.bracket = null;
-            renderBracket();
-        };
+        $("btnClearView").onclick = clearView;
 
         $("btnNew").onclick = () => {
             if (!confirm("¿Nuevo torneo? Se borrará el estado actual (no la DB).")) return;
-            state.tournament = { id: null, name: "", category: "Mini Sumo", venue: "", date: "", format: "single", size: 8 };
+            state.tournament = { name: "", category: "Mini Sumo", venue: "", date: "", format: "single", n: 8, groups: 4, adv: 2 };
             state.players = [];
-            state.bracket = null;
+            clearView();
 
             $("t_name").value = "";
             $("t_category").value = "Mini Sumo";
             $("t_venue").value = "";
             $("t_date").value = "";
             $("t_format").value = "single";
-            $("t_size").value = "8";
+            $("t_n").value = "8";
+            $("t_groups").value = "4";
+            $("t_adv").value = "2";
+
             $("r_search").value = "";
-
+            $("searchList").innerHTML = `<div class="row"><div class="left"><b>Tip</b><span>Busca robots en Supabase y agrégalos como participantes.</span></div></div>`;
             renderPlayers();
-            renderBracket();
             setChips();
+            updateViewMode();
         };
 
-        $("btnReset").onclick = () => {
-            location.reload();
-        };
+        $("btnReset").onclick = () => location.reload();
 
         /* =========================
-           Save / Load Local
+           Save/Load Local
            ========================= */
-        const LOCAL_KEY = "apex_tournament_demo_v1";
+        const LOCAL_KEY = "apex_tournament_flex_demo_v1";
 
         $("btnSaveLocal").onclick = () => {
             syncTournamentFromForm();
-            const payload = {
-                tournament: state.tournament,
-                players: state.players,
-                bracket: state.bracket
-            };
+            const payload = { tournament: state.tournament, players: state.players, view: state.view };
             localStorage.setItem(LOCAL_KEY, JSON.stringify(payload));
-            toast("Torneo guardado en este navegador.", "Local:");
+            $("miniStatus").textContent = "· guardado local ✅";
+            setTimeout(() => $("miniStatus").textContent = "", 1400);
         };
 
         $("btnLoadLocal").onclick = () => {
             const raw = localStorage.getItem(LOCAL_KEY);
-            if (!raw) return toast("No hay nada guardado local.", "Local:");
+            if (!raw) return alert("No hay guardado local.");
             try {
                 const payload = JSON.parse(raw);
                 state.tournament = payload.tournament || state.tournament;
                 state.players = payload.players || [];
-                state.bracket = payload.bracket || null;
+                state.view = payload.view || null;
 
-                // fill form
                 $("t_name").value = state.tournament.name || "";
                 $("t_category").value = state.tournament.category || "Mini Sumo";
                 $("t_venue").value = state.tournament.venue || "";
                 $("t_date").value = state.tournament.date || "";
                 $("t_format").value = state.tournament.format || "single";
-                $("t_size").value = String(state.tournament.size || 8);
+                $("t_n").value = String(state.tournament.n || 8);
+                $("t_groups").value = String(state.tournament.groups || 4);
+                $("t_adv").value = String(state.tournament.adv || 2);
 
                 setChips();
+                updateViewMode();
                 renderPlayers();
-                renderBracket();
-                toast("Torneo cargado del navegador.", "Local:");
-            } catch (e) {
-                toast("No pude abrir el guardado local.", "Error:");
-            }
-        };
 
-        /* =========================
-           Save / Load Supabase (opcional)
-           - Requiere tabla tournaments
-           ========================= */
-        async function saveTournamentToDb() {
-            syncTournamentFromForm();
-            const row = {
-                id: state.tournament.id || undefined,
-                name: state.tournament.name || "Sin nombre",
-                category: state.tournament.category,
-                venue: state.tournament.venue,
-                date: state.tournament.date || null,
-                format: state.tournament.format,
-                size: state.tournament.size,
-                players: state.players,
-                bracket: state.bracket,
-                updated_at: new Date().toISOString()
-            };
-
-            const { data, error } = await sb
-                .from(TOURN_TABLE)
-                .upsert(row, { onConflict: "id" })
-                .select("id, name, updated_at")
-                .single();
-
-            if (error) throw error;
-            state.tournament.id = data.id;
-            return data;
-        }
-
-        async function listTournamentsFromDb() {
-            const { data, error } = await sb
-                .from(TOURN_TABLE)
-                .select("id, name, category, date, updated_at")
-                .order("updated_at", { ascending: false })
-                .limit(25);
-
-            if (error) throw error;
-            return data || [];
-        }
-
-        async function loadTournamentFromDb(id) {
-            const { data, error } = await sb
-                .from(TOURN_TABLE)
-                .select("*")
-                .eq("id", id)
-                .single();
-
-            if (error) throw error;
-            return data;
-        }
-
-        $("btnSaveDb").onclick = async () => {
-            try {
-                const saved = await saveTournamentToDb();
-                toast(`Guardado en Supabase (id: ${saved.id})`, "DB:");
-            } catch (e) {
-                toast(`No se pudo guardar en Supabase. Probable: no existe la tabla '${TOURN_TABLE}'.`, "DB:");
-                console.error(e);
-            }
-        };
-
-        $("btnLoadDb").onclick = async () => {
-            try {
-                const list = await listTournamentsFromDb();
-                if (!list.length) {
-                    toast("No hay torneos en Supabase.", "DB:");
-                    return;
+                // restore view (only for single/groups; double we rebuild)
+                if (state.view?.type === "single") {
+                    renderBracket(state.view.bracket, "bracket");
+                } else if (state.view?.type === "groups") {
+                    renderGroups(state.view.groups || []);
+                    renderBracket(state.view.finalBracket, "finalBracket");
+                } else if (state.view?.type === "double") {
+                    // rebuild
+                    clearView();
+                    generate();
+                } else {
+                    clearView();
                 }
-
-                // selector simple por prompt (demo)
-                const pick = prompt(
-                    "Escribe el ID del torneo a abrir:\n\n" +
-                    list.map(x => `${x.id} — ${x.name}`).join("\n")
-                );
-                if (!pick) return;
-
-                const rec = await loadTournamentFromDb(pick.trim());
-                state.tournament = {
-                    id: rec.id,
-                    name: rec.name || "",
-                    category: rec.category || "Mini Sumo",
-                    venue: rec.venue || "",
-                    date: rec.date || "",
-                    format: rec.format || "single",
-                    size: rec.size || 8
-                };
-                state.players = rec.players || [];
-                state.bracket = rec.bracket || null;
-
-                $("t_name").value = state.tournament.name || "";
-                $("t_category").value = state.tournament.category || "Mini Sumo";
-                $("t_venue").value = state.tournament.venue || "";
-                $("t_date").value = state.tournament.date || "";
-                $("t_format").value = state.tournament.format || "single";
-                $("t_size").value = String(state.tournament.size || 8);
-
-                setChips();
-                renderPlayers();
-                renderBracket();
-                toast("Torneo cargado desde Supabase.", "DB:");
             } catch (e) {
-                toast(`No se pudo abrir desde Supabase. Probable: no existe tabla '${TOURN_TABLE}'.`, "DB:");
-                console.error(e);
+                alert("No pude abrir guardado local.");
             }
         };
 
@@ -1297,52 +1447,12 @@
            Boot
            ========================= */
         function boot() {
-            setChips();
+            syncTournamentFromForm();
             renderPlayers();
-            renderBracket();
+            clearView();
         }
         boot();
     </script>
-
-    <!--
-=========================================================
-SQL OPCIONAL (para persistir torneos en Supabase)
-=========================================================
-
-create table if not exists public.tournaments (
-  id uuid primary key default gen_random_uuid(),
-  name text not null,
-  category text,
-  venue text,
-  date date,
-  format text,
-  size int,
-  players jsonb,
-  bracket jsonb,
-  updated_at timestamptz default now(),
-  created_at timestamptz default now()
-);
-
--- MVP sin login: permitir select/insert/update (no recomendado para público final)
-alter table public.tournaments enable row level security;
-
-create policy "public read tournaments"
-on public.tournaments for select
-to anon
-using (true);
-
-create policy "public upsert tournaments"
-on public.tournaments for insert
-to anon
-with check (true);
-
-create policy "public update tournaments"
-on public.tournaments for update
-to anon
-using (true);
-
-=========================================================
--->
 </body>
 
 </html>
