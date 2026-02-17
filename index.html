@@ -214,6 +214,27 @@
             margin: 4px 0 6px
         }
 
+
+        .labelRow {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .counter {
+            font-size: 11px;
+            color: rgba(234, 240, 255, .45);
+            letter-spacing: .2px;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .counter.over {
+            color: var(--hot);
+            font-weight: 800;
+        }
+
         input,
         select,
         textarea {
@@ -693,11 +714,13 @@
                     <div class="formGrid">
                         <div>
                             <label>Robot ID (único)</label>
-                            <input id="robot_id" placeholder="Ej. MS-014" />
+                            <input id="robot_id" placeholder="MS-0001" readonly aria-readonly="true" tabindex="-1"
+                                title="Asignado automáticamente" />
                         </div>
                         <div>
-                            <label>Nombre del robot</label>
-                            <input id="robot_nombre" placeholder="Ej. KRAKEN" />
+                            <div class="labelRow"><label style="margin:0">Nombre del robot</label><span class="counter"
+                                    id="cnt_robot_nombre">0/24</span></div>
+                            <input id="robot_nombre" placeholder="Ej. KRAKEN" / maxlength="24">
                         </div>
 
                         <div>
@@ -713,17 +736,20 @@
                             </select>
                         </div>
                         <div>
-                            <label>Equipo</label>
-                            <input id="equipo" placeholder="Ej. RoboDragons" />
+                            <div class="labelRow"><label style="margin:0">Equipo</label><span class="counter"
+                                    id="cnt_equipo">0/24</span></div>
+                            <input id="equipo" placeholder="Ej. RoboDragons" / maxlength="24">
                         </div>
 
                         <div>
-                            <label>Controlador / Piloto</label>
-                            <input id="controlador" placeholder="Nombre del piloto" />
+                            <div class="labelRow"><label style="margin:0">Controlador / Piloto</label><span
+                                    class="counter" id="cnt_controlador">0/24</span></div>
+                            <input id="controlador" placeholder="Nombre del piloto" / maxlength="24">
                         </div>
                         <div>
-                            <label>Escuela</label>
-                            <input id="escuela" placeholder="Ej. ESIME Azcapotzalco" />
+                            <div class="labelRow"><label style="margin:0">Escuela</label><span class="counter"
+                                    id="cnt_escuela">0/32</span></div>
+                            <input id="escuela" placeholder="Ej. ESIME Azcapotzalco" / maxlength="32">
                         </div>
                     </div>
 
@@ -734,8 +760,9 @@
                             <input id="peso_g" type="number" min="0" placeholder="Ej. 498" />
                         </div>
                         <div>
-                            <label>Dimensiones (mm)</label>
-                            <input id="dimensiones_mm" placeholder='Ej. 100×100×55' />
+                            <div class="labelRow"><label style="margin:0">Dimensiones (mm)</label><span class="counter"
+                                    id="cnt_dimensiones_mm">0/20</span></div>
+                            <input id="dimensiones_mm" placeholder='Ej. 100×100×55' / maxlength="20">
                         </div>
 
                         <div>
@@ -748,13 +775,15 @@
                             </select>
                         </div>
                         <div>
-                            <label>Frecuencia / Protocolo (si aplica)</label>
-                            <input id="frecuencia_protocolo" placeholder="Ej. 2.4GHz / ELRS / SBUS" />
+                            <div class="labelRow"><label style="margin:0">Frecuencia / Protocolo (si
+                                    aplica)</label><span class="counter" id="cnt_frecuencia_protocolo">0/24</span></div>
+                            <input id="frecuencia_protocolo" placeholder="Ej. 2.4GHz / ELRS / SBUS" / maxlength="24">
                         </div>
 
                         <div>
-                            <label>Contacto</label>
-                            <input id="contacto" placeholder="IG / WhatsApp / Email" />
+                            <div class="labelRow"><label style="margin:0">Contacto</label><span class="counter"
+                                    id="cnt_contacto">0/40</span></div>
+                            <input id="contacto" placeholder="IG / WhatsApp / Email" / maxlength="40">
                         </div>
                         <div>
                             <label>Estado de inspección</label>
@@ -766,20 +795,23 @@
                         </div>
 
                         <div style="grid-column:1/-1">
-                            <label>Checklist de inspección (1 por línea)</label>
+                            <div class="labelRow"><label style="margin:0">Checklist de inspección (1 por
+                                    línea)</label><span class="counter" id="cnt_inspeccion_checklist">0/400</span></div>
                             <textarea id="inspeccion_checklist" placeholder="Ej.
 Peso ok
 Kill-switch ok
-Batería segura"></textarea>
+Batería segura" maxlength="400"></textarea>
                         </div>
 
                         <div>
-                            <label>Foto del robot (URL)</label>
-                            <input id="foto_url" placeholder="https://..." />
+                            <div class="labelRow"><label style="margin:0">Foto del robot (URL)</label><span
+                                    class="counter" id="cnt_foto_url">0/200</span></div>
+                            <input id="foto_url" placeholder="https://..." / maxlength="200">
                         </div>
                         <div>
-                            <label>Logo del equipo (URL)</label>
-                            <input id="logo_url" placeholder="https://..." />
+                            <div class="labelRow"><label style="margin:0">Logo del equipo (URL)</label><span
+                                    class="counter" id="cnt_logo_url">0/200</span></div>
+                            <input id="logo_url" placeholder="https://..." / maxlength="200">
                         </div>
                     </div>
 
@@ -892,6 +924,76 @@ Batería segura"></textarea>
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const TABLE = "robot_cards";
+        /* =========================================================
+           ✅ AUTO ROBOT ID (0001-9999) — NO EDITABLE POR USUARIO
+           - Requiere la función SQL `reserve_robot_id()` (ver más abajo).
+           ========================================================= */
+        const ROBOT_ID_PREFIX = "MS-"; // cambia si quieres otro prefijo
+        let reservedRobotId = "";
+
+        async function reserveRobotId() {
+            try {
+                miniStatus.textContent = "· asignando Robot ID…";
+                const { data, error } = await sb.rpc("reserve_robot_id");
+                if (error) throw error;
+
+                // data puede venir como string o como objeto { robot_id: "MS-0001" }
+                const rid = (typeof data === "string") ? data : (data?.robot_id || "");
+                if (!rid) throw new Error("Respuesta vacía de reserve_robot_id");
+
+                reservedRobotId = rid;
+                robot_id.value = rid;
+
+                // bloquea edición aunque el usuario intente forzar
+                robot_id.setAttribute("readonly", "true");
+                robot_id.setAttribute("aria-readonly", "true");
+                robot_id.addEventListener("keydown", (e) => e.preventDefault());
+                robot_id.addEventListener("paste", (e) => e.preventDefault());
+
+                miniStatus.textContent = "· listo ✅";
+                return rid;
+            } catch (e) {
+                console.error(e);
+                miniStatus.textContent = "· error ⚠️";
+                alert("No pude asignar Robot ID automático. Revisa el SQL/Policies de Supabase.\n\n" + (e.message || e));
+                return "";
+            }
+        }
+
+        /* =========================================================
+           ✅ LIMITES DE TEXTO (UI + truncate duro)
+           ========================================================= */
+        function bindLimit(id, max, counterId) {
+            const el = document.getElementById(id);
+            const c = counterId ? document.getElementById(counterId) : null;
+            if (!el) return;
+
+            const upd = () => {
+                const v = (el.value || "");
+                if (v.length > max) el.value = v.slice(0, max);
+                if (c) {
+                    c.textContent = `${(el.value || "").length}/${max}`;
+                    c.classList.toggle("over", (el.value || "").length > max);
+                }
+            };
+            el.addEventListener("input", upd);
+            el.addEventListener("change", upd);
+            upd();
+        }
+
+        function initLimits() {
+            bindLimit("robot_nombre", 24, "cnt_robot_nombre");
+            bindLimit("equipo", 24, "cnt_equipo");
+            bindLimit("controlador", 24, "cnt_controlador");
+            bindLimit("escuela", 32, "cnt_escuela");
+            bindLimit("dimensiones_mm", 20, "cnt_dimensiones_mm");
+            bindLimit("frecuencia_protocolo", 24, "cnt_frecuencia_protocolo");
+            bindLimit("contacto", 40, "cnt_contacto");
+            bindLimit("inspeccion_checklist", 400, "cnt_inspeccion_checklist");
+            bindLimit("foto_url", 200, "cnt_foto_url");
+            bindLimit("logo_url", 200, "cnt_logo_url");
+        }
+
 
         /* =========================================================
            ✅ LOCAL "MIS ROBOTS" (SIN LOGIN)
@@ -1039,7 +1141,7 @@ Batería segura"></textarea>
 
             const { data, error } = await sb
                 .from(TABLE)
-                .upsert(row, { onConflict: "robot_id" })
+                .insert(row)
                 .select("robot_id, qr_link, updated_at, created_at")
                 .single();
 
@@ -1201,7 +1303,7 @@ Batería segura"></textarea>
             refreshDashboard().catch(console.error);
         }
 
-        function showGenerator() {
+        async function showGenerator() {
             viewer.style.display = "none";
             dashboard.classList.add("hidden");
             minePanel.classList.add("hidden");
@@ -1210,6 +1312,9 @@ Batería segura"></textarea>
             // pinta canvas blanco si está vacío
             const ctx = qrCanvas.getContext("2d");
             ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, qrCanvas.width, qrCanvas.height);
+
+            // ✅ asigna Robot ID automático cada vez que abres "Registrar Robot"
+            await reserveRobotId();
         }
 
         function showMine() {
@@ -1255,7 +1360,7 @@ Batería segura"></textarea>
             }
 
             // ✅ App routes
-            if (hash === "#/new") return showGenerator();
+            if (hash === "#/new") return await showGenerator();
             if (hash === "#/mine") return showMine();
             return showDashboard();
         }
@@ -1411,8 +1516,13 @@ Batería segura"></textarea>
         function validateBasic() {
             const id = cleanStr(robot_id.value);
             const name = cleanStr(robot_nombre.value);
-            if (!id || !name) {
-                alert("Pon al menos Robot ID y Nombre del robot.");
+
+            if (!id) {
+                alert("Aún no tengo Robot ID automático. Intenta de nuevo.");
+                return false;
+            }
+            if (!name) {
+                alert("Pon al menos el Nombre del robot.");
                 return false;
             }
             return true;
@@ -1432,6 +1542,7 @@ Batería segura"></textarea>
             try {
                 const saved = await saveToSupabase(compact);
                 addToMyList(saved.robot_id); // ✅ agrega a "Mis Robots"
+                await reserveRobotId(); // ✅ siguiente ID automático
             } catch (e) {
                 console.error(e);
                 alert("No se pudo guardar en Supabase: " + (e.message || e));
@@ -1453,6 +1564,7 @@ Batería segura"></textarea>
             try {
                 const saved = await saveToSupabase(compact);
                 addToMyList(saved.robot_id); // ✅ agrega a "Mis Robots"
+                await reserveRobotId(); // ✅ siguiente ID automático
             } catch (e) {
                 console.error(e);
                 alert("No se pudo guardar en Supabase: " + (e.message || e));
@@ -1636,6 +1748,7 @@ Batería segura"></textarea>
            Boot
         --------------------------- */
         (async function boot() {
+            initLimits();
             // canvas blanco inicial
             try {
                 const ctx = qrCanvas.getContext("2d");
