@@ -633,7 +633,7 @@
 
                 <div class="sectionTitle">Buscar robot (por Robot ID)</div>
                 <div class="searchRow">
-                    <input id="searchRid" placeholder="Ej. MS-014" />
+                    <input id="searchRid" placeholder="Ej. 014" />
                     <button class="btn primary" id="btnSearchRid">Abrir</button>
                 </div>
 
@@ -671,7 +671,7 @@
             <div class="content">
                 <div class="sectionTitle">Buscar en mis robots</div>
                 <div class="searchRow">
-                    <input id="mineSearch" placeholder="Ej. MS-014 o KRAKEN" />
+                    <input id="mineSearch" placeholder="Ej. 014 o KRAKEN" />
                     <button class="btn primary" id="mineSearchBtn">Filtrar</button>
                 </div>
 
@@ -714,7 +714,7 @@
                     <div class="formGrid">
                         <div>
                             <label>Robot ID (único)</label>
-                            <input id="robot_id" placeholder="MS-0001" readonly aria-readonly="true" tabindex="-1"
+                            <input id="robot_id" placeholder="0001" readonly aria-readonly="true" tabindex="-1"
                                 title="Asignado automáticamente" />
                         </div>
                         <div>
@@ -925,40 +925,64 @@ Batería segura" maxlength="400"></textarea>
 
         const TABLE = "robot_cards";
         /* =========================================================
-           ✅ AUTO ROBOT ID (0001-9999) — NO EDITABLE POR USUARIO
-           - Requiere la función SQL `reserve_robot_id()` (ver más abajo).
-           ========================================================= */
-        const ROBOT_ID_PREFIX = "MS-"; // cambia si quieres otro prefijo
-        let reservedRobotId = "";
+   ✅ ROBOT ID (0001-9999)
+   - PREVIEW: peek_robot_id()  (NO consume)
+   - RESERVA REAL: reserve_robot_id() (SÍ consume)
+   ========================================================= */
 
-        async function reserveRobotId() {
+        async function peekRobotId() {
             try {
-                miniStatus.textContent = "· asignando Robot ID…";
-                const { data, error } = await sb.rpc("reserve_robot_id");
+                miniStatus.textContent = "· preparando Robot ID…";
+                const { data, error } = await sb.rpc("peek_robot_id");
                 if (error) throw error;
 
-                // data puede venir como string o como objeto { robot_id: "MS-0001" }
                 const rid = (typeof data === "string") ? data : (data?.robot_id || "");
-                if (!rid) throw new Error("Respuesta vacía de reserve_robot_id");
+                if (!rid) throw new Error("Respuesta vacía de peek_robot_id");
 
-                reservedRobotId = rid;
                 robot_id.value = rid;
 
-                // bloquea edición aunque el usuario intente forzar
                 robot_id.setAttribute("readonly", "true");
                 robot_id.setAttribute("aria-readonly", "true");
-                robot_id.addEventListener("keydown", (e) => e.preventDefault());
-                robot_id.addEventListener("paste", (e) => e.preventDefault());
 
                 miniStatus.textContent = "· listo ✅";
                 return rid;
             } catch (e) {
                 console.error(e);
                 miniStatus.textContent = "· error ⚠️";
-                alert("No pude asignar Robot ID automático. Revisa el SQL/Policies de Supabase.\n\n" + (e.message || e));
+                robot_id.value = "----";
+                alert("No pude obtener PREVIEW del Robot ID. Revisa el SQL/Policies de Supabase.\n\n" + (e.message || e));
                 return "";
             }
         }
+
+        async function reserveRobotIdReal() {
+            try {
+                miniStatus.textContent = "· reservando Robot ID…";
+                const { data, error } = await sb.rpc("reserve_robot_id");
+                if (error) throw error;
+
+                const rid = (typeof data === "string") ? data : (data?.robot_id || "");
+                if (!rid) throw new Error("Respuesta vacía de reserve_robot_id");
+
+                robot_id.value = rid;
+
+                robot_id.setAttribute("readonly", "true");
+                robot_id.setAttribute("aria-readonly", "true");
+
+                miniStatus.textContent = "· listo ✅";
+                return rid;
+            } catch (e) {
+                console.error(e);
+                miniStatus.textContent = "· error ⚠️";
+                alert("No pude reservar Robot ID real. Revisa el SQL/Policies de Supabase.\n\n" + (e.message || e));
+                return "";
+            }
+        }
+
+        // ✅ Anti-edición (una sola vez)
+        robot_id.addEventListener("keydown", (e) => e.preventDefault());
+        robot_id.addEventListener("paste", (e) => e.preventDefault());
+
 
         /* =========================================================
            ✅ LIMITES DE TEXTO (UI + truncate duro)
@@ -1313,8 +1337,8 @@ Batería segura" maxlength="400"></textarea>
             const ctx = qrCanvas.getContext("2d");
             ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, qrCanvas.width, qrCanvas.height);
 
-            // ✅ asigna Robot ID automático cada vez que abres "Registrar Robot"
-            await reserveRobotId();
+            // ✅ PREVIEW (no consume) al abrir "Registrar Robot"
+            await peekRobotId();
         }
 
         function showMine() {
@@ -1529,8 +1553,15 @@ Batería segura" maxlength="400"></textarea>
         }
 
         // ✅ Generar OFFLINE + guardar en Supabase
+        // ✅ Generar OFFLINE + guardar en Supabase
         btnGenOffline.onclick = async () => {
-            if (!validateBasic()) return;
+            const name = cleanStr(robot_nombre.value);
+            if (!name) { alert("Pon al menos el Nombre del robot."); return; }
+
+            // ✅ Reserva real SOLO cuando ya vas a guardar (consume ID)
+            const realId = await reserveRobotIdReal();
+            if (!realId) return;
+
             const compact = buildRobotObj();
             renderPreviewFromCompact(compact);
 
@@ -1542,7 +1573,9 @@ Batería segura" maxlength="400"></textarea>
             try {
                 const saved = await saveToSupabase(compact);
                 addToMyList(saved.robot_id); // ✅ agrega a "Mis Robots"
-                await reserveRobotId(); // ✅ siguiente ID automático
+
+                // ✅ siguiente PREVIEW (no consume)
+                await peekRobotId();
             } catch (e) {
                 console.error(e);
                 alert("No se pudo guardar en Supabase: " + (e.message || e));
@@ -1550,8 +1583,15 @@ Batería segura" maxlength="400"></textarea>
         };
 
         // ✅ Generar LINK + guardar en Supabase
+        // ✅ Generar LINK + guardar en Supabase
         btnGenLink.onclick = async () => {
-            if (!validateBasic()) return;
+            const name = cleanStr(robot_nombre.value);
+            if (!name) { alert("Pon al menos el Nombre del robot."); return; }
+
+            // ✅ Reserva real SOLO cuando ya vas a guardar (consume ID)
+            const realId = await reserveRobotIdReal();
+            if (!realId) return;
+
             const compact = buildRobotObj();
             renderPreviewFromCompact(compact);
 
@@ -1564,7 +1604,9 @@ Batería segura" maxlength="400"></textarea>
             try {
                 const saved = await saveToSupabase(compact);
                 addToMyList(saved.robot_id); // ✅ agrega a "Mis Robots"
-                await reserveRobotId(); // ✅ siguiente ID automático
+
+                // ✅ siguiente PREVIEW (no consume)
+                await peekRobotId();
             } catch (e) {
                 console.error(e);
                 alert("No se pudo guardar en Supabase: " + (e.message || e));
@@ -1599,17 +1641,34 @@ Batería segura" maxlength="400"></textarea>
         };
 
         // Guardar en navegador + también subir a Supabase
+        // Guardar en navegador + (opcional) subir a Supabase
         btnSave.onclick = async () => {
+            const name = cleanStr(robot_nombre.value);
             const compact = buildRobotObj();
+
+            // siempre guardado local
             localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
 
             try {
-                if (!compact.i || !compact.n) {
-                    alert("Guardado local. Para Supabase, pon al menos Robot ID y Nombre.");
+                if (!name) {
+                    alert("Guardado local. Para subir a Supabase, pon al menos el Nombre del robot.");
                     return;
                 }
-                const saved = await saveToSupabase(compact);
+
+                // ✅ Si vas a subir a Supabase, reserva ID real aquí
+                const realId = await reserveRobotIdReal();
+                if (!realId) return;
+
+                // reconstruye objeto para asegurar que i=ID real
+                const compact2 = buildRobotObj();
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(compact2));
+
+                const saved = await saveToSupabase(compact2);
                 addToMyList(saved.robot_id);
+
+                // ✅ siguiente PREVIEW (no consume)
+                await peekRobotId();
+
                 alert("Guardado (local + Supabase).");
             } catch (e) {
                 console.error(e);
