@@ -561,6 +561,7 @@
                 <div class="btnRow">
                     <button class="btn primary" id="goRegister">Registrar Robot</button>
                     <button class="btn" id="goMine">Mis Robots</button>
+                    <button class="btn" id="goTorneos" title="Abrir torneos">Torneos</button>
                     <button class="btn hot" id="refreshDash">Actualizar</button>
                 </div>
             </div>
@@ -584,6 +585,13 @@
                         <b>Mis Robots</b>
                         <div class="mut">Robots que tú registraste desde este navegador (sin login).</div>
                     </div>
+
+                    <div class="heroCard" id="cardTorneos">
+                        <div class="chip hot">Torneo</div>
+                        <b>Torneos</b>
+                        <div class="mut">Gestión de torneos (se mantiene en torneos.html para editarlo aparte).</div>
+                    </div>
+
                 </div>
 
                 <div class="sectionTitle">Estadísticas</div>
@@ -685,8 +693,7 @@
                     <div class="formGrid">
                         <div>
                             <label>Robot ID (único)</label>
-                            <input id="robot_id" placeholder="0001" inputmode="numeric" pattern="\d{4}" maxlength="4"
-                                readonly />
+                            <input id="robot_id" placeholder="Ej. MS-014" />
                         </div>
                         <div>
                             <label>Nombre del robot</label>
@@ -910,28 +917,7 @@ Batería segura"></textarea>
         /* --------------------------
            Compact payload + Base64URL (legacy soporte #view=)
         --------------------------- */
-        const FIELD_LIMITS = {
-            robot_id: 4,
-            robot_nombre: 24,
-            categoria: 24,
-            equipo: 24,
-            controlador: 24,
-            escuela: 32,
-            peso_g: 6,
-            dimensiones_mm: 20,
-            tipo_control: 10,
-            frecuencia_protocolo: 28,
-            contacto: 40,
-            inspeccion_estado: 10,
-            inspeccion_checklist: 400,
-            foto_url: 200,
-            logo_url: 200,
-        };
-        function cleanStr(s, maxLen) {
-            let out = (s || "").toString().trim();
-            if (typeof maxLen === "number" && maxLen > 0 && out.length > maxLen) out = out.slice(0, maxLen);
-            return out;
-        }
+        function cleanStr(s) { return (s || "").toString().trim(); }
         function base64UrlEncode(str) {
             const b64 = btoa(unescape(encodeURIComponent(str)));
             return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -943,27 +929,27 @@ Batería segura"></textarea>
         }
 
         function buildRobotObj() {
-            const checklist = cleanStr(document.getElementById("inspeccion_checklist").value, FIELD_LIMITS.inspeccion_checklist)
+            const checklist = cleanStr(document.getElementById("inspeccion_checklist").value)
                 .split("\n").map(s => s.trim()).filter(Boolean);
 
             const obj = {
                 v: 1,
-                i: cleanStr(robot_id.value, FIELD_LIMITS.robot_id),
-                n: cleanStr(robot_nombre.value, FIELD_LIMITS.robot_nombre),
-                c: cleanStr(categoria.value, FIELD_LIMITS.categoria),
-                t: cleanStr(equipo.value, FIELD_LIMITS.equipo),
-                p: cleanStr(controlador.value, FIELD_LIMITS.controlador),
-                s: cleanStr(escuela.value, FIELD_LIMITS.escuela),
+                i: cleanStr(robot_id.value),
+                n: cleanStr(robot_nombre.value),
+                c: cleanStr(categoria.value),
+                t: cleanStr(equipo.value),
+                p: cleanStr(controlador.value),
+                s: cleanStr(escuela.value),
             };
 
-            const peso = cleanStr(peso_g.value, FIELD_LIMITS.peso_g);
-            const dim = cleanStr(dimensiones_mm.value, FIELD_LIMITS.dimensiones_mm);
-            const type = cleanStr(tipo_control.value, FIELD_LIMITS.tipo_control);
-            const freq = cleanStr(frecuencia_protocolo.value, FIELD_LIMITS.frecuencia_protocolo);
-            const cont = cleanStr(contacto.value, FIELD_LIMITS.contacto);
-            const ist = cleanStr(inspeccion_estado.value, FIELD_LIMITS.inspeccion_estado);
-            const foto = cleanStr(foto_url.value, FIELD_LIMITS.foto_url);
-            const logo = cleanStr(logo_url.value, FIELD_LIMITS.logo_url);
+            const peso = cleanStr(peso_g.value);
+            const dim = cleanStr(dimensiones_mm.value);
+            const type = cleanStr(tipo_control.value);
+            const freq = cleanStr(frecuencia_protocolo.value);
+            const cont = cleanStr(contacto.value);
+            const ist = cleanStr(inspeccion_estado.value);
+            const foto = cleanStr(foto_url.value);
+            const logo = cleanStr(logo_url.value);
 
             if (peso) obj.w = Number(peso);
             if (dim) obj.d = dim;
@@ -1040,104 +1026,26 @@ Batería segura"></textarea>
         /* =========================================================
            ✅ SUPABASE CRUD (tu tabla robot_cards)
            ========================================================= */
-        // ✅ Regla: Robot ID automático 0001..9999 (orden de registro)
-        // Nota: esto intenta evitar colisiones haciendo "insert con retry" si hay duplicado.
-        const AUTO_ID_ENABLED = true;
+        async function saveToSupabase(compact) {
+            const robot_id = (compact.i || "").trim();
+            if (!robot_id) throw new Error("robot_id vacío");
 
-        function pad4(n) {
-            const s = String(n);
-            return s.length >= 4 ? s.slice(-4) : ("0000".slice(s.length) + s);
-        }
+            const row = {
+                robot_id,
+                data: compact,
+                qr_link: payloadLink(compact),
+                qr_offline: payloadOffline(compact),
+            };
 
-        function isAutoIdFormat(rid) { return /^\d{4}$/.test((rid || "").trim()); }
-
-        async function fetchMaxAutoRobotId() {
-            // Trae algunos IDs recientes y toma el mayor que sea 4 dígitos.
             const { data, error } = await sb
                 .from(TABLE)
-                .select("robot_id")
-                .order("created_at", { ascending: false })
-                .limit(50);
+                .upsert(row, { onConflict: "robot_id" })
+                .select("robot_id, qr_link, updated_at, created_at")
+                .single();
 
             if (error) throw error;
-
-            let max = 0;
-            for (const row of (data || [])) {
-                const rid = (row.robot_id || "").trim();
-                if (!isAutoIdFormat(rid)) continue;
-                const n = Number(rid);
-                if (Number.isFinite(n) && n > max) max = n;
-            }
-            return max;
+            return data;
         }
-
-        async function ensureAutoRobotId() {
-            if (!AUTO_ID_ENABLED) return;
-            const current = (robot_id.value || "").trim();
-            if (isAutoIdFormat(current)) return;
-
-            const max = await fetchMaxAutoRobotId();
-            const next = max + 1;
-            if (next < 1 || next > 9999) throw new Error("Se alcanzó el límite de IDs (9999).");
-            robot_id.value = pad4(next);
-        }
-
-
-
-        async function saveToSupabase(compact) {
-            // Si AUTO_ID está activo, garantizamos un ID 4 dígitos antes de guardar.
-            if (AUTO_ID_ENABLED) {
-                await ensureAutoRobotId();
-                compact.i = (robot_id.value || "").trim();
-            }
-
-            const rid0 = (compact.i || "").trim();
-            if (!rid0) throw new Error("robot_id vacío");
-
-            const makeRow = (rid) => ({
-                robot_id: rid,
-                data: compact,
-                qr_link: payloadLink({ ...compact, i: rid }),
-                qr_offline: payloadOffline({ ...compact, i: rid }),
-            });
-
-            // Caso normal: si el ID no es formato auto (ej: MS-014), mantiene upsert.
-            if (!AUTO_ID_ENABLED || !isAutoIdFormat(rid0)) {
-                const { data, error } = await sb
-                    .from(TABLE)
-                    .upsert(makeRow(rid0), { onConflict: "robot_id" })
-                    .select("robot_id, qr_link, updated_at, created_at")
-                    .single();
-                if (error) throw error;
-                return data;
-            }
-
-            // Caso AUTO-ID: insert con reintentos si hay duplicado (evita choques entre 2 navegadores).
-            let n = Number(rid0);
-            for (let attempt = 0; attempt < 25; attempt++) {
-                const rid = pad4(n);
-                compact.i = rid;
-                const { data, error } = await sb
-                    .from(TABLE)
-                    .insert(makeRow(rid), { returning: "representation" })
-                    .select("robot_id, qr_link, updated_at, created_at")
-                    .single();
-
-                if (!error) return data;
-
-                // 23505 = unique_violation (Postgres). Si choca, probamos siguiente.
-                const code = error.code || "";
-                const msg = (error.message || "").toLowerCase();
-                const dup = code === "23505" || msg.includes("duplicate") || msg.includes("unique");
-                if (!dup) throw error;
-
-                n++;
-                if (n > 9999) throw new Error("Se alcanzó el límite de IDs (9999).");
-            }
-
-            throw new Error("No se pudo asignar un Robot ID automático (demasiadas colisiones).");
-        }
-
 
         async function loadFromSupabaseByRobotId(robot_id) {
             const { data, error } = await sb
@@ -1299,8 +1207,6 @@ Batería segura"></textarea>
             minePanel.classList.add("hidden");
             generator.classList.remove("hidden");
             modeBadge.textContent = "generator";
-            // ✅ asigna Robot ID automático
-            ensureAutoRobotId().catch(console.error);
             // pinta canvas blanco si está vacío
             const ctx = qrCanvas.getContext("2d");
             ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, qrCanvas.width, qrCanvas.height);
@@ -1687,15 +1593,17 @@ Batería segura"></textarea>
         };
 
         /* =========================
-           ✅ DASHBOARD / MINE UI EVENTS xd 
+           ✅ DASHBOARD / MINE UI EVENTS
            ========================= */
         goRegister.onclick = () => location.hash = "#/new";
         goMine.onclick = () => location.hash = "#/mine";
+        goTorneos.onclick = () => (window.location.href = "torneos.html");
         refreshDash.onclick = () => refreshDashboard().catch(console.error);
 
         cardHome.onclick = () => location.hash = "#/";
         cardNew.onclick = () => location.hash = "#/new";
         cardMine.onclick = () => location.hash = "#/mine";
+        cardTorneos.onclick = () => (window.location.href = "torneos.html");
 
         btnBackToDash.onclick = () => location.hash = "#/";
 
