@@ -845,13 +845,6 @@
                 <div class="hint" style="margin-top:12px">
                     Tip: El QR “link” apunta a <b>#id=ROBOT_ID</b> y por eso el viewer abre desde Supabase.
                 </div>
-
-                <div class="sectionTitle" style="margin-top:18px">Torneos públicos</div>
-                <div class="list" id="publicTourneyList">
-                    <div class="row">
-                        <div class="left"><b>Cargando…</b><span>—</span></div>
-                    </div>
-                </div>
             </div>
         </section>
 
@@ -1078,8 +1071,6 @@ Batería segura" maxlength="400"></textarea>
                 </div>
                 <div class="btnRow">
                     <button class="btn" id="btnBack">Volver</button>
-                    <button class="btn primary hidden" id="btnEditRobot">✏️ Editar robot</button>
-                    <button class="btn hot hidden" id="btnDeleteRobot">🗑 Borrar</button>
                 </div>
             </div>
 
@@ -1123,122 +1114,6 @@ Batería segura" maxlength="400"></textarea>
         <div style="height:14px;"></div>
 
         <!-- =========================
-             ✅ EDIT ROBOT PANEL
-             ========================= -->
-        <section id="editPanel" class="panel hidden">
-            <div class="panelHead">
-                <div class="title">
-                    <h2>Editar robot</h2>
-                    <b id="edit_title">—</b>
-                </div>
-                <div class="btnRow">
-                    <button class="btn" id="btnEditBack">Cancelar</button>
-                    <button class="btn primary" id="btnEditSave">Guardar cambios</button>
-                </div>
-            </div>
-            <div class="content">
-                <div class="sectionTitle">Básico</div>
-                <div class="formGrid">
-                    <div>
-                        <label>Robot ID (no editable)</label>
-                        <input id="edit_robot_id" readonly aria-readonly="true" />
-                    </div>
-                    <div>
-                        <div class="labelRow"><label style="margin:0">Nombre del robot</label><span class="counter"
-                                id="ecnt_robot_nombre">0/24</span></div>
-                        <input id="edit_robot_nombre" placeholder="Ej. KRAKEN" maxlength="24" />
-                    </div>
-                    <div>
-                        <label>Categoría</label>
-                        <select id="edit_categoria">
-                            <option value="">(selecciona)</option>
-                            <option>Mini Sumo</option>
-                            <option>Mini Sumo 500g</option>
-                            <option>Sumo 3kg</option>
-                            <option>Combate</option>
-                            <option>Seguidor de línea</option>
-                            <option>Otro</option>
-                        </select>
-                    </div>
-                    <div>
-                        <div class="labelRow"><label style="margin:0">Equipo</label><span class="counter"
-                                id="ecnt_equipo">0/24</span></div>
-                        <input id="edit_equipo" placeholder="Ej. RoboDragons" maxlength="24" />
-                    </div>
-                    <div>
-                        <div class="labelRow"><label style="margin:0">Controlador / Piloto</label><span class="counter"
-                                id="ecnt_controlador">0/24</span></div>
-                        <input id="edit_controlador" placeholder="Nombre del piloto" maxlength="24" />
-                    </div>
-                    <div>
-                        <div class="labelRow"><label style="margin:0">Escuela</label><span class="counter"
-                                id="ecnt_escuela">0/32</span></div>
-                        <input id="edit_escuela" placeholder="Ej. ESIME Azcapotzalco" maxlength="32" />
-                    </div>
-                </div>
-                <div class="sectionTitle">Opcional</div>
-                <div class="formGrid">
-                    <div>
-                        <label>Peso (g)</label>
-                        <input id="edit_peso_g" type="number" min="0" placeholder="Ej. 498" />
-                    </div>
-                    <div>
-                        <div class="labelRow"><label style="margin:0">Dimensiones (mm)</label><span class="counter"
-                                id="ecnt_dimensiones_mm">0/20</span></div>
-                        <input id="edit_dimensiones_mm" placeholder="Ej. 100×100×55" maxlength="20" />
-                    </div>
-                    <div>
-                        <label>Tipo de control</label>
-                        <select id="edit_tipo_control">
-                            <option value="">(opcional)</option>
-                            <option>Autónomo</option>
-                            <option>RC</option>
-                            <option>Híbrido</option>
-                        </select>
-                    </div>
-                    <div>
-                        <div class="labelRow"><label style="margin:0">Frecuencia / Protocolo</label><span
-                                class="counter" id="ecnt_frecuencia_protocolo">0/24</span></div>
-                        <input id="edit_frecuencia_protocolo" placeholder="Ej. 2.4GHz / ELRS" maxlength="24" />
-                    </div>
-                    <div>
-                        <div class="labelRow"><label style="margin:0">Contacto</label><span class="counter"
-                                id="ecnt_contacto">0/40</span></div>
-                        <input id="edit_contacto" placeholder="IG / WhatsApp / Email" maxlength="40" />
-                    </div>
-                    <div>
-                        <label>Estado de inspección</label>
-                        <select id="edit_inspeccion_estado">
-                            <option value="pendiente">pendiente</option>
-                            <option value="aprobado">aprobado</option>
-                            <option value="rechazado">rechazado</option>
-                        </select>
-                    </div>
-                    <div style="grid-column:1/-1">
-                        <div class="labelRow"><label style="margin:0">Checklist (1 por línea)</label><span
-                                class="counter" id="ecnt_inspeccion_checklist">0/400</span></div>
-                        <textarea id="edit_inspeccion_checklist" maxlength="400"></textarea>
-                    </div>
-                    <div>
-                        <div class="labelRow"><label style="margin:0">Foto del robot (URL)</label><span class="counter"
-                                id="ecnt_foto_url">0/200</span></div>
-                        <input id="edit_foto_url" placeholder="https://..." maxlength="200" />
-                    </div>
-                    <div>
-                        <div class="labelRow"><label style="margin:0">Logo del equipo (URL)</label><span class="counter"
-                                id="ecnt_logo_url">0/200</span></div>
-                        <input id="edit_logo_url" placeholder="https://..." maxlength="200" />
-                    </div>
-                </div>
-                <div class="hint" style="margin-top:12px">
-                    Solo puedes editar robots registrados desde <b>este navegador</b> en este dispositivo.
-                </div>
-            </div>
-        </section>
-
-        <div style="height:14px;"></div>
-
-        <!-- =========================
              ✅ TORNEOS PANEL
              ========================= -->
         <section id="torneosPanel" class="panel hidden">
@@ -1250,10 +1125,7 @@ Batería segura" maxlength="400"></textarea>
                 <div class="btnRow">
                     <button class="btn" id="backFromTorneos">Volver</button>
                     <button class="btn" id="btnNew">Nuevo</button>
-                    <button class="btn primary" id="btnCreateCloud">☁️ Crear en nube</button>
-                    <button class="btn primary" id="btnSaveCloud" disabled>💾 Guardar nube</button>
-                    <button class="btn" id="btnLoadCloud">📂 Abrir torneo</button>
-                    <button class="btn" id="btnSaveLocal">Guardar local</button>
+                    <button class="btn primary" id="btnSaveLocal">Guardar local</button>
                     <button class="btn" id="btnLoadLocal">Abrir local</button>
                     <button class="btn hot" id="btnReset">Reset</button>
                 </div>
@@ -1355,36 +1227,6 @@ Batería segura" maxlength="400"></textarea>
                                 BO3: se gana con 2 victorias (2/2).
                                 Seeds: se intenta evitar cruzar el mismo equipo en primera ronda.
                             </div>
-
-                            <div class="sectionTitle">Visibilidad del torneo</div>
-                            <div class="miniGrid">
-                                <div>
-                                    <label>Visibilidad</label>
-                                    <select id="t_visibility">
-                                        <option value="private">🔒 Privado (solo con enlace+token)</option>
-                                        <option value="unlisted">🔗 No listado (solo con enlace)</option>
-                                        <option value="public">🌐 Público (aparece en el listado)</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Info del torneo en nube (visible solo después de crear) -->
-                            <div id="cloudInfo" class="hidden" style="margin-top:14px">
-                                <div class="sectionTitle">☁️ Torneo en nube</div>
-                                <div class="panel"
-                                    style="padding:14px;border-radius:12px;background:rgba(47,230,255,.06);border:1px solid rgba(47,230,255,.18)">
-                                    <div class="kv" id="cloudInfoKV"></div>
-                                    <div class="hint" style="margin-top:10px;color:var(--warn)">
-                                        ⚠️ Guarda tu <b>Clave de organizador</b> ahora — no se puede recuperar si la
-                                        pierdes.
-                                    </div>
-                                    <div class="btnRow" style="margin-top:10px">
-                                        <button class="btn" id="btnCopyOrgKey">📋 Copiar clave organizador</button>
-                                        <button class="btn" id="btnCopySlug">📋 Copiar slug público</button>
-                                    </div>
-                                </div>
-                            </div>
-
                         </div>
                     </div>
 
@@ -1455,24 +1297,6 @@ Batería segura" maxlength="400"></textarea>
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const TABLE = "robot_cards";
-
-        /* =========================================================
-           ✅ OWNER TOKEN — identidad anónima por dispositivo
-           Se genera una vez en localStorage. Se envía en cada
-           insert para marcar propiedad del robot sin login.
-           ========================================================= */
-        const OWNER_TOKEN_KEY = "apex_owner_token_v1";
-        function getOwnerToken() {
-            let t = localStorage.getItem(OWNER_TOKEN_KEY);
-            if (!t) {
-                t = ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
-                    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
-                localStorage.setItem(OWNER_TOKEN_KEY, t);
-            }
-            return t;
-        }
-        const OWNER_TOKEN = getOwnerToken();
-
         /* =========================================================
    ✅ ROBOT ID (0001-9999)
    - PREVIEW: peek_robot_id()  (NO consume)
@@ -1710,7 +1534,6 @@ Batería segura" maxlength="400"></textarea>
                 data: compact,
                 qr_link: payloadLink(compact),
                 qr_offline: payloadOffline(compact),
-                owner_token: OWNER_TOKEN,   // ✅ marca propiedad del dispositivo
             };
 
             const { data, error } = await sb
@@ -1723,36 +1546,15 @@ Batería segura" maxlength="400"></textarea>
             return data;
         }
 
-        async function updateRobotInSupabase(compact) {
-            const robot_id = (compact.i || "").trim();
-            if (!robot_id) throw new Error("robot_id vacío");
-
-            const { data, error } = await sb.rpc("update_robot_card", {
-                p_robot_id: robot_id,
-                p_owner_token: OWNER_TOKEN,
-                p_data: compact,
-                p_qr_link: payloadLink(compact),
-                p_qr_offline: payloadOffline(compact),
-            });
-
-            if (error) throw error;
-            if (!data?.ok) throw new Error(data?.error || "Error al actualizar");
-            return data;
-        }
-
         async function loadFromSupabaseByRobotId(robot_id) {
             const { data, error } = await sb
                 .from(TABLE)
-                .select("robot_id, data, qr_link, qr_offline, owner_token, updated_at, created_at")
+                .select("robot_id, data, qr_link, qr_offline, updated_at, created_at")
                 .eq("robot_id", robot_id)
                 .single();
 
             if (error) throw error;
             return data;
-        }
-
-        function isOwner(record) {
-            return record?.owner_token && record.owner_token === OWNER_TOKEN;
         }
 
         /* =========================================================
@@ -1825,23 +1627,14 @@ Batería segura" maxlength="400"></textarea>
         /* --------------------------
            Viewer mode (#id=... o legacy #view=...)
         --------------------------- */
-        let currentViewerRecord = null; // guarda el record completo del viewer
-
-        function showViewer(compact, record) {
+        function showViewer(compact) {
             const o = prettyFromCompact(compact);
-            currentViewerRecord = record || null;
 
             dashboard.classList.add("hidden");
             minePanel.classList.add("hidden");
             generator.classList.add("hidden");
             document.getElementById("torneosPanel").classList.add("hidden");
-            document.getElementById("editPanel").classList.add("hidden");
             viewer.style.display = "block";
-
-            // Mostrar botones de edición solo si eres el owner
-            const canEdit = isOwner(record);
-            document.getElementById("btnEditRobot").classList.toggle("hidden", !canEdit);
-            document.getElementById("btnDeleteRobot").classList.toggle("hidden", !canEdit);
 
             modeBadge.textContent = "viewer";
 
@@ -1904,7 +1697,6 @@ Batería segura" maxlength="400"></textarea>
             generator.classList.add("hidden");
             minePanel.classList.add("hidden");
             document.getElementById("torneosPanel").classList.add("hidden");
-            document.getElementById("editPanel").classList.add("hidden");
             dashboard.classList.remove("hidden");
             modeBadge.textContent = "dashboard";
             refreshDashboard().catch(console.error);
@@ -1915,7 +1707,6 @@ Batería segura" maxlength="400"></textarea>
             dashboard.classList.add("hidden");
             minePanel.classList.add("hidden");
             document.getElementById("torneosPanel").classList.add("hidden");
-            document.getElementById("editPanel").classList.add("hidden");
             generator.classList.remove("hidden");
             modeBadge.textContent = "generator";
             // pinta canvas blanco si está vacío
@@ -1931,7 +1722,6 @@ Batería segura" maxlength="400"></textarea>
             dashboard.classList.add("hidden");
             generator.classList.add("hidden");
             document.getElementById("torneosPanel").classList.add("hidden");
-            document.getElementById("editPanel").classList.add("hidden");
             minePanel.classList.remove("hidden");
             modeBadge.textContent = "mine";
             loadMineList().catch(console.error);
@@ -1942,7 +1732,6 @@ Batería segura" maxlength="400"></textarea>
             dashboard.classList.add("hidden");
             generator.classList.add("hidden");
             minePanel.classList.add("hidden");
-            document.getElementById("editPanel").classList.add("hidden");
             document.getElementById("torneosPanel").classList.remove("hidden");
             modeBadge.textContent = "torneos";
             // boot torneos si aún no se inicializó
@@ -1960,7 +1749,7 @@ Batería segura" maxlength="400"></textarea>
                 const rid = decodeURIComponent(hash.slice(4));
                 try {
                     const rec = await loadFromSupabaseByRobotId(rid);
-                    showViewer(rec.data, rec);
+                    showViewer(rec.data);
                     return;
                 } catch (e) {
                     console.error(e);
@@ -2059,39 +1848,6 @@ Batería segura" maxlength="400"></textarea>
             }
 
             miniStatus.textContent = "· listo ✅";
-
-            // Public tournaments list
-            try {
-                const { data: tData } = await sb.rpc("list_public_tournaments");
-                const tList = document.getElementById("publicTourneyList");
-                if (!tList) return;
-                if (!tData || tData.length === 0) {
-                    tList.innerHTML = `<div class="row"><div class="left"><b>Sin torneos públicos</b><span>Aún no hay torneos con visibilidad pública.</span></div></div>`;
-                } else {
-                    tList.innerHTML = tData.map(t => {
-                        const fecha = t.event_date ? new Date(t.event_date).toLocaleDateString("es-MX") : "—";
-                        const sub = [t.category, t.venue, fecha].filter(Boolean).join(" · ");
-                        return `<div class="row">
-                            <div class="left"><b>${esc(t.name)}</b><span>${esc(sub)}</span></div>
-                            <div class="right">
-                                <div class="chip">${esc(t.format)}</div>
-                                <div class="chip">${t.n} robots</div>
-                                <button class="btn" data-slug="${esc(t.public_slug)}">Ver llave</button>
-                            </div>
-                        </div>`;
-                    }).join("");
-                    tList.querySelectorAll("[data-slug]").forEach(btn => {
-                        btn.addEventListener("click", () => {
-                            location.hash = "#/torneos";
-                            // Pequeño delay para que cargue el panel
-                            setTimeout(() => {
-                                if (typeof torneosInit === "function" && !torneosBoot) { torneosBoot = true; torneosInit(); }
-                                document.getElementById("btnLoadCloud")?.click();
-                            }, 300);
-                        });
-                    });
-                }
-            } catch (_) { }
         }
 
         /* =========================
@@ -2344,8 +2100,6 @@ Batería segura" maxlength="400"></textarea>
                     drawQR(rec.qr_link);
 
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(o));
-                    // Actualiza currentViewerRecord si se cargó un robot
-                    currentViewerRecord = rec;
                     return;
                 } catch (e) {
                     console.error(e);
@@ -2469,160 +2223,6 @@ Batería segura" maxlength="400"></textarea>
             await route();
         })();
         /* =========================
-           ✅ EDITAR ROBOT
-           ========================= */
-        function showEditPanel(record) {
-            const o = prettyFromCompact(record.data);
-            viewer.style.display = "none";
-            dashboard.classList.add("hidden");
-            generator.classList.add("hidden");
-            minePanel.classList.add("hidden");
-            document.getElementById("torneosPanel").classList.add("hidden");
-            document.getElementById("editPanel").classList.remove("hidden");
-            modeBadge.textContent = "editor";
-
-            document.getElementById("edit_title").textContent = o.robot_nombre || "Robot";
-            document.getElementById("edit_robot_id").value = o.robot_id;
-            document.getElementById("edit_robot_nombre").value = o.robot_nombre;
-            document.getElementById("edit_categoria").value = o.categoria;
-            document.getElementById("edit_equipo").value = o.equipo;
-            document.getElementById("edit_controlador").value = o.controlador;
-            document.getElementById("edit_escuela").value = o.escuela;
-            document.getElementById("edit_peso_g").value = o.peso_g;
-            document.getElementById("edit_dimensiones_mm").value = o.dimensiones_mm;
-            document.getElementById("edit_tipo_control").value = o.tipo_control;
-            document.getElementById("edit_frecuencia_protocolo").value = o.frecuencia_protocolo;
-            document.getElementById("edit_contacto").value = o.contacto;
-            document.getElementById("edit_inspeccion_estado").value = o.inspeccion_estado;
-            document.getElementById("edit_inspeccion_checklist").value = (o.inspeccion_checklist || []).join("
-");
-            document.getElementById("edit_foto_url").value = o.foto_url;
-            document.getElementById("edit_logo_url").value = o.logo_url;
-
-            // Bind edit counters
-            const editLimits = [
-                ["edit_robot_nombre", "ecnt_robot_nombre", 24],
-                ["edit_equipo", "ecnt_equipo", 24],
-                ["edit_controlador", "ecnt_controlador", 24],
-                ["edit_escuela", "ecnt_escuela", 32],
-                ["edit_dimensiones_mm", "ecnt_dimensiones_mm", 20],
-                ["edit_frecuencia_protocolo", "ecnt_frecuencia_protocolo", 24],
-                ["edit_contacto", "ecnt_contacto", 40],
-                ["edit_inspeccion_checklist", "ecnt_inspeccion_checklist", 400],
-                ["edit_foto_url", "ecnt_foto_url", 200],
-                ["edit_logo_url", "ecnt_logo_url", 200],
-            ];
-            editLimits.forEach(([id, cid, max]) => {
-                const el = document.getElementById(id);
-                const c = document.getElementById(cid);
-                const upd = () => { c.textContent = `${el.value.length}/${max}`; };
-                el.oninput = upd; upd();
-            });
-        }
-
-        function buildEditCompact() {
-            const checklist = (document.getElementById("edit_inspeccion_checklist").value || "")
-                .split("
-").map(s => s.trim()).filter(Boolean);
-            const obj = {
-                v: 1,
-                i: document.getElementById("edit_robot_id").value.trim(),
-                n: document.getElementById("edit_robot_nombre").value.trim(),
-                c: document.getElementById("edit_categoria").value.trim(),
-                t: document.getElementById("edit_equipo").value.trim(),
-                p: document.getElementById("edit_controlador").value.trim(),
-                s: document.getElementById("edit_escuela").value.trim(),
-            };
-            const peso = document.getElementById("edit_peso_g").value.trim();
-            const dim = document.getElementById("edit_dimensiones_mm").value.trim();
-            const tipo = document.getElementById("edit_tipo_control").value.trim();
-            const freq = document.getElementById("edit_frecuencia_protocolo").value.trim();
-            const cont = document.getElementById("edit_contacto").value.trim();
-            const ist = document.getElementById("edit_inspeccion_estado").value.trim();
-            const foto = document.getElementById("edit_foto_url").value.trim();
-            const logo = document.getElementById("edit_logo_url").value.trim();
-            if (peso) obj.w = Number(peso);
-            if (dim) obj.d = dim;
-            if (tipo) obj.y = tipo;
-            if (freq) obj.f = freq;
-            if (cont) obj.k = cont;
-            if (ist) obj.a = ist;
-            if (checklist.length) obj.l = checklist;
-            if (foto) obj.u = foto;
-            if (logo) obj.g = logo;
-            return obj;
-        }
-
-        document.getElementById("btnEditRobot").onclick = () => {
-            if (!currentViewerRecord) return;
-            showEditPanel(currentViewerRecord);
-        };
-
-        document.getElementById("btnEditBack").onclick = () => {
-            if (currentViewerRecord) {
-                showViewer(currentViewerRecord.data, currentViewerRecord);
-            } else {
-                location.hash = "#/";
-            }
-        };
-
-        document.getElementById("btnEditSave").onclick = async () => {
-            const compact = buildEditCompact();
-            if (!compact.n) { alert("El nombre del robot es obligatorio."); return; }
-            try {
-                miniStatus.textContent = "· guardando cambios…";
-                await updateRobotInSupabase(compact);
-                // Actualizar el record en memoria
-                currentViewerRecord = { ...currentViewerRecord, data: compact };
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
-                miniStatus.textContent = "· guardado ✅";
-                setTimeout(() => miniStatus.textContent = "", 1500);
-                showViewer(compact, currentViewerRecord);
-                alert("✅ Robot actualizado correctamente.");
-            } catch (e) {
-                console.error(e);
-                miniStatus.textContent = "· error ⚠️";
-                if (e.message === "FORBIDDEN") {
-                    alert("❌ No tienes permiso para editar este robot.
-Solo puedes editar robots registrados desde este dispositivo.");
-                } else {
-                    alert("Error al guardar: " + (e.message || e));
-                }
-            }
-        };
-
-        document.getElementById("btnDeleteRobot").onclick = async () => {
-            if (!currentViewerRecord) return;
-            const nombre = currentViewerRecord.data?.n || "este robot";
-            if (!confirm(`¿Borrar permanentemente a "${nombre}"?
-Esta acción no se puede deshacer.`)) return;
-            try {
-                miniStatus.textContent = "· borrando…";
-                const { data, error } = await sb.rpc("delete_robot_card", {
-                    p_robot_id: currentViewerRecord.robot_id,
-                    p_owner_token: OWNER_TOKEN,
-                });
-                if (error) throw error;
-                if (!data?.ok) throw new Error(data?.error || "Error al borrar");
-                // Quitar de "Mis Robots" local
-                const list = getMyList().filter(id => id !== currentViewerRecord.robot_id);
-                localStorage.setItem("apex_my_robot_ids_v1", JSON.stringify(list));
-                miniStatus.textContent = "· borrado ✅";
-                setTimeout(() => miniStatus.textContent = "", 1500);
-                alert(`✅ Robot "${nombre}" borrado.`);
-                location.hash = "#/";
-            } catch (e) {
-                console.error(e);
-                miniStatus.textContent = "· error ⚠️";
-                if (e.message === "FORBIDDEN") {
-                    alert("❌ No tienes permiso para borrar este robot.");
-                } else {
-                    alert("Error al borrar: " + (e.message || e));
-                }
-            }
-        };
-
-        /* =========================
            ✅ TORNEOS – JS integrado
            ========================= */
         let torneosBoot = false;
@@ -2644,7 +2244,6 @@ Esta acción no se puede deshacer.`)) return;
                 },
                 players: [],
                 view: null,
-                cloud: null, // { slug, organizer_key, spectator_token }
             };
 
             function tEsc(s) {
@@ -3358,218 +2957,7 @@ Esta acción no se puede deshacer.`)) return;
             T$("btnReset").onclick = () => { if (confirm("¿Reiniciar todo?")) { torneosBoot = false; location.hash = "#/torneos"; showTorneos(); } };
 
             const LOCAL_KEY = "apex_tournament_flex_demo_v2_bo3_map";
-            const CLOUD_KEY = "apex_tournament_cloud_v1"; // { slug, organizer_key, spectator_token }
 
-            // ─── helpers para cloud info ────────────────────────────────
-            function showCloudInfo(slug, organizer_key, spectator_token, visibility) {
-                state.cloud = { slug, organizer_key, spectator_token };
-                T$("cloudInfo").classList.remove("hidden");
-                T$("btnSaveCloud").disabled = false;
-                const kv = T$("cloudInfoKV");
-                kv.innerHTML = "";
-                const rows = [
-                    ["Slug público", slug],
-                    ["Visibilidad", visibility],
-                    ["Clave organizador", organizer_key],
-                    ["Token espectador", spectator_token],
-                ];
-                rows.forEach(([k, v]) => {
-                    const kEl = document.createElement("div"); kEl.className = "k"; kEl.textContent = k;
-                    const vEl = document.createElement("div"); vEl.className = "v";
-                    vEl.textContent = v;
-                    vEl.style.fontFamily = "monospace"; vEl.style.wordBreak = "break-all";
-                    kv.appendChild(kEl); kv.appendChild(vEl);
-                });
-                // Guardar en localStorage para recuperar al recargar
-                localStorage.setItem(CLOUD_KEY, JSON.stringify({ slug, organizer_key, spectator_token, visibility }));
-            }
-
-            function matchesToDB(bracket) {
-                if (!bracket) return [];
-                const out = [];
-                bracket.rounds.forEach((matches, ri) => {
-                    matches.forEach((m, mi) => {
-                        out.push({
-                            bracket: bracket.type === "losers" ? "L" : "W",
-                            round: ri + 1,
-                            match_no: mi + 1,
-                            a_robot_id: m.a?.rid || null,
-                            b_robot_id: m.b?.rid || null,
-                            wa: m.wa || 0,
-                            wb: m.wb || 0,
-                            winner_robot_id: m.winner ? (m.winner === "a" ? m.a?.rid : m.b?.rid) : null,
-                            meta: {}
-                        });
-                    });
-                });
-                return out;
-            }
-
-            function buildCloudPayload() {
-                syncTournamentFromForm();
-                const t = state.tournament;
-                const p_tournament = {
-                    name: t.name, category: t.category, venue: t.venue,
-                    event_date: t.date || null, format: t.format,
-                    n: t.n, groups: t.groups, adv: t.adv,
-                    visibility: T$("t_visibility").value,
-                };
-                const p_players = state.players.map((p, idx) => ({
-                    robot_id: p.i, seed: idx + 1, team: p.t || "",
-                    compact: p
-                }));
-                let p_matches = [];
-                if (state.view?.bracket) p_matches = [...p_matches, ...matchesToDB(state.view.bracket)];
-                if (state.view?.finalBracket) p_matches = [...p_matches, ...matchesToDB(state.view.finalBracket)];
-                return { p_tournament, p_players, p_matches };
-            }
-
-            // ─── CREAR TORNEO EN NUBE ───────────────────────────────────
-            T$("btnCreateCloud").onclick = async () => {
-                syncTournamentFromForm();
-                const t = state.tournament;
-                if (!t.name) { alert("Pon un nombre al torneo primero."); return; }
-                if (!confirm(`¿Crear torneo "${t.name}" en la nube?
-Se generará una clave de organizador. Guárdala bien.`)) return;
-                try {
-                    document.getElementById("miniStatus").textContent = "· creando torneo…";
-                    const vis = T$("t_visibility").value;
-                    const { data, error } = await sb.rpc("create_tournament", {
-                        p_name: t.name,
-                        p_category: t.category,
-                        p_venue: t.venue,
-                        p_event_date: t.date || null,
-                        p_format: t.format,
-                        p_n: t.n,
-                        p_groups: t.groups,
-                        p_adv: t.adv,
-                        p_visibility: vis,
-                    });
-                    if (error) throw error;
-                    if (!data?.ok) throw new Error(data?.error || "Error al crear");
-                    showCloudInfo(data.public_slug, data.organizer_key, data.spectator_token, vis);
-                    document.getElementById("miniStatus").textContent = "· torneo creado ✅";
-                    setTimeout(() => document.getElementById("miniStatus").textContent = "", 1800);
-                    alert(`✅ Torneo creado.
-
-Slug: ${data.public_slug}
-Clave organizador: ${data.organizer_key}
-
-⚠️ Guarda la clave — no se puede recuperar.`);
-                } catch (e) {
-                    console.error(e);
-                    document.getElementById("miniStatus").textContent = "· error ⚠️";
-                    alert("Error al crear torneo: " + (e.message || e));
-                }
-            };
-
-            // ─── GUARDAR ESTADO EN NUBE ─────────────────────────────────
-            T$("btnSaveCloud").onclick = async () => {
-                if (!state.cloud?.slug || !state.cloud?.organizer_key) {
-                    alert("Primero crea o carga un torneo de la nube.");
-                    return;
-                }
-                try {
-                    document.getElementById("miniStatus").textContent = "· guardando en nube…";
-                    const { p_tournament, p_players, p_matches } = buildCloudPayload();
-                    const { data, error } = await sb.rpc("save_tournament_state", {
-                        p_slug: state.cloud.slug,
-                        p_organizer_key: state.cloud.organizer_key,
-                        p_tournament,
-                        p_players,
-                        p_matches,
-                    });
-                    if (error) throw error;
-                    if (!data?.ok) throw new Error(data?.error || "Error al guardar");
-                    document.getElementById("miniStatus").textContent = "· guardado en nube ✅";
-                    setTimeout(() => document.getElementById("miniStatus").textContent = "", 1800);
-                } catch (e) {
-                    console.error(e);
-                    document.getElementById("miniStatus").textContent = "· error ⚠️";
-                    alert("Error al guardar en nube: " + (e.message || e));
-                }
-            };
-
-            // ─── CARGAR TORNEO DE LA NUBE ───────────────────────────────
-            T$("btnLoadCloud").onclick = async () => {
-                const saved = localStorage.getItem(CLOUD_KEY);
-                let slug = "", key = "", token = "";
-                if (saved) {
-                    try {
-                        const c = JSON.parse(saved);
-                        slug = c.slug || ""; key = c.organizer_key || ""; token = c.spectator_token || "";
-                    } catch (_) { }
-                }
-                const inputSlug = prompt("Slug del torneo:", slug);
-                if (!inputSlug) return;
-                const inputKey = prompt("Clave de organizador (o token espectador):", key || token);
-                if (!inputKey) return;
-                try {
-                    document.getElementById("miniStatus").textContent = "· cargando torneo…";
-                    const { data, error } = await sb.rpc("get_tournament_bundle", {
-                        p_slug: inputSlug.trim(),
-                        p_token: inputKey.trim(),
-                    });
-                    if (error) throw error;
-                    if (!data?.ok) throw new Error(data?.error || "No encontrado o acceso denegado");
-                    const t = data.tournament;
-                    // Restaurar estado
-                    state.tournament = {
-                        name: t.name, category: t.category, venue: t.venue || "",
-                        date: t.event_date || "", format: t.format,
-                        n: t.n, groups: t.groups, adv: t.adv,
-                    };
-                    state.players = (data.players || []).map(p => p.compact || { i: p.robot_id, n: p.robot_id });
-                    T$("t_name").value = state.tournament.name;
-                    T$("t_category").value = state.tournament.category;
-                    T$("t_venue").value = state.tournament.venue;
-                    T$("t_date").value = state.tournament.date;
-                    T$("t_format").value = state.tournament.format;
-                    T$("t_n").value = String(state.tournament.n);
-                    T$("t_groups").value = String(state.tournament.groups);
-                    T$("t_adv").value = String(state.tournament.adv);
-                    T$("t_visibility").value = t.visibility || "private";
-                    setTChips(); updateViewMode(); renderPlayers();
-                    // Mostrar cloud info si se usó clave de organizador
-                    const cloudData = localStorage.getItem(CLOUD_KEY);
-                    if (cloudData) {
-                        try {
-                            const c = JSON.parse(cloudData);
-                            if (c.slug === inputSlug.trim()) {
-                                showCloudInfo(c.slug, c.organizer_key, c.spectator_token, t.visibility);
-                            }
-                        } catch (_) { }
-                    }
-                    T$("btnSaveCloud").disabled = false;
-                    state.cloud = state.cloud || { slug: inputSlug.trim(), organizer_key: inputKey.trim() };
-                    document.getElementById("miniStatus").textContent = "· torneo cargado ✅";
-                    setTimeout(() => document.getElementById("miniStatus").textContent = "", 1800);
-                    if (data.matches?.length) {
-                        alert(`Torneo cargado con ${state.players.length} jugadores y ${data.matches.length} partidas.
-La vista del bracket se regenera al pulsar "Generar".`);
-                    }
-                } catch (e) {
-                    console.error(e);
-                    document.getElementById("miniStatus").textContent = "· error ⚠️";
-                    alert("Error al cargar torneo: " + (e.message || e));
-                }
-            };
-
-            // ─── Botones copiar slug / clave ────────────────────────────
-            T$("btnCopyOrgKey").onclick = async () => {
-                const key = state.cloud?.organizer_key || "";
-                if (!key) return;
-                try { await navigator.clipboard.writeText(key); }
-                catch (_) { prompt("Copia esta clave:", key); }
-            };
-            T$("btnCopySlug").onclick = async () => {
-                const slug = state.cloud?.slug || "";
-                if (!slug) return;
-                try { await navigator.clipboard.writeText(slug); }
-                catch (_) { prompt("Copia este slug:", slug); }
-            };
-
-            // ─── LOCAL SAVE / LOAD (se mantiene como respaldo) ─────────
             T$("btnSaveLocal").onclick = () => {
                 syncTournamentFromForm();
                 const payload = { tournament: state.tournament, players: state.players, view: state.view, VIEW_MODE, VIEW_STYLE };
