@@ -1024,8 +1024,7 @@ Batería segura" maxlength="400"></textarea>
                     </div>
 
                     <div class="hint">
-                        Nota: el modo <b>link</b> genera un QR que abre una credencial visual. (El modo <b>offline</b>
-                        está en Avanzado)
+                        Nota: el modo <b>link</b> genera un QR que abre una credencial visual. (El modo <b>offline</b> está en Avanzado)
                         un QR que abre una credencial visual.
                         <br><br>
                         ✅ Con Supabase: al generar/guardar, también se sube a la base de datos.
@@ -1098,8 +1097,7 @@ Batería segura" maxlength="400"></textarea>
 
                             <div class="sectionTitle">QR</div>
                             <div class="qrBox" style="min-height:unset">
-                                <canvas id="v_qrCanvas" width="320" height="320"
-                                    style="width:320px;height:320px"></canvas>
+                                <canvas id="v_qrCanvas" width="320" height="320" style="width:320px;height:320px"></canvas>
                             </div>
 
                             <div class="btnRow" style="margin-top:10px">
@@ -1812,10 +1810,10 @@ Batería segura" maxlength="400"></textarea>
                 try {
                     const rec = await loadFromSupabaseByRobotId(rid);
                     showViewer(rec.data);
-
+                    
                     // ✅ Renderiza el QR del robot (link preferido)
                     setViewerQR(rec.qr_link || rec.qr_offline || "");
-                    return;
+return;
                 } catch (e) {
                     console.error(e);
                     alert("No se encontró este Robot ID en Supabase: " + rid);
