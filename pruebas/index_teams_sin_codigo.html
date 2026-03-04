@@ -751,6 +751,20 @@
                 grid-template-columns: 1fr
             }
         }
+    
+        .modal{
+            position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+            background:rgba(0,0,0,.55);backdrop-filter: blur(6px);z-index:9999;padding:18px;
+        }
+        .modalCard{
+            width:min(720px, 100%);
+            border-radius:20px;
+            border:1px solid rgba(122,63,255,.35);
+            background:linear-gradient(180deg, rgba(11,16,32,.95), rgba(11,16,32,.85));
+            box-shadow:0 18px 80px rgba(0,0,0,.55);
+            padding:14px 14px 16px;
+        }
+
     </style>
 </head>
 
@@ -780,8 +794,8 @@
                 <div class="btnRow">
                     <button class="btn primary" id="goRegister">Registrar Robot</button>
                     <button class="btn" id="goMine">Mis Robots</button>
+                    <button class="btn" id="goTeams" title="Ver equipos">Equipos</button>
                     <button class="btn" id="goTorneos" title="Abrir torneos">Torneos</button>
-                    <button class="btn" id="goTeams" title="Ver equipos">Teams</button>
                     <button class="btn hot" id="refreshDash">Actualizar</button>
                 </div>
             </div>
@@ -887,40 +901,6 @@
                 </div>
             </div>
         </section>
-        <div style="height:14px;"></div>
-
-        <!-- =========================
-         ✅ TEAMS (PÚBLICO)
-         ========================= -->
-        <section id="teamsPanel" class="panel hidden">
-            <div class="panelHead">
-                <div class="title">
-                    <h2>Equipos</h2>
-                    <b>Teams</b>
-                </div>
-                <div class="actions">
-                    <button class="btn" id="backFromTeams">Volver</button>
-                    <button class="btn hot" id="refreshTeams">Actualizar</button>
-                </div>
-            </div>
-
-            <div style="display:grid; grid-template-columns: 1fr 1.3fr; gap:12px;">
-                <div class="panel2" style="padding:12px;">
-                    <div class="labelRow">
-                        <label style="margin:0">Lista de equipos</label>
-                        <span class="muted" id="teamsCount"></span>
-                    </div>
-                    <div style="height:10px;"></div>
-                    <input id="teamsSearch" placeholder="Buscar equipo..." maxlength="48" />
-                    <div style="height:10px;"></div>
-                    <div id="teamsList" style="display:flex; flex-direction:column; gap:8px;"></div>
-                </div>
-
-                <div class="panel2" style="padding:12px;">
-                    <div id="teamDetail" class="muted">Selecciona un equipo para ver sus robots.</div>
-                </div>
-            </div>
-        </section>
 
         <div style="height:14px;"></div>
 
@@ -973,38 +953,42 @@
                             </select>
                         </div>
                         <div>
-  <div class="labelRow">
-    <label style="margin:0">Equipo</label>
-    <span class="counter" id="cnt_equipo">0/24</span>
-  </div>
+                            <label>Equipo (selecciona)</label>
+                            <select id="teamSelect">
+                                <option value="">— Selecciona un equipo —</option>
+                            </select>
+                            <div class="hint" style="margin-top:8px">
+                                No es texto libre: se asocia a una entidad <b>teams</b>.
+<button class="btn" id="btnCreateTeamInlineShow" style="margin-left:8px;padding:8px 10px">Crear equipo</button>
+                            </div>
 
-  <div style="display:flex; gap:8px; align-items:center;">
-    <select id="teamSelect" style="flex:1; padding:12px 14px; border-radius:14px; border:1px solid rgba(122, 63, 255, .55); background:rgba(11,16,32,.7); color:var(--text); outline:none;">
-      <option value="">Cargando equipos…</option>
-    </select>
-    <button class="btn" type="button" id="createTeamBtn" title="Crear equipo nuevo">Crear</button>
-  </div>
+                            <!-- Mantener compatibilidad: equipo como texto se llena automáticamente -->
+                            <input id="equipo" class="hidden" />
+<input id="teamCode" placeholder="Ej. RD6K-2P9Q" maxlength="12" />
+                                <div class="btnRow" style="margin-top:10px">
+                                    <button class="btn primary" id="btnConfirmJoin">Unirme</button>
+                                    <button class="btn" id="btnCancelJoin">Cancelar</button>
+                                </div>
+                            </div>
 
-  <!-- Mantengo este input (oculto) por compatibilidad con el viewer y torneos legacy -->
-  <input id="equipo" type="hidden" maxlength="24" />
-
-  <div id="teamCreateBox" style="display:none; margin-top:10px; padding:12px; border:1px solid rgba(122, 63, 255, .55); border-radius:14px; background:rgba(12,20,42,.55);">
-    <div class="labelRow"><label style="margin:0">Nombre del equipo</label><span class="counter" id="cnt_teamNameNew">0/32</span></div>
-    <input id="teamNameNew" placeholder="Ej. RoboDragons" maxlength="32" />
-
-    <div style="height:10px;"></div>
-
-    <div class="labelRow"><label style="margin:0">Escuela</label><span class="counter" id="cnt_teamSchoolNew">0/48</span></div>
-    <input id="teamSchoolNew" placeholder="Ej. IPN ESIME" maxlength="48" />
-
-    <div class="btnRow" style="margin-top:12px;">
-      <button class="btn primary" type="button" id="teamCreateConfirm">Guardar equipo</button>
-      <button class="btn" type="button" id="teamCreateCancel">Cancelar</button>
-    </div>
-  </div>
-
-  <div id="teamRobotsBox" style="margin-top:10px;"></div>
-</div>
+                            <div id="createTeamInline" class="hidden" style="margin-top:10px">
+                                <div class="sectionTitle">Crear equipo</div>
+                                <div class="formGrid">
+                                    <div>
+                                        <label>Nombre oficial *</label>
+                                        <input id="inlineTeamName" placeholder="RoboDragons" maxlength="32" />
+                                    </div>
+                                    <div>
+                                        <label>Escuela / Club</label>
+                                        <input id="inlineTeamSchool" placeholder="ESIME" maxlength="40" />
+                                    </div>
+                                </div>
+                                <div class="btnRow" style="margin-top:10px">
+                                    <button class="btn primary" id="btnCreateTeamInline">Crear y seleccionar</button>
+                                    <button class="btn" id="btnCancelCreateTeamInline">Cancelar</button>
+                                </div>
+                            </div>
+                        </div>
 
                         <div>
                             <div class="labelRow"><label style="margin:0">Controlador / Piloto</label><span
@@ -1087,8 +1071,7 @@ Batería segura" maxlength="400"></textarea>
                     </div>
 
                     <div class="hint">
-                        Nota: el modo <b>link</b> genera un QR que abre una credencial visual. (El modo <b>offline</b>
-                        está en Avanzado)
+                        Nota: el modo <b>link</b> genera un QR que abre una credencial visual. (El modo <b>offline</b> está en Avanzado)
                         un QR que abre una credencial visual.
                         <br><br>
                         ✅ Con Supabase: al generar/guardar, también se sube a la base de datos.
@@ -1129,6 +1112,123 @@ Batería segura" maxlength="400"></textarea>
         </div>
 
         <div style="height:14px;"></div>
+        <!-- =========================
+         ✅ TEAMS
+         ========================= -->
+        <section id="teamsPanel" class="panel hidden">
+            <div class="panelHead">
+                <div class="title">
+                    <h2>Equipos</h2>
+                    <b>Robots por equipo</b>
+                </div>
+                <div class="btnRow">
+                    <button class="btn" id="backFromTeams">Volver</button>
+                    <button class="btn primary" id="reloadTeams">Actualizar</button>
+                    <button class="btn" id="newTeamBtn">Crear equipo</button>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="sectionTitle">Buscar equipo</div>
+                <div class="searchRow">
+                    <input id="teamSearch" placeholder="Ej. RoboDragons" />
+                    <button class="btn primary" id="teamSearchBtn">Filtrar</button>
+                </div>
+
+                <div class="grid2" style="margin-top:12px">
+                    <div class="panel" style="border-radius:18px">
+                        <div class="content">
+                            <div class="sectionTitle">Lista de equipos</div>
+                            <div class="list" id="teamsList">
+                                <div class="row">
+                                    <div class="left"><b>Cargando…</b><span>—</span></div>
+                                </div>
+                            </div>
+
+                            <div class="hint" style="margin-top:12px">
+                                Tip: abre un equipo para ver todos sus robots y luego agrega uno nuevo ya asociado.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel" style="border-radius:18px">
+                        <div class="content">
+                            <div class="sectionTitle">Equipo seleccionado</div>
+                            <div class="teamHeader" style="display:flex;gap:12px;align-items:center">
+                                <div class="mediaBox" style="min-height:92px;max-width:92px">
+                                    <img id="teamLogo" alt="Logo equipo" />
+                                    <div class="fallback" id="teamLogo_f">LOGO</div>
+                                </div>
+                                <div>
+                                    <h2 style="margin:0 0 6px" id="teamName">—</h2>
+                                    <div class="sub" id="teamMeta">—</div>
+                                    <div class="mono" id="teamDesc" style="margin-top:8px">—</div>
+                                </div>
+                            </div>
+
+                            <div class="btnRow" style="margin-top:12px">
+                                <button class="btn primary" id="addRobotToTeam" disabled>Agregar robot a este equipo</button>
+                                <button class="btn" id="openTeamPublic" disabled>Ver página pública</button>
+                            </div>
+
+                            <div class="sectionTitle" style="margin-top:14px">Robots del equipo</div>
+                            <div class="list" id="teamRobotsList">
+                                <div class="row">
+                                    <div class="left"><b>Selecciona un equipo</b><span>—</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal simple para crear equipo -->
+                <div id="teamModal" class="modal hidden">
+                    <div class="modalCard">
+                        <div class="panelHead" style="margin:0 0 10px">
+                            <div class="title">
+                                <h2>Crear equipo</h2>
+                                <b>Entidad real (no texto libre)</b>
+                            </div>
+                            <div class="btnRow">
+                                <button class="btn" id="closeTeamModal">Cerrar</button>
+                            </div>
+                        </div>
+
+                        <div class="content" style="padding:0">
+                            <div class="formGrid">
+                                <div>
+                                    <label>Nombre oficial *</label>
+                                    <input id="newTeamName" placeholder="RoboDragons" maxlength="32" />
+                                </div>
+                                <div>
+                                    <label>Escuela / Club</label>
+                                    <input id="newTeamSchool" placeholder="ESIME / Club de robótica" maxlength="40" />
+                                </div>
+                                <div>
+                                    <label>Logo (URL)</label>
+                                    <input id="newTeamLogo" placeholder="https://..." maxlength="200" />
+                                </div>
+                                <div>
+                                    <label>Descripción</label>
+                                    <input id="newTeamDesc" placeholder="Mini sumo · 2026" maxlength="80" />
+                                </div>
+                            </div>
+
+                            <div class="btnRow" style="margin-top:12px">
+                                <button class="btn primary" id="createTeamConfirm">Crear</button>
+                            </div>
+
+                            <div class="hint" style="margin-top:10px">
+                                Los robots se asocian a este equipo por selección (sin texto libre).
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
 
         <!-- VIEWER -->
         <section id="viewer" class="panel viewer">
@@ -1161,8 +1261,7 @@ Batería segura" maxlength="400"></textarea>
 
                             <div class="sectionTitle">QR</div>
                             <div class="qrBox" style="min-height:unset">
-                                <canvas id="v_qrCanvas" width="320" height="320"
-                                    style="width:320px;height:320px"></canvas>
+                                <canvas id="v_qrCanvas" width="320" height="320" style="width:320px;height:320px"></canvas>
                             </div>
 
                             <div class="btnRow" style="margin-top:10px">
@@ -1379,9 +1478,102 @@ Batería segura" maxlength="400"></textarea>
            ========================================================= */
         const SUPABASE_URL = "https://pddjulxliqlqoopveugh.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_BgfIRiHsUgqPhCqZ4L8yEA_wjarKci0";
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const TABLE = "robot_cards";
+
+        // =========================
+        // ✅ TEAMS (entidad real)
+        // =========================
+        const TEAMS_TABLE = "teams";
+        window.currentTeamId = "";
+        window.currentTeamSlug = "";
+
+        function slugifyTeamName(name) {
+            return (name || "")
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/(^-|-$)/g, "")
+                .slice(0, 40);
+        }
+
+        async function listTeams(search = "") {
+            let q = sb.from(TEAMS_TABLE).select("id,name,slug,logo_url,school,description,created_at").order("name", { ascending: true });
+            if (search) q = q.ilike("name", `%${search}%`);
+            const { data, error } = await q;
+            if (error) throw error;
+            return data || [];
+        }
+
+        async function getTeamBySlug(slug) {
+            const { data, error } = await sb.from(TEAMS_TABLE)
+                .select("id,name,slug,logo_url,school,description")
+                .eq("slug", slug)
+                .maybeSingle();
+            if (error) throw error;
+            return data;
+        }
+
+        async function createTeam({ name, school = "", logo_url = "", description = "" }) {
+            const slug = slugifyTeamName(name);
+            const row = { name, slug, school, logo_url, description };
+
+            const { data, error } = await sb.from(TEAMS_TABLE)
+                .insert(row)
+                .select("id,name,slug,logo_url,school,description")
+                .single();
+
+            if (error) throw error;
+            return data;
+        }
+
+        async function listRobotsByTeamId(team_id) {
+            const { data, error } = await sb.from(TABLE)
+                .select("robot_id,data,updated_at,created_at,team_id")
+                .eq("team_id", team_id)
+                .order("robot_id", { ascending: true });
+
+            if (error) throw error;
+            return data || [];
+        }
+
+        function pickTeam(team) {
+            window.currentTeamId = team?.id || "";
+            window.currentTeamSlug = team?.slug || "";
+            if (typeof equipo !== "undefined") equipo.value = team?.name || "";
+
+            const sel = document.getElementById("teamSelect");
+            if (sel && team?.id) sel.value = team.id;
+
+            const tn = document.getElementById("teamName");
+            const tm = document.getElementById("teamMeta");
+            const td = document.getElementById("teamDesc");
+            const img = document.getElementById("teamLogo");
+            const f = document.getElementById("teamLogo_f");
+            const addBtn = document.getElementById("addRobotToTeam");
+            const pubBtn = document.getElementById("openTeamPublic");
+
+            if (tn) tn.textContent = team?.name || "—";
+            if (tm) tm.textContent = [team?.school || "", ""].filter(Boolean).join(" · ") || "—";
+            if (td) td.textContent = team?.description || "—";
+
+            if (img && f) {
+                if (team?.logo_url) {
+                    img.src = team.logo_url;
+                    img.style.display = "block";
+                    f.style.display = "none";
+                } else {
+                    img.removeAttribute("src");
+                    img.style.display = "none";
+                    f.style.display = "grid";
+                }
+            }
+
+            if (addBtn) addBtn.disabled = !team?.id;
+            if (pubBtn) pubBtn.disabled = !team?.slug;
+        }
+
         /* =========================================================
    ✅ ROBOT ID (0001-9999)
    - PREVIEW: peek_robot_id()  (NO consume)
@@ -1391,7 +1583,7 @@ Batería segura" maxlength="400"></textarea>
         async function peekRobotId() {
             try {
                 miniStatus.textContent = "· preparando Robot ID…";
-                const { data, error } = await supabaseClient.rpc("peek_robot_id");
+                const { data, error } = await sb.rpc("peek_robot_id");
                 if (error) throw error;
 
                 const rid = (typeof data === "string") ? data : (data?.robot_id || "");
@@ -1416,7 +1608,7 @@ Batería segura" maxlength="400"></textarea>
         async function reserveRobotIdReal() {
             try {
                 miniStatus.textContent = "· reservando Robot ID…";
-                const { data, error } = await supabaseClient.rpc("reserve_robot_id");
+                const { data, error } = await sb.rpc("reserve_robot_id");
                 if (error) throw error;
 
                 const rid = (typeof data === "string") ? data : (data?.robot_id || "");
@@ -1477,245 +1669,6 @@ Batería segura" maxlength="400"></textarea>
         }
 
 
-        /* =========================
-           ✅ TEAMS HELPERS (SUPABASE)
-           ========================= */
-        function slugifyJS(txt) {
-            return (txt || "")
-                .toString()
-                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                .toLowerCase()
-                .trim()
-                .replace(/[^a-z0-9]+/g, "-")
-                .replace(/^-+|-+$/g, "");
-        }
-
-        async function fetchTeams() {
-            const { data, error } = await supabaseClient
-                .from("teams")
-                .select("id,name,school,slug")
-                .order("name", { ascending: true });
-            if (error) throw error;
-            return data || [];
-        }
-
-        async function createTeam(name, school) {
-            const payload = {
-                name: (name || "").trim(),
-                school: (school || "").trim(),
-                slug: slugifyJS(name),
-            };
-            if (!payload.name) throw new Error("Nombre de equipo requerido.");
-            if (!payload.school) throw new Error("Escuela requerida.");
-            if (!payload.slug) throw new Error("Nombre inválido para slug.");
-            const { data, error } = await supabaseClient
-                .from("teams")
-                .insert(payload)
-                .select("id,name,school,slug")
-                .single();
-            if (error) throw error;
-            return data;
-        }
-
-        async function fetchTeamRobots(teamId) {
-            const { data, error } = await supabaseClient
-                .from("robot_cards")
-                .select("robot_id,data,updated_at")
-                .eq("team_id", teamId)
-                .order("updated_at", { ascending: false });
-            if (error) throw error;
-            return data || [];
-        }
-
-        async function loadTeamsIntoSelect(preselectTeamId = "") {
-            const teams = await fetchTeams();
-            teamSelect.innerHTML = "";
-            if (!teams.length) {
-                const opt = document.createElement("option");
-                opt.value = "";
-                opt.textContent = "No hay equipos (crea uno)";
-                teamSelect.appendChild(opt);
-            } else {
-                const opt0 = document.createElement("option");
-                opt0.value = "";
-                opt0.textContent = "Selecciona un equipo…";
-                teamSelect.appendChild(opt0);
-
-                for (const t of teams) {
-                    const opt = document.createElement("option");
-                    opt.value = t.id;
-                    opt.textContent = `${t.name} · ${t.school || "—"}`;
-                    opt.dataset.teamName = t.name;
-                    opt.dataset.teamSchool = t.school || "";
-                    opt.dataset.teamSlug = t.slug || "";
-                    teamSelect.appendChild(opt);
-                }
-            }
-
-            if (preselectTeamId) {
-                teamSelect.value = preselectTeamId;
-                teamSelect.dispatchEvent(new Event("change"));
-            }
-        }
-
-        function setTeamHiddenFieldsFromSelect() {
-            const opt = teamSelect.options[teamSelect.selectedIndex];
-            const teamName = opt?.dataset?.teamName || "";
-            const teamSchool = opt?.dataset?.teamSchool || "";
-
-            // compat: este campo lo usa buildRobotObj() y el viewer legacy
-            equipo.value = teamName;
-
-            // si el usuario no escribió escuela, la autopoblamos con la del team
-            if (!cleanStr(escuela.value)) escuela.value = teamSchool;
-
-            return { teamName, teamSchool };
-        }
-
-        async function renderTeamRobotsBox(teamId) {
-            teamRobotsBox.innerHTML = "";
-            if (!teamId) return;
-
-            const robots = await fetchTeamRobots(teamId);
-            if (!robots.length) {
-                teamRobotsBox.innerHTML = `<div class="muted">Este equipo aún no tiene robots registrados.</div>`;
-                return;
-            }
-
-            const items = robots.map(r => {
-                const o = r.data || {};
-                const title = esc(o.n || r.robot_id);
-                const cat = esc(o.c || "—");
-                return `
-                    <div class="panel2" style="padding:10px; border-radius:14px; display:flex; align-items:center; justify-content:space-between;">
-                        <div>
-                            <div style="font-weight:700;">${title}</div>
-                            <div class="muted" style="font-size:12px;">ID: ${esc(r.robot_id)} · ${cat}</div>
-                        </div>
-                        <button class="btn" type="button" onclick="location.hash='#id=${encodeURIComponent(r.robot_id)}'">Ver</button>
-                    </div>
-                `;
-            }).join("");
-
-            teamRobotsBox.innerHTML = `
-                <div class="labelRow">
-                    <label style="margin:0">Robots del equipo</label>
-                    <span class="muted">${robots.length}</span>
-                </div>
-                <div style="height:8px;"></div>
-                <div style="display:flex; flex-direction:column; gap:8px;">
-                    ${items}
-                </div>
-            `;
-        }
-
-        function wireTeamCreateUI() {
-            createTeamBtn.onclick = () => {
-                teamCreateBox.style.display = (teamCreateBox.style.display === "none" || !teamCreateBox.style.display) ? "block" : "none";
-                if (teamCreateBox.style.display === "block") {
-                    teamNameNew.focus();
-                }
-            };
-            teamCreateCancel.onclick = () => {
-                teamCreateBox.style.display = "none";
-                teamNameNew.value = "";
-                teamSchoolNew.value = "";
-            };
-            teamCreateConfirm.onclick = async () => {
-                try {
-                    const t = await createTeam(teamNameNew.value, teamSchoolNew.value);
-                    teamCreateBox.style.display = "none";
-                    teamNameNew.value = "";
-                    teamSchoolNew.value = "";
-                    await loadTeamsIntoSelect(t.id);
-                } catch (e) {
-                    console.error(e);
-                    alert("No se pudo crear el equipo: " + (e?.message || e));
-                }
-            };
-
-            teamSelect.onchange = async () => {
-                const teamId = teamSelect.value;
-                setTeamHiddenFieldsFromSelect();
-                await renderTeamRobotsBox(teamId);
-            };
-        }
-
-        /* =========================
-           ✅ TEAMS TAB (DIRECTORIO)
-           ========================= */
-        async function loadTeamsDirectory() {
-            const teams = await fetchTeams();
-            const q = (teamsSearch.value || "").trim().toLowerCase();
-            const list = q
-                ? teams.filter(t => (t.name || "").toLowerCase().includes(q) || (t.school || "").toLowerCase().includes(q))
-                : teams;
-
-            teamsCount.textContent = `(${list.length})`;
-            teamsList.innerHTML = "";
-
-            if (!list.length) {
-                teamsList.innerHTML = `<div class="muted">No hay equipos que coincidan.</div>`;
-                teamDetail.innerHTML = `<div class="muted">Selecciona un equipo para ver sus robots.</div>`;
-                return;
-            }
-
-            for (const t of list) {
-                const row = document.createElement("div");
-                row.className = "panel2";
-                row.style.padding = "10px";
-                row.style.borderRadius = "14px";
-                row.style.cursor = "pointer";
-                row.innerHTML = `
-                    <div style="font-weight:800;">${esc(t.name)}</div>
-                    <div class="muted" style="font-size:12px;">${esc(t.school || "—")}</div>
-                `;
-                row.onclick = async () => {
-                    await openTeamInTeamsTab(t);
-                };
-                teamsList.appendChild(row);
-            }
-
-            // auto-open first
-            await openTeamInTeamsTab(list[0]);
-        }
-
-        async function openTeamInTeamsTab(team) {
-            teamDetail.innerHTML = `<div class="muted">Cargando robots…</div>`;
-            const robots = await fetchTeamRobots(team.id);
-
-            const rows = robots.map(r => {
-                const o = r.data || {};
-                const name = esc(o.n || r.robot_id);
-                const cat = esc(o.c || "—");
-                return `
-                    <div class="panel2" style="padding:10px; border-radius:14px; display:flex; align-items:center; justify-content:space-between;">
-                        <div>
-                            <div style="font-weight:800;">${name}</div>
-                            <div class="muted" style="font-size:12px;">ID: ${esc(r.robot_id)} · ${cat}</div>
-                        </div>
-                        <button class="btn" type="button" onclick="location.hash='#id=${encodeURIComponent(r.robot_id)}'">Abrir</button>
-                    </div>
-                `;
-            }).join("");
-
-            teamDetail.innerHTML = `
-                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
-                    <div>
-                        <div style="font-size:18px; font-weight:900;">${esc(team.name)}</div>
-                        <div class="muted">${esc(team.school || "—")}</div>
-                    </div>
-                    <div class="muted" style="text-align:right;">Robots: <b>${robots.length}</b></div>
-                </div>
-
-                <div style="height:12px;"></div>
-
-                ${robots.length ? `<div style="display:flex; flex-direction:column; gap:8px;">${rows}</div>` : `<div class="muted">Este equipo aún no tiene robots registrados.</div>`}
-            `;
-        }
-
-
-
         /* =========================================================
            ✅ LOCAL "MIS ROBOTS" (SIN LOGIN)
            ========================================================= */
@@ -1760,6 +1713,7 @@ Batería segura" maxlength="400"></textarea>
                 i: cleanStr(robot_id.value),
                 n: cleanStr(robot_nombre.value),
                 c: cleanStr(categoria.value),
+                tid: (window.currentTeamId || ""),
                 t: cleanStr(equipo.value),
                 p: cleanStr(controlador.value),
                 s: cleanStr(escuela.value),
@@ -1853,18 +1807,15 @@ Batería segura" maxlength="400"></textarea>
             const robot_id = (compact.i || "").trim();
             if (!robot_id) throw new Error("robot_id vacío");
 
-            const team_id = (teamSelect && teamSelect.value) ? teamSelect.value : null;
-            if (!team_id) throw new Error("Selecciona un equipo antes de guardar.");
-
             const row = {
                 robot_id,
-                team_id,
                 data: compact,
+                team_id: (compact.tid || null),
                 qr_link: payloadLink(compact),
                 qr_offline: payloadOffline(compact),
             };
 
-            const { data, error } = await supabaseClient
+            const { data, error } = await sb
                 .from(TABLE)
                 .insert(row)
                 .select("robot_id, qr_link, updated_at, created_at")
@@ -1875,9 +1826,9 @@ Batería segura" maxlength="400"></textarea>
         }
 
         async function loadFromSupabaseByRobotId(robot_id) {
-            const { data, error } = await supabaseClient
+            const { data, error } = await sb
                 .from(TABLE)
-                .select("robot_id, data, qr_link, qr_offline, updated_at, created_at")
+                .select("robot_id, data, team_id, qr_link, qr_offline, updated_at, created_at")
                 .eq("robot_id", robot_id)
                 .single();
 
@@ -2025,7 +1976,6 @@ Batería segura" maxlength="400"></textarea>
             generator.classList.add("hidden");
             minePanel.classList.add("hidden");
             document.getElementById("torneosPanel").classList.add("hidden");
-            teamsPanel.classList.add("hidden");
             dashboard.classList.remove("hidden");
             modeBadge.textContent = "dashboard";
             refreshDashboard().catch(console.error);
@@ -2036,17 +1986,10 @@ Batería segura" maxlength="400"></textarea>
             dashboard.classList.add("hidden");
             minePanel.classList.add("hidden");
             document.getElementById("torneosPanel").classList.add("hidden");
-            teamsPanel.classList.add("hidden");
             generator.classList.remove("hidden");
             modeBadge.textContent = "generator";
-            // ✅ Teams selector + robots del equipo
-            try {
-                if (!window.__teamsWired) { wireTeamCreateUI(); window.__teamsWired = true; }
-                await loadTeamsIntoSelect();
-                teamRobotsBox.innerHTML = "";
-            } catch(e) {
-                console.warn(e);
-            }
+            // ✅ Carga equipos para seleccionar
+            refreshTeamSelect().catch(console.error);
             // pinta canvas blanco si está vacío
             const ctx = qrCanvas.getContext("2d");
             ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, qrCanvas.width, qrCanvas.height);
@@ -2093,6 +2036,93 @@ Batería segura" maxlength="400"></textarea>
             drawQRToCanvas("v_qrCanvas", viewerPayload);
         }
 
+        // =========================
+        // ✅ Teams Panel UI
+        // =========================
+        function showTeams() {
+            dashboard.classList.add("hidden");
+            minePanel.classList.add("hidden");
+            torneosPanel.classList.add("hidden");
+            generator.classList.add("hidden");
+            viewer.classList.add("hidden");
+            teamsPanel.classList.remove("hidden");
+            modeBadge.textContent = "teams";
+        }
+
+        function teamRow(team) {
+            const school = team.school ? ` · ${team.school}` : "";
+            const code = "";
+            return `
+                <div class="row" data-team-id="${team.id}">
+                    <div class="left">
+                        <b>${escapeHtml(team.name)}</b>
+                        <span>${escapeHtml((team.slug || ""))}${escapeHtml(school)}${escapeHtml(code)}</span>
+                    </div>
+                    <div class="right">
+                        <button class="btn" data-open-team="${team.id}">Abrir</button>
+                    </div>
+                </div>`;
+        }
+
+        function robotRowFromRec(rec) {
+            const d = rec.data || {};
+            const title = `${escapeHtml(rec.robot_id || d.i || "—")} · ${escapeHtml(d.n || "—")}`;
+            const sub = `${escapeHtml(d.c || "")}${d.p ? " · " + escapeHtml(d.p) : ""}`;
+            return `
+                <div class="row">
+                    <div class="left">
+                        <b>${title}</b>
+                        <span>${sub}</span>
+                    </div>
+                    <div class="right">
+                        <button class="btn" onclick="location.hash='#id=${encodeURIComponent(rec.robot_id)}'">Ver</button>
+                    </div>
+                </div>`;
+        }
+
+        async function renderTeams(search="") {
+            teamsList.innerHTML = `<div class="row"><div class="left"><b>Cargando…</b><span>—</span></div></div>`;
+            const teams = await listTeams(search);
+            if (!teams.length) {
+                teamsList.innerHTML = `<div class="row"><div class="left"><b>Sin resultados</b><span>—</span></div></div>`;
+                return;
+            }
+            teamsList.innerHTML = teams.map(teamRow).join("");
+            teamsList.querySelectorAll("[data-open-team]").forEach(btn => {
+                btn.onclick = () => openTeamById(btn.getAttribute("data-open-team"));
+            });
+        }
+
+        async function openTeamById(team_id) {
+            const teams = await listTeams();
+            const team = (teams || []).find(t => t.id === team_id);
+            if (!team) return alert("Equipo no encontrado.");
+            pickTeam(team);
+
+            teamRobotsList.innerHTML = `<div class="row"><div class="left"><b>Cargando robots…</b><span>—</span></div></div>`;
+            const robots = await listRobotsByTeamId(team.id);
+            if (!robots.length) {
+                teamRobotsList.innerHTML = `<div class="row"><div class="left"><b>Sin robots aún</b><span>Usa “Agregar robot a este equipo”.</span></div></div>`;
+                return;
+            }
+            teamRobotsList.innerHTML = robots.map(robotRowFromRec).join("");
+        }
+
+        async function refreshTeamSelect() {
+            const sel = document.getElementById("teamSelect");
+            if (!sel) return;
+
+            const teams = await listTeams();
+            const current = sel.value;
+
+            sel.innerHTML = `<option value="">— Selecciona un equipo —</option>` + teams
+                .map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`)
+                .join("") + `<option value="__NEW__">➕ Crear nuevo equipo…</option>`;
+
+            if (current && Array.from(sel.options).some(o => o.value === current)) sel.value = current;
+        }
+
+
 
 
         function showMine() {
@@ -2100,7 +2130,6 @@ Batería segura" maxlength="400"></textarea>
             dashboard.classList.add("hidden");
             generator.classList.add("hidden");
             document.getElementById("torneosPanel").classList.add("hidden");
-            teamsPanel.classList.add("hidden");
             minePanel.classList.remove("hidden");
             modeBadge.textContent = "mine";
             loadMineList().catch(console.error);
@@ -2111,7 +2140,6 @@ Batería segura" maxlength="400"></textarea>
             dashboard.classList.add("hidden");
             generator.classList.add("hidden");
             minePanel.classList.add("hidden");
-            teamsPanel.classList.add("hidden");
             document.getElementById("torneosPanel").classList.remove("hidden");
             modeBadge.textContent = "torneos";
             // boot torneos si aún no se inicializó
@@ -2121,19 +2149,7 @@ Batería segura" maxlength="400"></textarea>
             }
         }
 
-        
-        function showTeams() {
-            viewer.style.display = "none";
-            dashboard.classList.add("hidden");
-            generator.classList.add("hidden");
-            minePanel.classList.add("hidden");
-            document.getElementById("torneosPanel").classList.add("hidden");
-            teamsPanel.classList.remove("hidden");
-            modeBadge.textContent = "teams";
-            loadTeamsDirectory().catch(console.error);
-        }
-
-async function route() {
+        async function route() {
             const hash = location.hash || "";
 
             // ✅ Viewer por #id=
@@ -2142,10 +2158,10 @@ async function route() {
                 try {
                     const rec = await loadFromSupabaseByRobotId(rid);
                     showViewer(rec.data);
-
+                    
                     // ✅ Renderiza el QR del robot (link preferido)
                     setViewerQR(rec.qr_link || rec.qr_offline || "");
-                    return;
+return;
                 } catch (e) {
                     console.error(e);
                     alert("No se encontró este Robot ID en Supabase: " + rid);
@@ -2155,7 +2171,26 @@ async function route() {
             }
 
             // ✅ Legacy viewer por #view=
-            if (hash.startsWith("#view=")) {
+            
+            // ✅ Team page por #team=slug
+            if (hash.startsWith("#team=")) {
+                const slug = decodeURIComponent(hash.slice(6));
+                try {
+                    const team = await getTeamBySlug(slug);
+                    if (!team) throw new Error("notfound");
+                    showTeams();
+                    await renderTeams(""); // refresca lista
+                    await openTeamById(team.id);
+                    return;
+                } catch (e) {
+                    console.error(e);
+                    alert("No se encontró este equipo: " + slug);
+                    location.hash = "#/";
+                    return;
+                }
+            }
+
+if (hash.startsWith("#view=")) {
                 const b64u = hash.slice(6);
                 try {
                     const json = base64UrlDecode(b64u);
@@ -2173,7 +2208,6 @@ async function route() {
             if (hash === "#/new") return await showGenerator();
             if (hash === "#/mine") return showMine();
             if (hash === "#/torneos") return showTorneos();
-            if (hash === "#/teams") return showTeams();
             return showDashboard();
         }
 
@@ -2186,7 +2220,7 @@ async function route() {
             miniStatus.textContent = "· cargando…";
 
             // Total count
-            const totalRes = await supabaseClient.from(TABLE).select("*", { count: "exact", head: true });
+            const totalRes = await sb.from(TABLE).select("*", { count: "exact", head: true });
             const total = totalRes.count ?? 0;
             statTotal.textContent = total.toLocaleString("es-MX");
 
@@ -2196,7 +2230,7 @@ async function route() {
                 const start = new Date();
                 start.setHours(0, 0, 0, 0);
                 const iso = start.toISOString();
-                const r = await supabaseClient.from(TABLE).select("*", { count: "exact", head: true }).gte("created_at", iso);
+                const r = await sb.from(TABLE).select("*", { count: "exact", head: true }).gte("created_at", iso);
                 if (!r.error) todayCount = (r.count ?? 0).toLocaleString("es-MX");
             } catch (_) { }
             statToday.textContent = todayCount;
@@ -2206,7 +2240,7 @@ async function route() {
             statMine.textContent = mineIds.length.toLocaleString("es-MX");
 
             // Latest list
-            const { data, error } = await supabaseClient
+            const { data, error } = await sb
                 .from(TABLE)
                 .select("robot_id, data, created_at, updated_at")
                 .order("updated_at", { ascending: false })
@@ -2249,7 +2283,7 @@ async function route() {
         /* =========================
            ✅ MINE LIST
            ========================= */
-        let mineCache = []; // array de registros supabaseClient
+        let mineCache = []; // array de registros supabase
         async function loadMineList() {
             const ids = getMyList();
 
@@ -2260,7 +2294,7 @@ async function route() {
             }
 
             // Traer en batch
-            const { data, error } = await supabaseClient
+            const { data, error } = await sb
                 .from(TABLE)
                 .select("robot_id, data, updated_at, created_at")
                 .in("robot_id", ids);
@@ -2409,6 +2443,63 @@ async function route() {
             };
         }
 
+        // ✅ Selector de equipo en el registro
+        const teamSelect = document.getElementById("teamSelect");
+const btnCreateTeamInlineShow = document.getElementById("btnCreateTeamInlineShow");
+        const createTeamInline = document.getElementById("createTeamInline");
+        const inlineTeamName = document.getElementById("inlineTeamName");
+        const inlineTeamSchool = document.getElementById("inlineTeamSchool");
+        const btnCreateTeamInline = document.getElementById("btnCreateTeamInline");
+        const btnCancelCreateTeamInline = document.getElementById("btnCancelCreateTeamInline");
+
+        if (teamSelect) {
+            teamSelect.onchange = async () => {
+                const v = teamSelect.value || "";
+                if (v === "__NEW__") {
+                    createTeamInline.classList.remove("hidden");
+                    teamSelect.value = "";
+                    return;
+                }
+                if (!v) {
+                    window.currentTeamId = "";
+                    window.currentTeamSlug = "";
+                    if (typeof equipo !== "undefined") equipo.value = "";
+                    return;
+                }
+                const teams = await listTeams();
+                const t = teams.find(x => x.id === v);
+                if (t) pickTeam(t);
+            };
+        }
+            };
+        }
+
+        if (btnCreateTeamInlineShow) {
+            btnCreateTeamInlineShow.onclick = () => {
+                createTeamInline.classList.toggle("hidden");
+            };
+        }
+        if (btnCancelCreateTeamInline) btnCancelCreateTeamInline.onclick = () => createTeamInline.classList.add("hidden");
+
+        if (btnCreateTeamInline) {
+            btnCreateTeamInline.onclick = async () => {
+                const name = cleanStr(inlineTeamName.value);
+                if (!name) return alert("Pon el nombre del equipo.");
+                try {
+                    const team = await createTeam({ name, school: cleanStr(inlineTeamSchool.value) });
+                    await refreshTeamSelect();
+                    pickTeam(team);
+                    createTeamInline.classList.add("hidden");
+                } catch (e) {
+                    console.error(e);
+                    alert("No se pudo crear el equipo: " + (e.message || e));
+                }
+            };
+        }
+
+
+        }
+
 
 
         btnCopy.onclick = async () => {
@@ -2487,21 +2578,6 @@ async function route() {
                     robot_nombre.value = o.n || "";
                     categoria.value = o.c || "";
                     equipo.value = o.t || "";
-                    try { await loadTeamsIntoSelect(); } catch(e) {}
-                    try {
-                        const want = slugifyJS(o.t || "");
-                        const opts = Array.from(teamSelect.options);
-                        const match = opts.find(op => slugifyJS(op.dataset?.teamName || op.textContent) === want);
-                        if (match) { teamSelect.value = match.value; teamSelect.dispatchEvent(new Event("change")); }
-                    } catch(e) {}
-
-                    try {
-                        const want = slugifyJS(o.t || "");
-                        const opts = Array.from(teamSelect.options);
-                        const match = opts.find(op => slugifyJS(op.dataset?.teamName || op.textContent) === want);
-                        if (match) { teamSelect.value = match.value; teamSelect.dispatchEvent(new Event("change")); }
-                    } catch(e) {}
-
                     controlador.value = o.p || "";
                     escuela.value = o.s || "";
 
@@ -2582,12 +2658,7 @@ async function route() {
         goRegister.onclick = () => location.hash = "#/new";
         goMine.onclick = () => location.hash = "#/mine";
         goTorneos.onclick = () => location.hash = "#/torneos";
-        goTeams.onclick = () => location.hash = "#/teams";
         refreshDash.onclick = () => refreshDashboard().catch(console.error);
-
-        backFromTeams.onclick = () => location.hash = "#/";
-        refreshTeams.onclick = () => loadTeamsDirectory().catch(console.error);
-        teamsSearch.oninput = () => loadTeamsDirectory().catch(console.error);
 
         cardHome.onclick = () => location.hash = "#/";
         cardNew.onclick = () => location.hash = "#/new";
@@ -2602,6 +2673,79 @@ async function route() {
             if (!rid) return alert("Escribe un Robot ID.");
             location.hash = "#id=" + encodeURIComponent(rid);
         };
+
+        // ✅ Navegación Equipos
+        goTeams.onclick = async () => {
+            showTeams();
+            try {
+                await renderTeams("");
+            } catch (e) {
+                console.error(e);
+                alert("No se pudieron cargar equipos: " + (e.message || e));
+            }
+        };
+
+        backFromTeams.onclick = () => {
+            location.hash = "#/";
+        };
+
+        reloadTeams.onclick = async () => {
+            await renderTeams(teamSearch.value || "");
+        };
+
+        teamSearchBtn.onclick = async () => {
+            await renderTeams(teamSearch.value || "");
+        };
+
+        // Modal crear equipo
+        newTeamBtn.onclick = () => {
+            teamModal.classList.remove("hidden");
+        };
+        closeTeamModal.onclick = () => {
+            teamModal.classList.add("hidden");
+        };
+
+        createTeamConfirm.onclick = async () => {
+            const name = cleanStr(newTeamName.value);
+            if (!name) return alert("Pon el nombre del equipo.");
+            try {
+                const team = await createTeam({
+                    name,
+                    school: cleanStr(newTeamSchool.value),
+                    logo_url: cleanStr(newTeamLogo.value),
+                    description: cleanStr(newTeamDesc.value),
+                });
+                teamModal.classList.add("hidden");
+                await renderTeams("");
+                await refreshTeamSelect();
+                await openTeamById(team.id);
+            } catch (e) {
+                console.error(e);
+                alert("No se pudo crear el equipo: " + (e.message || e));
+            }
+        };
+
+        // Página pública de equipo
+        openTeamPublic.onclick = () => {
+            if (!window.currentTeamSlug) return;
+            location.hash = "#team=" + encodeURIComponent(window.currentTeamSlug);
+        };
+
+        // Agregar robot ya asociado al equipo seleccionado
+        addRobotToTeam.onclick = async () => {
+            if (!window.currentTeamId) return alert("Primero selecciona un equipo.");
+            // Ir al generador y dejar el team seleccionado
+            showGenerator();
+            await refreshTeamSelect();
+            const sel = document.getElementById("teamSelect");
+            if (sel) sel.value = window.currentTeamId;
+            // fuerza pickTeam para llenar equipo.value
+            const teams = await listTeams();
+            const t = teams.find(x => x.id === window.currentTeamId);
+            if (t) pickTeam(t);
+        };
+
+
         searchRid.addEventListener("keydown", (e) => { if (e.key === "Enter") btnSearchRid.click(); });
 
         backFromMine.onclick = () => location.hash = "#/";
@@ -2808,7 +2952,7 @@ async function route() {
                 document.getElementById("miniStatus").textContent = "· buscando…";
                 T$("searchList").innerHTML = `<div class="row"><div class="left"><b>Buscando…</b><span>Supabase</span></div></div>`;
 
-                const { data, error } = await supabaseClient
+                const { data, error } = await sb
                     .from(ROBOT_TABLE_T)
                     .select("robot_id, data, updated_at, created_at")
                     .order("updated_at", { ascending: false })

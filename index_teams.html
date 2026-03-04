@@ -1379,7 +1379,7 @@ Batería segura" maxlength="400"></textarea>
            ========================================================= */
         const SUPABASE_URL = "https://pddjulxliqlqoopveugh.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_BgfIRiHsUgqPhCqZ4L8yEA_wjarKci0";
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const TABLE = "robot_cards";
         /* =========================================================
@@ -1391,7 +1391,7 @@ Batería segura" maxlength="400"></textarea>
         async function peekRobotId() {
             try {
                 miniStatus.textContent = "· preparando Robot ID…";
-                const { data, error } = await supabaseClient.rpc("peek_robot_id");
+                const { data, error } = await sb.rpc("peek_robot_id");
                 if (error) throw error;
 
                 const rid = (typeof data === "string") ? data : (data?.robot_id || "");
@@ -1416,7 +1416,7 @@ Batería segura" maxlength="400"></textarea>
         async function reserveRobotIdReal() {
             try {
                 miniStatus.textContent = "· reservando Robot ID…";
-                const { data, error } = await supabaseClient.rpc("reserve_robot_id");
+                const { data, error } = await sb.rpc("reserve_robot_id");
                 if (error) throw error;
 
                 const rid = (typeof data === "string") ? data : (data?.robot_id || "");
@@ -1491,7 +1491,7 @@ Batería segura" maxlength="400"></textarea>
         }
 
         async function fetchTeams() {
-            const { data, error } = await supabaseClient
+            const { data, error } = await supabase
                 .from("teams")
                 .select("id,name,school,slug")
                 .order("name", { ascending: true });
@@ -1508,7 +1508,7 @@ Batería segura" maxlength="400"></textarea>
             if (!payload.name) throw new Error("Nombre de equipo requerido.");
             if (!payload.school) throw new Error("Escuela requerida.");
             if (!payload.slug) throw new Error("Nombre inválido para slug.");
-            const { data, error } = await supabaseClient
+            const { data, error } = await supabase
                 .from("teams")
                 .insert(payload)
                 .select("id,name,school,slug")
@@ -1518,7 +1518,7 @@ Batería segura" maxlength="400"></textarea>
         }
 
         async function fetchTeamRobots(teamId) {
-            const { data, error } = await supabaseClient
+            const { data, error } = await supabase
                 .from("robot_cards")
                 .select("robot_id,data,updated_at")
                 .eq("team_id", teamId)
@@ -1864,7 +1864,7 @@ Batería segura" maxlength="400"></textarea>
                 qr_offline: payloadOffline(compact),
             };
 
-            const { data, error } = await supabaseClient
+            const { data, error } = await sb
                 .from(TABLE)
                 .insert(row)
                 .select("robot_id, qr_link, updated_at, created_at")
@@ -1875,7 +1875,7 @@ Batería segura" maxlength="400"></textarea>
         }
 
         async function loadFromSupabaseByRobotId(robot_id) {
-            const { data, error } = await supabaseClient
+            const { data, error } = await sb
                 .from(TABLE)
                 .select("robot_id, data, qr_link, qr_offline, updated_at, created_at")
                 .eq("robot_id", robot_id)
@@ -2186,7 +2186,7 @@ async function route() {
             miniStatus.textContent = "· cargando…";
 
             // Total count
-            const totalRes = await supabaseClient.from(TABLE).select("*", { count: "exact", head: true });
+            const totalRes = await sb.from(TABLE).select("*", { count: "exact", head: true });
             const total = totalRes.count ?? 0;
             statTotal.textContent = total.toLocaleString("es-MX");
 
@@ -2196,7 +2196,7 @@ async function route() {
                 const start = new Date();
                 start.setHours(0, 0, 0, 0);
                 const iso = start.toISOString();
-                const r = await supabaseClient.from(TABLE).select("*", { count: "exact", head: true }).gte("created_at", iso);
+                const r = await sb.from(TABLE).select("*", { count: "exact", head: true }).gte("created_at", iso);
                 if (!r.error) todayCount = (r.count ?? 0).toLocaleString("es-MX");
             } catch (_) { }
             statToday.textContent = todayCount;
@@ -2206,7 +2206,7 @@ async function route() {
             statMine.textContent = mineIds.length.toLocaleString("es-MX");
 
             // Latest list
-            const { data, error } = await supabaseClient
+            const { data, error } = await sb
                 .from(TABLE)
                 .select("robot_id, data, created_at, updated_at")
                 .order("updated_at", { ascending: false })
@@ -2249,7 +2249,7 @@ async function route() {
         /* =========================
            ✅ MINE LIST
            ========================= */
-        let mineCache = []; // array de registros supabaseClient
+        let mineCache = []; // array de registros supabase
         async function loadMineList() {
             const ids = getMyList();
 
@@ -2260,7 +2260,7 @@ async function route() {
             }
 
             // Traer en batch
-            const { data, error } = await supabaseClient
+            const { data, error } = await sb
                 .from(TABLE)
                 .select("robot_id, data, updated_at, created_at")
                 .in("robot_id", ids);
@@ -2808,7 +2808,7 @@ async function route() {
                 document.getElementById("miniStatus").textContent = "· buscando…";
                 T$("searchList").innerHTML = `<div class="row"><div class="left"><b>Buscando…</b><span>Supabase</span></div></div>`;
 
-                const { data, error } = await supabaseClient
+                const { data, error } = await sb
                     .from(ROBOT_TABLE_T)
                     .select("robot_id, data, updated_at, created_at")
                     .order("updated_at", { ascending: false })
