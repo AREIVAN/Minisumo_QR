@@ -1090,6 +1090,23 @@ Batería segura" maxlength="400"></textarea>
 
                     <div class="panel" style="border-radius:18px">
                         <div class="content">
+
+                            <div class="sectionTitle">QR</div>
+                            <div class="qrBox" style="min-height:unset">
+                                <canvas id="v_qrCanvas" width="320" height="320"
+                                    style="width:320px;height:320px"></canvas>
+                            </div>
+
+                            <div class="btnRow" style="margin-top:10px">
+                                <button class="btn" id="v_btnDownload">Descargar QR (PNG)</button>
+                                <button class="btn" id="v_btnCopy">Copiar payload</button>
+                                <button class="btn" id="v_btnOpen">Abrir link</button>
+                            </div>
+
+                            <div class="hint" style="margin-top:10px">
+                                Si perdiste el QR, aquí lo puedes volver a generar desde Supabase.
+                            </div>
+
                             <div class="sectionTitle">Foto</div>
                             <div class="mediaBox">
                                 <img id="v_photo" alt="Foto robot" />
@@ -1717,6 +1734,46 @@ Batería segura" maxlength="400"></textarea>
             await peekRobotId();
         }
 
+
+        // ===== Viewer QR (re-imprimir QR desde Supabase) =====
+        let viewerPayload = "";
+
+        function drawQRToCanvas(canvasId, text) {
+            const qr = qrcode(0, "Q");
+            qr.addData(text);
+            qr.make();
+
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+
+            const ctx = canvas.getContext("2d");
+            const count = qr.getModuleCount();
+            const scale = 8;
+            const margin = 16;
+
+            canvas.width = canvas.height = count * scale + margin * 2;
+
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "#000";
+            for (let r = 0; r < count; r++) {
+                for (let c = 0; c < count; c++) {
+                    if (qr.isDark(r, c)) {
+                        ctx.fillRect(margin + c * scale, margin + r * scale, scale, scale);
+                    }
+                }
+            }
+        }
+
+        function setViewerQR(payload) {
+            viewerPayload = payload || "";
+            if (!viewerPayload) return;
+            drawQRToCanvas("v_qrCanvas", viewerPayload);
+        }
+
+
+
         function showMine() {
             viewer.style.display = "none";
             dashboard.classList.add("hidden");
@@ -1750,6 +1807,9 @@ Batería segura" maxlength="400"></textarea>
                 try {
                     const rec = await loadFromSupabaseByRobotId(rid);
                     showViewer(rec.data);
+
+                    // ✅ Renderiza el QR del robot (link preferido)
+                    setViewerQR(rec.qr_link || rec.qr_offline || "");
                     return;
                 } catch (e) {
                     console.error(e);
@@ -2195,6 +2255,51 @@ Batería segura" maxlength="400"></textarea>
             // volver a dashboard (más consistente)
             location.hash = "#/";
         };
+
+        // ===== Botones del VIEWER (QR) =====
+        const v_btnCopy = document.getElementById("v_btnCopy");
+        const v_btnOpen = document.getElementById("v_btnOpen");
+        const v_btnDownload = document.getElementById("v_btnDownload");
+
+        if (v_btnCopy) {
+            v_btnCopy.onclick = async () => {
+                if (!viewerPayload) return alert("No hay payload para copiar.");
+                try {
+                    await navigator.clipboard.writeText(viewerPayload);
+                } catch (e) {
+                    const ta = document.createElement("textarea");
+                    ta.value = viewerPayload;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(ta);
+                }
+            };
+        }
+
+        if (v_btnOpen) {
+            v_btnOpen.onclick = () => {
+                if (!viewerPayload) return alert("No hay payload.");
+                if (!/^https?:\/\//i.test(viewerPayload)) {
+                    alert("Este payload es OFFLINE (JSON). Para abrir en navegador necesitas el QR (link).");
+                    return;
+                }
+                window.open(viewerPayload, "_blank");
+            };
+        }
+
+        if (v_btnDownload) {
+            v_btnDownload.onclick = () => {
+                const c = document.getElementById("v_qrCanvas");
+                if (!c) return;
+                const a = document.createElement("a");
+                a.download = "apex_robot_qr.png";
+                a.href = c.toDataURL("image/png");
+                a.click();
+            };
+        }
+
+
 
         /* --------------------------
            Boot
