@@ -356,6 +356,10 @@
             padding: 18px;
         }
 
+        .viewerBody {
+            padding: 18px;
+        }
+
         .viewer .bigTitle {
             font-size: 22px;
             margin: 0 0 8px;
@@ -553,6 +557,200 @@
             gap: 10px;
             flex: 0 0 auto;
         }
+
+        /* =========================
+           TORNEOS – estilos adicionales
+           ========================= */
+        .miniGrid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px
+        }
+
+        @media (max-width: 700px) {
+            .miniGrid {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .chip.mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+            font-size: 11px;
+        }
+
+        .btn.ghost {
+            background: transparent
+        }
+
+        /* Bracket */
+        .bracketWrap {
+            overflow: auto;
+            border-radius: 18px;
+            border: 1px solid rgba(47, 230, 255, .18);
+            background: rgba(7, 10, 16, .22);
+            padding: 14px;
+            min-height: 440px;
+        }
+
+        .bracket {
+            display: flex;
+            gap: 18px;
+            align-items: flex-start;
+            min-width: 980px;
+        }
+
+        .round {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-width: 260px
+        }
+
+        .roundTitle {
+            font-size: 12px;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            color: rgba(234, 240, 255, .55);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .match {
+            border-radius: 16px;
+            border: 1px solid rgba(122, 63, 255, .22);
+            background: linear-gradient(180deg, rgba(11, 16, 32, .86), rgba(12, 20, 42, .55));
+            padding: 10px;
+        }
+
+        .slot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 14px;
+            border: 1px solid rgba(47, 230, 255, .16);
+            background: rgba(7, 10, 16, .22);
+            margin-top: 8px;
+        }
+
+        .slot:first-child {
+            margin-top: 0
+        }
+
+        .slot .name {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px
+        }
+
+        .slot .name b {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 13px
+        }
+
+        .slot .name span {
+            color: rgba(234, 240, 255, .55);
+            font-size: 11px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .score {
+            width: 56px;
+            text-align: center;
+            padding: 8px 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(122, 63, 255, .22);
+            background: rgba(0, 0, 0, .12);
+            color: var(--text);
+            font-weight: 900;
+        }
+
+        .win {
+            border-color: rgba(47, 230, 255, .45) !important;
+            box-shadow: 0 0 0 1px rgba(47, 230, 255, .10) inset
+        }
+
+        /* Groups */
+        .groupsWrap {
+            border-radius: 18px;
+            border: 1px solid rgba(47, 230, 255, .18);
+            background: rgba(7, 10, 16, .22);
+            padding: 14px;
+        }
+
+        .groupsGrid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px
+        }
+
+        @media (max-width: 1100px) {
+            .groupsGrid {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .groupCard {
+            border-radius: 16px;
+            border: 1px solid rgba(122, 63, 255, .22);
+            background: rgba(0, 0, 0, .12);
+            padding: 12px;
+        }
+
+        .groupCard h3 {
+            margin: 0 0 8px;
+            font-size: 12px;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            color: rgba(234, 240, 255, .55);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .groupLine {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 14px;
+            border: 1px solid rgba(47, 230, 255, .14);
+            background: rgba(7, 10, 16, .18);
+            margin-top: 8px;
+            font-size: 13px;
+        }
+
+        .groupLine:first-child {
+            margin-top: 0
+        }
+
+        .groupLine span {
+            color: rgba(234, 240, 255, .55);
+            font-size: 11px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 55%;
+        }
+
+        /* Torneos panel – grid override (1fr 1fr) */
+        #torneosPanel .grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        @media (max-width: 1100px) {
+            #torneosPanel .grid {
+                grid-template-columns: 1fr
+            }
+        }
     </style>
 </head>
 
@@ -610,7 +808,7 @@
                     <div class="heroCard" id="cardTorneos">
                         <div class="chip hot">Torneo</div>
                         <b>Torneos</b>
-                        <div class="mut">Gestión de torneos (se mantiene en torneos.html para editarlo aparte).</div>
+                        <div class="mut">Gestión de torneos: crear llaves, inscripción de robots y brackets.</div>
                     </div>
 
                 </div>
@@ -876,7 +1074,7 @@ Batería segura" maxlength="400"></textarea>
                 </div>
             </div>
 
-            <div class="viewer" style="display:block">
+            <div class="viewerBody">
                 <div class="viewerGrid">
                     <div class="panel" style="border-radius:18px">
                         <div class="content">
@@ -909,6 +1107,181 @@ Batería segura" maxlength="400"></textarea>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <div style="height:14px;"></div>
+
+        <!-- =========================
+             ✅ TORNEOS PANEL
+             ========================= -->
+        <section id="torneosPanel" class="panel hidden">
+            <div class="panelHead">
+                <div class="title">
+                    <h2>Panel organizador</h2>
+                    <b>Crear torneo · inscripciones · llaves</b>
+                </div>
+                <div class="btnRow">
+                    <button class="btn" id="backFromTorneos">Volver</button>
+                    <button class="btn" id="btnNew">Nuevo</button>
+                    <button class="btn primary" id="btnSaveLocal">Guardar local</button>
+                    <button class="btn" id="btnLoadLocal">Abrir local</button>
+                    <button class="btn hot" id="btnReset">Reset</button>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="grid">
+
+                    <!-- LEFT -->
+                    <div class="panel">
+                        <div class="panelHead">
+                            <div class="title">
+                                <h2>Torneo</h2>
+                                <b id="tTitle">Sin nombre</b>
+                            </div>
+                            <div class="chipRow" id="tChips"></div>
+                        </div>
+
+                        <div class="content">
+                            <div class="sectionTitle">Datos del torneo</div>
+                            <div class="miniGrid">
+                                <div>
+                                    <label>Nombre</label>
+                                    <input id="t_name" placeholder="Ej. Copa MiniSumo CDMX 2026" />
+                                </div>
+                                <div>
+                                    <label>Categoría</label>
+                                    <select id="t_category">
+                                        <option>Mini Sumo Autónomo Profesional</option>
+                                        <option>Mini Sumo RC Profesional</option>
+                                        <option>Sumo 3kg</option>
+                                        <option>Mini Sumo RC Amateur</option>
+                                        <option>Mini Sumo Autónomo Amateur</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Sede</label>
+                                    <input id="t_venue" placeholder="Ej. ESIME Azcapotzalco" />
+                                </div>
+                                <div>
+                                    <label>Fecha</label>
+                                    <input id="t_date" type="date" />
+                                </div>
+
+                                <div>
+                                    <label>Formato</label>
+                                    <select id="t_format">
+                                        <option value="single">Eliminación directa (Single)</option>
+                                        <option value="groups">Grupos + Eliminación</option>
+                                        <option value="double">Doble eliminación (W/L bracket)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Número de participantes (N)</label>
+                                    <input id="t_n" type="number" min="2" value="8" />
+                                </div>
+
+                                <div>
+                                    <label>Regla (Grupos): # Grupos</label>
+                                    <input id="t_groups" type="number" min="2" value="4" />
+                                </div>
+                                <div>
+                                    <label>Regla (Grupos): avanzan por grupo</label>
+                                    <input id="t_adv" type="number" min="1" value="2" />
+                                </div>
+                            </div>
+
+                            <div class="sectionTitle">Búsqueda de robots (robot_cards)</div>
+                            <div class="miniGrid">
+                                <div>
+                                    <label>Buscar (Robot ID / Nombre / Equipo)</label>
+                                    <input id="r_search" placeholder="Ej. MS-014 o KRAKEN o RoboDragons" />
+                                </div>
+                                <div>
+                                    <label>&nbsp;</label>
+                                    <div class="btnRow">
+                                        <button class="btn primary" id="btnSearch">Buscar</button>
+                                        <button class="btn" id="btnClearSearch">Limpiar</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="list" id="searchList" style="margin-top:10px">
+                                <div class="row">
+                                    <div class="left"><b>Tip</b><span>Busca robots en Supabase y agrégalos como
+                                            participantes.</span></div>
+                                </div>
+                            </div>
+
+                            <div class="sectionTitle">Participantes (seeds)</div>
+                            <div class="list" id="playersList">
+                                <div class="row">
+                                    <div class="left"><b>Vacío</b><span>Agrega robots desde la búsqueda.</span></div>
+                                </div>
+                            </div>
+
+                            <div class="hint">
+                                N puede ser cualquier número. El sistema calcula BYEs automáticamente (nextPow2 - N).
+                                BO3: se gana con 2 victorias (2/2).
+                                Seeds: se intenta evitar cruzar el mismo equipo en primera ronda.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT -->
+                    <div class="panel">
+                        <div class="panelHead">
+                            <div class="title">
+                                <h2>Vista</h2>
+                                <b id="viewTitle">Llaves / grupos</b>
+                            </div>
+
+                            <div class="btnRow">
+                                <button class="btn primary" id="btnGenerate">Generar</button>
+                                <button class="btn" id="btnShuffle">Mezclar seeds</button>
+                                <button class="btn" id="btnClearView">Limpiar vista</button>
+                                <button class="btn" id="btnViewColumns">Vista columnas</button>
+                                <button class="btn primary" id="btnViewMap">Vista mapa</button>
+                                <button class="btn" id="btnMode">Modo: Organizador</button>
+                            </div>
+                        </div>
+
+                        <div class="content">
+                            <!-- Groups -->
+                            <div id="groupsArea" class="groupsWrap hidden">
+                                <div class="sectionTitle">Grupos</div>
+                                <div class="groupsGrid" id="groupsGrid"></div>
+                                <div class="sectionTitle" style="margin-top:14px">Fase final</div>
+                                <div class="bracketWrap" id="finalBracketArea">
+                                    <div class="bracket" id="finalBracket"></div>
+                                </div>
+
+                                <!-- mapa fase final -->
+                                <div id="finalMapWrap" class="bracketWrap hidden">
+                                    <div class="sectionTitle">Mapa (fase final)</div>
+                                    <div id="finalBracketMap"></div>
+                                </div>
+                            </div>
+
+                            <!-- Single / Double Brackets -->
+                            <div id="bracketArea" class="bracketWrap">
+                                <div class="bracket" id="bracket"></div>
+                            </div>
+
+                            <!-- MAPA principal -->
+                            <div id="mapWrap" class="bracketWrap hidden">
+                                <div class="sectionTitle">Mapa de bracket (competidores)</div>
+                                <div id="bracketMap"></div>
+                            </div>
+
+                            <div class="hint" style="margin-top:12px">
+                                Nota: Double aún es estructura visual (W/L/GF). Propagación completa la hacemos después.
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </section>
@@ -1260,6 +1633,7 @@ Batería segura" maxlength="400"></textarea>
             dashboard.classList.add("hidden");
             minePanel.classList.add("hidden");
             generator.classList.add("hidden");
+            document.getElementById("torneosPanel").classList.add("hidden");
             viewer.style.display = "block";
 
             modeBadge.textContent = "viewer";
@@ -1322,6 +1696,7 @@ Batería segura" maxlength="400"></textarea>
             viewer.style.display = "none";
             generator.classList.add("hidden");
             minePanel.classList.add("hidden");
+            document.getElementById("torneosPanel").classList.add("hidden");
             dashboard.classList.remove("hidden");
             modeBadge.textContent = "dashboard";
             refreshDashboard().catch(console.error);
@@ -1331,6 +1706,7 @@ Batería segura" maxlength="400"></textarea>
             viewer.style.display = "none";
             dashboard.classList.add("hidden");
             minePanel.classList.add("hidden");
+            document.getElementById("torneosPanel").classList.add("hidden");
             generator.classList.remove("hidden");
             modeBadge.textContent = "generator";
             // pinta canvas blanco si está vacío
@@ -1345,9 +1721,24 @@ Batería segura" maxlength="400"></textarea>
             viewer.style.display = "none";
             dashboard.classList.add("hidden");
             generator.classList.add("hidden");
+            document.getElementById("torneosPanel").classList.add("hidden");
             minePanel.classList.remove("hidden");
             modeBadge.textContent = "mine";
             loadMineList().catch(console.error);
+        }
+
+        function showTorneos() {
+            viewer.style.display = "none";
+            dashboard.classList.add("hidden");
+            generator.classList.add("hidden");
+            minePanel.classList.add("hidden");
+            document.getElementById("torneosPanel").classList.remove("hidden");
+            modeBadge.textContent = "torneos";
+            // boot torneos si aún no se inicializó
+            if (!torneosBoot) {
+                torneosBoot = true;
+                torneosInit();
+            }
         }
 
         async function route() {
@@ -1386,6 +1777,7 @@ Batería segura" maxlength="400"></textarea>
             // ✅ App routes
             if (hash === "#/new") return await showGenerator();
             if (hash === "#/mine") return showMine();
+            if (hash === "#/torneos") return showTorneos();
             return showDashboard();
         }
 
@@ -1768,15 +2160,16 @@ Batería segura" maxlength="400"></textarea>
            ========================= */
         goRegister.onclick = () => location.hash = "#/new";
         goMine.onclick = () => location.hash = "#/mine";
-        goTorneos.onclick = () => (window.location.href = "torneos.html");
+        goTorneos.onclick = () => location.hash = "#/torneos";
         refreshDash.onclick = () => refreshDashboard().catch(console.error);
 
         cardHome.onclick = () => location.hash = "#/";
         cardNew.onclick = () => location.hash = "#/new";
         cardMine.onclick = () => location.hash = "#/mine";
-        cardTorneos.onclick = () => (window.location.href = "torneos.html");
+        cardTorneos.onclick = () => location.hash = "#/torneos";
 
         btnBackToDash.onclick = () => location.hash = "#/";
+        document.getElementById("backFromTorneos").onclick = () => location.hash = "#/";
 
         btnSearchRid.onclick = () => {
             const rid = (searchRid.value || "").trim();
@@ -1829,6 +2222,781 @@ Batería segura" maxlength="400"></textarea>
             window.addEventListener("hashchange", route);
             await route();
         })();
+        /* =========================
+           ✅ TORNEOS – JS integrado
+           ========================= */
+        let torneosBoot = false;
+
+        function torneosInit() {
+            const ROBOT_TABLE_T = "robot_cards";
+            const T$ = (id) => document.getElementById(id);
+
+            const state = {
+                tournament: {
+                    name: "",
+                    category: "Mini Sumo Autónomo Profesional",
+                    venue: "",
+                    date: "",
+                    format: "single",
+                    n: 8,
+                    groups: 4,
+                    adv: 2
+                },
+                players: [],
+                view: null,
+            };
+
+            function tEsc(s) {
+                return String(s ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[m]));
+            }
+
+            function nextPow2(n) { let p = 1; while (p < n) p <<= 1; return p; }
+            function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
+
+            const BO3_CATEGORIES = new Set([
+                "Mini Sumo Autónomo Profesional",
+                "Mini Sumo RC Profesional",
+                "Sumo 3kg",
+                "Mini Sumo RC Amateur",
+                "Mini Sumo Autónomo Amateur",
+            ]);
+
+            function isBO3() { return BO3_CATEGORIES.has(state.tournament.category); }
+            function getTeam(compact) { return (compact?.t || "").trim() || "SIN_EQUIPO"; }
+
+            function robotLabel(compact) {
+                const rid = compact?.i || "";
+                const name = compact?.n || "Robot";
+                const team = compact?.t || "";
+                const cat = compact?.c || "";
+                return { rid, name, sub: [rid, cat, team].filter(Boolean).join(" · ") };
+            }
+
+            function shuffleArray(arr) {
+                const a = arr.slice();
+                for (let i = a.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [a[i], a[j]] = [a[j], a[i]];
+                }
+                return a;
+            }
+
+            function setTChips() {
+                const t = state.tournament;
+                const np2 = nextPow2(Math.max(2, t.n));
+                const byes = np2 - t.n;
+                const wrap = T$("tChips");
+                wrap.innerHTML = "";
+
+                const chips = [
+                    { text: `Cat: ${t.category}`, cls: "good" },
+                    { text: `Formato: ${t.format}`, cls: "" },
+                    { text: `Regla: ${isBO3() ? "BO3 (2 wins)" : "Simple"}`, cls: isBO3() ? "good" : "" },
+                    { text: `N: ${t.n}`, cls: "warn" },
+                    { text: `Bracket: ${np2}`, cls: "" },
+                    { text: `BYEs: ${byes}`, cls: byes ? "warn" : "good" },
+                    { text: t.date ? `Fecha: ${t.date}` : "Fecha: —", cls: "" }
+                ];
+
+                chips.forEach(c => {
+                    const d = document.createElement("div");
+                    d.className = "chip " + (c.cls || "");
+                    d.textContent = c.text;
+                    wrap.appendChild(d);
+                });
+
+                T$("tTitle").textContent = t.name || "Sin nombre";
+                T$("mode") && (T$("mode").textContent = t.format);
+            }
+
+            function syncTournamentFromForm() {
+                state.tournament.name = T$("t_name").value.trim();
+                state.tournament.category = T$("t_category").value;
+                state.tournament.venue = T$("t_venue").value.trim();
+                state.tournament.date = T$("t_date").value;
+                state.tournament.format = T$("t_format").value;
+                state.tournament.n = Math.max(2, parseInt(T$("t_n").value || "2", 10));
+                state.tournament.groups = Math.max(2, parseInt(T$("t_groups").value || "2", 10));
+                state.tournament.adv = Math.max(1, parseInt(T$("t_adv").value || "1", 10));
+                setTChips();
+                updateViewMode();
+            }
+
+            ["t_name", "t_category", "t_venue", "t_date", "t_format", "t_n", "t_groups", "t_adv"].forEach(id => {
+                T$(id).addEventListener("input", syncTournamentFromForm);
+                T$(id).addEventListener("change", syncTournamentFromForm);
+            });
+
+            async function searchRobots() {
+                const q = T$("r_search").value.trim();
+                if (!q) {
+                    T$("searchList").innerHTML = `<div class="row"><div class="left"><b>Tip</b><span>Escribe algo para buscar.</span></div></div>`;
+                    return;
+                }
+
+                document.getElementById("miniStatus").textContent = "· buscando…";
+                T$("searchList").innerHTML = `<div class="row"><div class="left"><b>Buscando…</b><span>Supabase</span></div></div>`;
+
+                const { data, error } = await sb
+                    .from(ROBOT_TABLE_T)
+                    .select("robot_id, data, updated_at, created_at")
+                    .order("updated_at", { ascending: false })
+                    .limit(250);
+
+                if (error) {
+                    T$("searchList").innerHTML = `<div class="row"><div class="left"><b>Error</b><span>${tEsc(error.message)}</span></div></div>`;
+                    document.getElementById("miniStatus").textContent = "";
+                    return;
+                }
+
+                const qq = q.toLowerCase();
+                const res = (data || []).filter(r => {
+                    const rid = (r.robot_id || "").toLowerCase();
+                    const n = (r?.data?.n || "").toLowerCase();
+                    const t = (r?.data?.t || "").toLowerCase();
+                    return rid.includes(qq) || n.includes(qq) || t.includes(qq);
+                }).slice(0, 30);
+
+                if (!res.length) {
+                    T$("searchList").innerHTML = `<div class="row"><div class="left"><b>Sin resultados</b><span>Prueba otro texto.</span></div></div>`;
+                    document.getElementById("miniStatus").textContent = "";
+                    return;
+                }
+
+                T$("searchList").innerHTML = res.map(r => {
+                    const info = robotLabel(r.data);
+                    const already = state.players.some(p => p.i === r.data.i);
+                    return `
+                        <div class="row">
+                            <div class="left">
+                                <b title="${tEsc(info.name)}">${tEsc(info.name)}</b>
+                                <span title="${tEsc(info.sub)}">${tEsc(info.sub)}</span>
+                            </div>
+                            <div class="right">
+                                <button class="btn ${already ? "ghost" : "primary"}" data-add="${tEsc(r.robot_id)}">${already ? "Agregado" : "Agregar"}</button>
+                                <button class="btn" data-open="${tEsc(r.robot_id)}">Ver</button>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+
+                T$("searchList").querySelectorAll("[data-add]").forEach(b => {
+                    b.addEventListener("click", () => {
+                        const rid = b.getAttribute("data-add");
+                        const row = res.find(x => x.robot_id === rid);
+                        if (!row) return;
+                        addPlayer(row.data);
+                        renderPlayers();
+                        syncParticipantsToN();
+                        b.textContent = "Agregado";
+                        b.classList.remove("primary");
+                        b.classList.add("ghost");
+                    });
+                });
+
+                T$("searchList").querySelectorAll("[data-open]").forEach(b => {
+                    b.addEventListener("click", () => {
+                        const rid = b.getAttribute("data-open");
+                        location.hash = "#id=" + encodeURIComponent(rid);
+                    });
+                });
+
+                document.getElementById("miniStatus").textContent = "· listo ✅";
+            }
+
+            T$("btnSearch").onclick = searchRobots;
+            T$("r_search").addEventListener("keydown", (e) => { if (e.key === "Enter") searchRobots(); });
+            T$("btnClearSearch").onclick = () => {
+                T$("r_search").value = "";
+                T$("searchList").innerHTML = `<div class="row"><div class="left"><b>Tip</b><span>Busca robots en Supabase y agrégalos como participantes.</span></div></div>`;
+            };
+
+            function syncParticipantsToN() {
+                const N = state.tournament.n;
+                if (state.players.length > N) {
+                    state.players = state.players.slice(0, N);
+                    renderPlayers();
+                }
+            }
+
+            function addPlayer(compact) {
+                syncTournamentFromForm();
+                if (!compact?.i) return;
+                if (state.players.some(p => p.i === compact.i)) return;
+                const N = state.tournament.n;
+                if (state.players.length >= N) {
+                    alert(`Ya tienes ${N} participantes (N). Sube N o quita uno.`);
+                    return;
+                }
+                state.players.push(compact);
+            }
+
+            function removePlayer(robotId) { state.players = state.players.filter(p => p.i !== robotId); }
+
+            function renderPlayers() {
+                const list = T$("playersList");
+                if (!state.players.length) {
+                    list.innerHTML = `<div class="row"><div class="left"><b>Vacío</b><span>Agrega robots desde la búsqueda.</span></div></div>`;
+                    return;
+                }
+
+                list.innerHTML = state.players.map((p, idx) => {
+                    const info = robotLabel(p);
+                    return `
+                        <div class="row">
+                            <div class="left">
+                                <b>${tEsc((idx + 1) + ". " + info.name)}</b>
+                                <span>${tEsc(info.sub)}</span>
+                            </div>
+                            <div class="right">
+                                <button class="btn" data-up="${tEsc(p.i)}">↑</button>
+                                <button class="btn" data-down="${tEsc(p.i)}">↓</button>
+                                <button class="btn hot" data-remove="${tEsc(p.i)}">Quitar</button>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+
+                list.querySelectorAll("[data-remove]").forEach(b => {
+                    b.addEventListener("click", () => { removePlayer(b.getAttribute("data-remove")); renderPlayers(); });
+                });
+                list.querySelectorAll("[data-up]").forEach(b => {
+                    b.addEventListener("click", () => {
+                        const id = b.getAttribute("data-up");
+                        const i = state.players.findIndex(x => x.i === id);
+                        if (i > 0) { [state.players[i - 1], state.players[i]] = [state.players[i], state.players[i - 1]]; renderPlayers(); }
+                    });
+                });
+                list.querySelectorAll("[data-down]").forEach(b => {
+                    b.addEventListener("click", () => {
+                        const id = b.getAttribute("data-down");
+                        const i = state.players.findIndex(x => x.i === id);
+                        if (i >= 0 && i < state.players.length - 1) { [state.players[i + 1], state.players[i]] = [state.players[i], state.players[i + 1]]; renderPlayers(); }
+                    });
+                });
+            }
+
+            function updateViewMode() {
+                const f = state.tournament.format;
+                T$("viewTitle").textContent = (f === "groups") ? "Grupos + Fase final" : (f === "double" ? "Double (W/L)" : "Single Bracket");
+                if (f === "groups") {
+                    T$("groupsArea").classList.remove("hidden");
+                    T$("bracketArea").classList.add("hidden");
+                    T$("mapWrap").classList.add("hidden");
+                } else {
+                    T$("groupsArea").classList.add("hidden");
+                    T$("bracketArea").classList.remove("hidden");
+                }
+            }
+
+            function pairAvoidSameTeam(players, size) {
+                const slots = players.slice(0, size).map(p => p);
+                while (slots.length < size) slots.push(null);
+                const pool = slots.slice();
+                const pairs = [];
+                const used = new Set();
+                function pickNext() { for (let i = 0; i < pool.length; i++) if (!used.has(i)) return i; return -1; }
+                while (pairs.length < size / 2) {
+                    const i = pickNext();
+                    if (i === -1) break;
+                    used.add(i);
+                    const a = pool[i];
+                    const aTeam = getTeam(a);
+                    let bestJ = -1, bestScore = 1e9;
+                    for (let j = 0; j < pool.length; j++) {
+                        if (used.has(j)) continue;
+                        const b = pool[j];
+                        const bTeam = getTeam(b);
+                        let score = 0;
+                        if (a === null && b === null) score += 1000;
+                        if (a !== null && b === null) score += 5;
+                        if (a === null && b !== null) score += 5;
+                        if (a !== null && b !== null && aTeam === bTeam) score += 50;
+                        if (score < bestScore) { bestScore = score; bestJ = j; }
+                    }
+                    if (bestJ === -1) pairs.push([a, null]);
+                    else { used.add(bestJ); pairs.push([a, pool[bestJ]]); }
+                }
+                return pairs;
+            }
+
+            function slotFromPlayer(p) {
+                if (!p) return { id: "", name: "BYE", rid: "", team: "", compact: null, bye: true };
+                return { id: p.i, name: p.n || "Robot", rid: p.i, team: getTeam(p), compact: p, bye: false };
+            }
+            function emptySlot() { return { id: "", name: "—", rid: "", team: "", compact: null, bye: false }; }
+            function isBye(slot) { return slot?.name === "BYE" || slot?.bye; }
+
+            function buildSingleBracketBO3(players, N) {
+                const size = nextPow2(N);
+                const actual = players.slice(0, N);
+                const pairs = pairAvoidSameTeam(actual, size);
+                const rounds = [];
+                const r1 = pairs.map((pair, idx) => ({
+                    id: `R1M${idx + 1}`, a: slotFromPlayer(pair[0]), b: slotFromPlayer(pair[1]), wa: 0, wb: 0, winner: null
+                }));
+                rounds.push(r1);
+                const totalRounds = Math.log2(size);
+                for (let r = 2; r <= totalRounds; r++) {
+                    const prev = rounds[r - 2];
+                    const matches = [];
+                    for (let m = 0; m < prev.length; m += 2) {
+                        matches.push({ id: `R${r}M${m / 2 + 1}`, a: emptySlot(), b: emptySlot(), wa: 0, wb: 0, winner: null });
+                    }
+                    rounds.push(matches);
+                }
+                return { type: "single", size, rounds };
+            }
+
+            function autoAdvanceByesBO3(bracket) {
+                const r1 = bracket.rounds[0];
+                r1.forEach((m, mi) => {
+                    if (isBye(m.a) && !isBye(m.b)) setWinnerBO3(bracket, 0, mi, "b");
+                    else if (isBye(m.b) && !isBye(m.a)) setWinnerBO3(bracket, 0, mi, "a");
+                });
+            }
+
+            function clearDownstreamBO3(bracket, fromRoundIndex, fromMatchIndex) {
+                for (let r = fromRoundIndex; r < bracket.rounds.length; r++) {
+                    const mi = (r === fromRoundIndex) ? fromMatchIndex : Math.floor(fromMatchIndex / Math.pow(2, (r - fromRoundIndex)));
+                    const m = bracket.rounds[r][mi];
+                    if (!m) continue;
+                    m.winner = null; m.wa = 0; m.wb = 0;
+                }
+            }
+
+            function setWinnerBO3(bracket, ri, mi, side) {
+                const m = bracket.rounds[ri][mi];
+                m.winner = side;
+                const nextRound = bracket.rounds[ri + 1];
+                if (!nextRound) return;
+                const targetMatchIndex = Math.floor(mi / 2);
+                const targetSide = (mi % 2 === 0) ? "a" : "b";
+                const winnerSlot = (m.winner === "a") ? m.a : (m.winner === "b" ? m.b : null);
+                nextRound[targetMatchIndex][targetSide] = winnerSlot ? {
+                    id: winnerSlot.id, name: winnerSlot.name, rid: winnerSlot.rid, team: winnerSlot.team, compact: winnerSlot.compact || null, bye: !!winnerSlot.bye
+                } : emptySlot();
+                clearDownstreamBO3(bracket, ri + 1, targetMatchIndex);
+            }
+
+            function clearMatchBO3(bracket, ri, mi) {
+                const m = bracket.rounds[ri][mi];
+                m.winner = null; m.wa = 0; m.wb = 0;
+                const nextRound = bracket.rounds[ri + 1];
+                if (!nextRound) return;
+                const targetMatchIndex = Math.floor(mi / 2);
+                const targetSide = (mi % 2 === 0) ? "a" : "b";
+                nextRound[targetMatchIndex][targetSide] = emptySlot();
+                clearDownstreamBO3(bracket, ri + 1, targetMatchIndex);
+            }
+
+            function incWinBO3(bracket, ri, mi, side) {
+                const m = bracket.rounds[ri][mi];
+                if (side === "a") m.wa = clamp(m.wa + 1, 0, 2);
+                if (side === "b") m.wb = clamp(m.wb + 1, 0, 2);
+                if (m.wa >= 2) setWinnerBO3(bracket, ri, mi, "a");
+                else if (m.wb >= 2) setWinnerBO3(bracket, ri, mi, "b");
+            }
+
+            let VIEW_MODE = "organizer";
+            let VIEW_STYLE = "columns";
+
+            function renderBracketColumns(bracket, mountId) {
+                const wrap = document.getElementById(mountId);
+                wrap.innerHTML = "";
+                if (!bracket) {
+                    wrap.innerHTML = `<div class="round"><div class="roundTitle"><span>Vista</span><span class="chip">—</span></div><div class="match"><div class="hint">Genera para ver.</div></div></div>`;
+                    return;
+                }
+                bracket.rounds.forEach((matches, ri) => {
+                    const roundEl = document.createElement("div");
+                    roundEl.className = "round";
+                    const title = (ri === bracket.rounds.length - 1) ? "Final" : `Ronda ${ri + 1}`;
+                    roundEl.innerHTML = `<div class="roundTitle"><span>${title}</span><span class="chip mono">${matches.length} matches</span></div>`;
+
+                    matches.forEach((m, mi) => {
+                        const matchEl = document.createElement("div");
+                        matchEl.className = "match";
+                        const aLine = `${[m.a.rid, m.a.team].filter(Boolean).join(" · ")}`;
+                        const bLine = `${[m.b.rid, m.b.team].filter(Boolean).join(" · ")}`;
+                        const organizerControls = (VIEW_MODE === "organizer") ? `
+                            <div class="btnRow" style="margin-top:10px">
+                                <button class="btn primary" data-wina="1" data-ri="${ri}" data-mi="${mi}" data-mount="${mountId}">+win A</button>
+                                <button class="btn primary" data-winb="1" data-ri="${ri}" data-mi="${mi}" data-mount="${mountId}">+win B</button>
+                                <button class="btn" data-clear="1" data-ri="${ri}" data-mi="${mi}" data-mount="${mountId}">Reset</button>
+                            </div>` : ``;
+                        matchEl.innerHTML = `
+                            <div class="slot ${m.winner === "a" ? "win" : ""}">
+                                <div class="name"><b>${tEsc(m.a.name)}</b><span>${tEsc(aLine)}</span></div>
+                                <div class="score">${tEsc(m.wa)}/2</div>
+                            </div>
+                            <div class="slot ${m.winner === "b" ? "win" : ""}">
+                                <div class="name"><b>${tEsc(m.b.name)}</b><span>${tEsc(bLine)}</span></div>
+                                <div class="score">${tEsc(m.wb)}/2</div>
+                            </div>
+                            ${organizerControls}
+                        `;
+                        roundEl.appendChild(matchEl);
+                    });
+                    wrap.appendChild(roundEl);
+                });
+
+                if (VIEW_MODE === "organizer") {
+                    wrap.querySelectorAll("[data-wina]").forEach(btn => {
+                        btn.addEventListener("click", () => {
+                            const mount = btn.getAttribute("data-mount");
+                            const ri = parseInt(btn.getAttribute("data-ri"), 10);
+                            const mi = parseInt(btn.getAttribute("data-mi"), 10);
+                            const b = (mount === "finalBracket") ? state.view.finalBracket : state.view.bracket;
+                            if (!b) return;
+                            incWinBO3(b, ri, mi, "a");
+                            renderCurrent();
+                        });
+                    });
+                    wrap.querySelectorAll("[data-winb]").forEach(btn => {
+                        btn.addEventListener("click", () => {
+                            const mount = btn.getAttribute("data-mount");
+                            const ri = parseInt(btn.getAttribute("data-ri"), 10);
+                            const mi = parseInt(btn.getAttribute("data-mi"), 10);
+                            const b = (mount === "finalBracket") ? state.view.finalBracket : state.view.bracket;
+                            if (!b) return;
+                            incWinBO3(b, ri, mi, "b");
+                            renderCurrent();
+                        });
+                    });
+                    wrap.querySelectorAll("[data-clear]").forEach(btn => {
+                        btn.addEventListener("click", () => {
+                            const mount = btn.getAttribute("data-mount");
+                            const ri = parseInt(btn.getAttribute("data-ri"), 10);
+                            const mi = parseInt(btn.getAttribute("data-mi"), 10);
+                            const b = (mount === "finalBracket") ? state.view.finalBracket : state.view.bracket;
+                            if (!b) return;
+                            clearMatchBO3(b, ri, mi);
+                            renderCurrent();
+                        });
+                    });
+                }
+            }
+
+            function renderBracketMapSVG(bracket, mountEl) {
+                mountEl.innerHTML = "";
+                if (!bracket) { mountEl.innerHTML = `<div class="hint">Genera una llave para ver el mapa.</div>`; return; }
+                const colW = 320, rowH = 86, padX = 24, padY = 24;
+                const rounds = bracket.rounds;
+                const maxMatches = rounds[0].length;
+                const nodes = [];
+                for (let r = 0; r < rounds.length; r++) {
+                    nodes[r] = [];
+                    const step = rowH * Math.pow(2, r);
+                    for (let m = 0; m < rounds[r].length; m++) {
+                        nodes[r][m] = { x: padX + r * colW, y: padY + m * step + (step / 2) - 28, w: 280, h: 56 };
+                    }
+                }
+                const svgW = padX * 2 + rounds.length * colW;
+                const svgH = padY * 2 + maxMatches * rowH;
+                const svgNS = "http://www.w3.org/2000/svg";
+                const svg = document.createElementNS(svgNS, "svg");
+                svg.setAttribute("width", "100%");
+                svg.setAttribute("viewBox", `0 0 ${svgW} ${svgH}`);
+                svg.style.display = "block";
+
+                for (let r = 0; r < rounds.length - 1; r++) {
+                    for (let m = 0; m < rounds[r].length; m++) {
+                        const from = nodes[r][m];
+                        const to = nodes[r + 1][Math.floor(m / 2)];
+                        const x1 = from.x + from.w, y1 = from.y + from.h / 2;
+                        const x2 = to.x, y2 = to.y + to.h / 2;
+                        const path = document.createElementNS(svgNS, "path");
+                        const midX = (x1 + x2) / 2;
+                        path.setAttribute("d", `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`);
+                        path.setAttribute("fill", "none");
+                        path.setAttribute("stroke", "rgba(47,230,255,.20)");
+                        path.setAttribute("stroke-width", "2");
+                        svg.appendChild(path);
+                    }
+                }
+
+                for (let r = 0; r < rounds.length; r++) {
+                    for (let m = 0; m < rounds[r].length; m++) {
+                        const match = rounds[r][m];
+                        const n = nodes[r][m];
+                        const rect = document.createElementNS(svgNS, "rect");
+                        rect.setAttribute("x", n.x); rect.setAttribute("y", n.y); rect.setAttribute("rx", "14");
+                        rect.setAttribute("width", n.w); rect.setAttribute("height", n.h);
+                        rect.setAttribute("fill", "rgba(0,0,0,.20)");
+                        rect.setAttribute("stroke", "rgba(122,63,255,.28)");
+                        rect.setAttribute("stroke-width", "2");
+                        svg.appendChild(rect);
+
+                        const t1 = document.createElementNS(svgNS, "text");
+                        t1.setAttribute("x", n.x + 12); t1.setAttribute("y", n.y + 22);
+                        t1.setAttribute("fill", "rgba(234,240,255,.92)"); t1.setAttribute("font-size", "12");
+                        t1.textContent = `${match.a.name} (${match.wa}/2)`;
+                        svg.appendChild(t1);
+
+                        const t2 = document.createElementNS(svgNS, "text");
+                        t2.setAttribute("x", n.x + 12); t2.setAttribute("y", n.y + 44);
+                        t2.setAttribute("fill", "rgba(234,240,255,.70)"); t2.setAttribute("font-size", "12");
+                        t2.textContent = `${match.b.name} (${match.wb}/2)`;
+                        svg.appendChild(t2);
+
+                        if (match.winner) {
+                            const glow = document.createElementNS(svgNS, "rect");
+                            glow.setAttribute("x", n.x - 2); glow.setAttribute("y", n.y - 2); glow.setAttribute("rx", "16");
+                            glow.setAttribute("width", n.w + 4); glow.setAttribute("height", n.h + 4);
+                            glow.setAttribute("fill", "transparent");
+                            glow.setAttribute("stroke", "rgba(47,230,255,.45)");
+                            glow.setAttribute("stroke-width", "2");
+                            svg.appendChild(glow);
+                        }
+                    }
+                }
+                mountEl.appendChild(svg);
+            }
+
+            function renderCurrent() {
+                const t = state.tournament.format;
+                if (t === "groups") {
+                    const b = state.view?.finalBracket || null;
+                    if (VIEW_STYLE === "map") {
+                        T$("finalBracketArea").classList.add("hidden"); T$("finalMapWrap").classList.remove("hidden");
+                        renderBracketMapSVG(b, T$("finalBracketMap"));
+                    } else {
+                        T$("finalMapWrap").classList.add("hidden"); T$("finalBracketArea").classList.remove("hidden");
+                        renderBracketColumns(b, "finalBracket");
+                    }
+                    return;
+                }
+                if (t === "single") {
+                    const b = state.view?.bracket || null;
+                    if (VIEW_STYLE === "map") {
+                        T$("bracketArea").classList.add("hidden"); T$("mapWrap").classList.remove("hidden");
+                        renderBracketMapSVG(b, T$("bracketMap"));
+                    } else {
+                        T$("mapWrap").classList.add("hidden"); T$("bracketArea").classList.remove("hidden");
+                        renderBracketColumns(b, "bracket");
+                    }
+                    return;
+                }
+                T$("mapWrap").classList.add("hidden"); T$("bracketArea").classList.remove("hidden");
+            }
+
+            function assignGroupsSnake(players, g) {
+                const groups = Array.from({ length: g }, () => []);
+                const ps = players.slice();
+                let dir = 1, idx = 0;
+                for (let i = 0; i < ps.length; i++) {
+                    groups[idx].push(ps[i]);
+                    if (dir === 1) { idx++; if (idx === g) { idx = g - 1; dir = -1; } }
+                    else { idx--; if (idx < 0) { idx = 0; dir = 1; } }
+                }
+                return groups;
+            }
+
+            function renderGroups(groups) {
+                const grid = T$("groupsGrid");
+                grid.innerHTML = "";
+                groups.forEach((arr, i) => {
+                    const card = document.createElement("div");
+                    card.className = "groupCard";
+                    const title = document.createElement("h3");
+                    title.innerHTML = `<span>Grupo ${String.fromCharCode(65 + i)}</span><span class="chip mono">${arr.length} robots</span>`;
+                    card.appendChild(title);
+                    arr.forEach(p => {
+                        const info = robotLabel(p);
+                        const line = document.createElement("div");
+                        line.className = "groupLine";
+                        line.innerHTML = `<b>${tEsc(info.name)}</b><span>${tEsc([info.rid, p.t || ""].filter(Boolean).join(" · "))}</span>`;
+                        card.appendChild(line);
+                    });
+                    grid.appendChild(card);
+                });
+            }
+
+            function buildDoubleStructure(players, N) {
+                const wb = buildSingleBracketBO3(players, N);
+                const size = wb.size;
+                const wbRounds = wb.rounds.length;
+                const lbRoundsCount = 2 * (wbRounds - 1);
+                const lb = {
+                    type: "losers",
+                    rounds: Array.from({ length: lbRoundsCount }, (_, i) => {
+                        const approxMatches = Math.max(1, Math.floor(size / Math.pow(2, Math.floor((i + 2) / 2) + 1)));
+                        return Array.from({ length: approxMatches }, (__, mi) => ({
+                            id: `L${i + 1}M${mi + 1}`, a: emptySlot(), b: emptySlot(), wa: 0, wb: 0, winner: null
+                        }));
+                    })
+                };
+                const gf = {
+                    type: "grand_final",
+                    rounds: [[{ id: "GF", a: { id: "", name: "Winners Champ", rid: "", team: "", compact: null, bye: false }, b: { id: "", name: "Losers Champ", rid: "", team: "", compact: null, bye: false }, wa: 0, wb: 0, winner: null }]]
+                };
+                return { type: "double", winners: wb, losers: lb, grandFinal: gf };
+            }
+
+            function renderBracketInlineBO3(bracket, container) {
+                const rounds = bracket.rounds;
+                rounds.forEach((matches, ri) => {
+                    const roundEl = document.createElement("div");
+                    roundEl.className = "round";
+                    const title = bracket.type === "losers" ? `LB R${ri + 1}` : (ri === rounds.length - 1 ? "Final" : `Ronda ${ri + 1}`);
+                    roundEl.innerHTML = `<div class="roundTitle"><span>${title}</span><span class="chip mono">${matches.length}</span></div>`;
+                    matches.forEach(m => {
+                        const matchEl = document.createElement("div");
+                        matchEl.className = "match";
+                        matchEl.innerHTML = `
+                            <div class="slot">
+                                <div class="name"><b>${tEsc(m.a.name)}</b><span>${tEsc([m.a.rid, m.a.team].filter(Boolean).join(" · "))}</span></div>
+                                <div class="score">${tEsc(m.wa || 0)}/2</div>
+                            </div>
+                            <div class="slot">
+                                <div class="name"><b>${tEsc(m.b.name)}</b><span>${tEsc([m.b.rid, m.b.team].filter(Boolean).join(" · "))}</span></div>
+                                <div class="score">${tEsc(m.wb || 0)}/2</div>
+                            </div>
+                        `;
+                        roundEl.appendChild(matchEl);
+                    });
+                    container.appendChild(roundEl);
+                });
+            }
+
+            function clearView() {
+                state.view = null;
+                T$("bracket").innerHTML = "";
+                T$("finalBracket").innerHTML = "";
+                T$("groupsGrid").innerHTML = "";
+                T$("bracketMap").innerHTML = "";
+                T$("finalBracketMap").innerHTML = "";
+                T$("mapWrap").classList.add("hidden");
+                T$("finalMapWrap").classList.add("hidden");
+                T$("finalBracketArea").classList.remove("hidden");
+                T$("bracketArea").classList.remove("hidden");
+                renderBracketColumns(null, "bracket");
+            }
+
+            function generate() {
+                syncTournamentFromForm();
+                syncParticipantsToN();
+                const t = state.tournament;
+                const N = t.n;
+                if (state.players.length < 2) { alert("Agrega al menos 2 participantes."); return; }
+                if (state.players.length > N) { alert(`Tienes más de N=${N}. Quita participantes o sube N.`); return; }
+                const fmt = t.format;
+                VIEW_STYLE = "columns"; VIEW_MODE = "organizer";
+                T$("btnMode").textContent = "Modo: Organizador";
+
+                if (fmt === "single") {
+                    const bracket = buildSingleBracketBO3(state.players, N);
+                    autoAdvanceByesBO3(bracket);
+                    state.view = { type: "single", bracket };
+                    renderCurrent();
+                }
+                if (fmt === "groups") {
+                    const g = Math.min(t.groups, Math.max(2, state.players.length));
+                    const adv = Math.max(1, t.adv);
+                    const groups = assignGroupsSnake(state.players, g);
+                    renderGroups(groups);
+                    let qualifiers = [];
+                    groups.forEach(arr => { qualifiers = qualifiers.concat(arr.slice(0, adv)); });
+                    const finalN = Math.max(2, qualifiers.length);
+                    const bracket = buildSingleBracketBO3(qualifiers, finalN);
+                    autoAdvanceByesBO3(bracket);
+                    state.view = { type: "groups", groups, qualifiers, finalBracket: bracket };
+                    renderCurrent();
+                }
+                if (fmt === "double") {
+                    const dbl = buildDoubleStructure(state.players, N);
+                    state.view = { type: "double", dbl };
+                    const mount = T$("bracket");
+                    mount.innerHTML = "";
+                    const wl = document.createElement("div"); wl.className = "round";
+                    wl.innerHTML = `<div class="roundTitle"><span>Winners Bracket</span><span class="chip mono">${dbl.winners.size}</span></div>`;
+                    mount.appendChild(wl);
+                    renderBracketInlineBO3(dbl.winners, mount);
+                    const ll = document.createElement("div"); ll.className = "round";
+                    ll.innerHTML = `<div class="roundTitle"><span>Losers Bracket</span><span class="chip mono">${dbl.losers.rounds.length} rounds</span></div><div class="match"><div class="hint">Estructura demo: falta conectar derrotados → LB.</div></div>`;
+                    mount.appendChild(ll);
+                    renderBracketInlineBO3(dbl.losers, mount);
+                    const gfl = document.createElement("div"); gfl.className = "round";
+                    gfl.innerHTML = `<div class="roundTitle"><span>Grand Final</span><span class="chip mono">GF</span></div>`;
+                    mount.appendChild(gfl);
+                    renderBracketInlineBO3(dbl.grandFinal, mount);
+                    T$("mapWrap").classList.add("hidden"); T$("bracketArea").classList.remove("hidden");
+                }
+            }
+
+            T$("btnGenerate").onclick = generate;
+            T$("btnShuffle").onclick = () => { state.players = shuffleArray(state.players); renderPlayers(); };
+            T$("btnClearView").onclick = clearView;
+            T$("btnViewColumns").onclick = () => { VIEW_STYLE = "columns"; renderCurrent(); };
+            T$("btnViewMap").onclick = () => {
+                VIEW_STYLE = "map";
+                if (VIEW_MODE !== "competitor") { VIEW_MODE = "competitor"; T$("btnMode").textContent = "Modo: Competidor"; }
+                renderCurrent();
+            };
+            T$("btnMode").onclick = () => {
+                VIEW_MODE = (VIEW_MODE === "organizer") ? "competitor" : "organizer";
+                T$("btnMode").textContent = (VIEW_MODE === "organizer") ? "Modo: Organizador" : "Modo: Competidor";
+                renderCurrent();
+            };
+
+            T$("btnNew").onclick = () => {
+                if (!confirm("¿Nuevo torneo? Se borrará el estado actual (no la DB).")) return;
+                state.tournament = { name: "", category: "Mini Sumo Autónomo Profesional", venue: "", date: "", format: "single", n: 8, groups: 4, adv: 2 };
+                state.players = [];
+                clearView();
+                T$("t_name").value = ""; T$("t_category").value = "Mini Sumo Autónomo Profesional";
+                T$("t_venue").value = ""; T$("t_date").value = "";
+                T$("t_format").value = "single"; T$("t_n").value = "8";
+                T$("t_groups").value = "4"; T$("t_adv").value = "2";
+                T$("r_search").value = "";
+                T$("searchList").innerHTML = `<div class="row"><div class="left"><b>Tip</b><span>Busca robots en Supabase y agrégalos como participantes.</span></div></div>`;
+                renderPlayers(); setTChips(); updateViewMode();
+            };
+
+            T$("btnReset").onclick = () => { if (confirm("¿Reiniciar todo?")) { torneosBoot = false; location.hash = "#/torneos"; showTorneos(); } };
+
+            const LOCAL_KEY = "apex_tournament_flex_demo_v2_bo3_map";
+
+            T$("btnSaveLocal").onclick = () => {
+                syncTournamentFromForm();
+                const payload = { tournament: state.tournament, players: state.players, view: state.view, VIEW_MODE, VIEW_STYLE };
+                localStorage.setItem(LOCAL_KEY, JSON.stringify(payload));
+                document.getElementById("miniStatus").textContent = "· guardado local ✅";
+                setTimeout(() => document.getElementById("miniStatus").textContent = "", 1400);
+            };
+
+            T$("btnLoadLocal").onclick = () => {
+                const raw = localStorage.getItem(LOCAL_KEY);
+                if (!raw) return alert("No hay guardado local.");
+                try {
+                    const payload = JSON.parse(raw);
+                    state.tournament = payload.tournament || state.tournament;
+                    state.players = payload.players || [];
+                    state.view = payload.view || null;
+                    VIEW_MODE = payload.VIEW_MODE || "organizer";
+                    VIEW_STYLE = payload.VIEW_STYLE || "columns";
+                    T$("btnMode").textContent = (VIEW_MODE === "organizer") ? "Modo: Organizador" : "Modo: Competidor";
+                    T$("t_name").value = state.tournament.name || "";
+                    T$("t_category").value = state.tournament.category || "Mini Sumo Autónomo Profesional";
+                    T$("t_venue").value = state.tournament.venue || "";
+                    T$("t_date").value = state.tournament.date || "";
+                    T$("t_format").value = state.tournament.format || "single";
+                    T$("t_n").value = String(state.tournament.n || 8);
+                    T$("t_groups").value = String(state.tournament.groups || 4);
+                    T$("t_adv").value = String(state.tournament.adv || 2);
+                    setTChips(); updateViewMode(); renderPlayers();
+                    if (state.view?.type === "single" || state.view?.type === "groups") renderCurrent();
+                    else if (state.view?.type === "double") { clearView(); generate(); }
+                    else clearView();
+                } catch (e) { alert("No pude abrir guardado local."); }
+            };
+
+            // Boot torneos
+            syncTournamentFromForm();
+            renderPlayers();
+            clearView();
+        }
     </script>
 </body>
 
