@@ -937,8 +937,9 @@
                     </div>
                     <div class="btnRow">
                         <button class="btn" id="btnBackToDash">Volver</button>
+                        <button class="btn primary" id="btnSaveRecord">Guardar registro</button>
                     </div>
-                </div>
+</div>
 
                 <div class="content">
                     <div class="sectionTitle">Básico</div>
@@ -1073,13 +1074,8 @@ Batería segura" maxlength="400"></textarea>
                             <input id="logo_url" placeholder="https://..." / maxlength="200">
                         </div>
                     </div>
-
-                    <div class="btnRow" style="margin-top:12px">
-                        <button class="btn primary" id="btnSaveRecord" style="width:100%; justify-content:center;">Guardar registro</button>
-                    </div>
-
-                    <div class="hint">
-                        Nota: al guardar, se genera el QR (link) y se sube a Supabase.
+<div class="hint">
+                        Al dar <b>Guardar registro</b> se genera el QR y se guarda el registro (local + Supabase).
                     </div>
                 </div>
             </section>
@@ -2313,54 +2309,53 @@ async function route() {
         /* --------------------------
            Buttons (GENERATOR)
         --------------------------- */
-        // ✅ ÚNICO BOTÓN: Guardar registro
-        // - Reserva Robot ID real
-        // - Genera QR (link)
-        // - Guarda local + Supabase
-        const btnSaveRecord = document.getElementById("btnSaveRecord");
+        function validateBasic() {
+            const id = cleanStr(robot_id.value);
+            const name = cleanStr(robot_nombre.value);
 
-        if (btnSaveRecord) {
-            btnSaveRecord.onclick = async () => {
-                const name = cleanStr(robot_nombre.value);
-                if (!name) { alert("Pon al menos el Nombre del robot."); return; }
-
-                // ✅ requiere equipo (team_id)
-                const teamId = (teamSelect && teamSelect.value) ? teamSelect.value : "";
-                if (!teamId) { alert("Selecciona un equipo antes de guardar."); return; }
-
-                // ✅ Reserva real SOLO cuando ya vas a guardar (consume ID)
-                const realId = await reserveRobotIdReal();
-                if (!realId) return;
-
-                const compact = buildRobotObj();
-                renderPreviewFromCompact(compact);
-
-                // ✅ QR siempre en modo LINK
-                lastPayloadType = "link";
-                const link = payloadLink(compact);
-                drawQR(link);
-
-                // ✅ guardado local (para recuperación rápida)
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
-
-                try {
-                    const saved = await saveToSupabase(compact);
-                    addToMyList(saved.robot_id);
-
-                    // ✅ siguiente PREVIEW (no consume)
-                    await peekRobotId();
-
-                    alert("Registro guardado ✅");
-                } catch (e) {
-                    console.error(e);
-                    alert("Guardado local OK, pero Supabase falló: " + (e.message || e));
-                }
-            };
+            if (!id) {
+                alert("Aún no tengo Robot ID automático. Intenta de nuevo.");
+                return false;
+            }
+            if (!name) {
+                alert("Pon al menos el Nombre del robot.");
+                return false;
+            }
+            return true;
         }
+// ✅ Generar LINK + guardar en Supabase
+        // ✅ Generar LINK + guardar en Supabase
+        btnSaveRecord.onclick = async () => {
+            const name = cleanStr(robot_nombre.value);
+            if (!name) { alert("Pon al menos el Nombre del robot."); return; }
 
+            // ✅ Reserva real SOLO cuando ya vas a guardar (consume ID)
+            const realId = await reserveRobotIdReal();
+            if (!realId) return;
 
+            const compact = buildRobotObj();
+            renderPreviewFromCompact(compact);
 
-        btnCopy.onclick = async () => {
+            lastPayloadType = "link";
+            const link = payloadLink(compact);
+            drawQR(link);
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
+
+            try {
+                const saved = await saveToSupabase(compact);
+                addToMyList(saved.robot_id); // ✅ agrega a "Mis Robots"
+
+                // ✅ siguiente PREVIEW (no consume)
+                await peekRobotId();
+            } catch (e) {
+                console.error(e);
+                alert("No se pudo guardar en Supabase: " + (e.message || e));
+            }
+        };
+
+        // ✅ Avanzado: mostrar/ocultar QR OFFLINE (opcional)
+btnCopy.onclick = async () => {
             if (!lastPayload) { alert("Primero genera un QR."); return; }
             try {
                 await navigator.clipboard.writeText(lastPayload);
@@ -2387,9 +2382,123 @@ async function route() {
             a.click();
         };
 
-        // (Botones viejos de generator removidos: guardar/cargar/limpiar/avanzado/offline)
+        // Guardar en navegador + también subir a Supabase
+        // Guardar en navegador + (opcional) subir a Supabase
+        btnSave.onclick = async () => {
+            const name = cleanStr(robot_nombre.value);
+            const compact = buildRobotObj();
 
-        /* =========================
+            // siempre guardado local
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
+
+            try {
+                if (!name) {
+                    alert("Guardado local. Para subir a Supabase, pon al menos el Nombre del robot.");
+                    return;
+                }
+
+                // ✅ Si vas a subir a Supabase, reserva ID real aquí
+                const realId = await reserveRobotIdReal();
+                if (!realId) return;
+
+                // reconstruye objeto para asegurar que i=ID real
+                const compact2 = buildRobotObj();
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(compact2));
+
+                const saved = await saveToSupabase(compact2);
+                addToMyList(saved.robot_id);
+
+                // ✅ siguiente PREVIEW (no consume)
+                await peekRobotId();
+
+                alert("Guardado (local + Supabase).");
+            } catch (e) {
+                console.error(e);
+                alert("Guardado local. Supabase falló: " + (e.message || e));
+            }
+        };
+
+        // Cargar guardado:
+        btnLoad.onclick = async () => {
+            const rid = cleanStr(robot_id.value);
+
+            if (rid) {
+                try {
+                    const rec = await loadFromSupabaseByRobotId(rid);
+                    const o = rec.data;
+
+                    robot_id.value = o.i || "";
+                    robot_nombre.value = o.n || "";
+                    categoria.value = o.c || "";
+                    equipo.value = o.t || "";
+                    try { await loadTeamsIntoSelect(); } catch(e) {}
+                    try {
+                        const want = slugifyJS(o.t || "");
+                        const opts = Array.from(teamSelect.options);
+                        const match = opts.find(op => slugifyJS(op.dataset?.teamName || op.textContent) === want);
+                        if (match) { teamSelect.value = match.value; teamSelect.dispatchEvent(new Event("change")); }
+                    } catch(e) {}
+
+                    try {
+                        const want = slugifyJS(o.t || "");
+                        const opts = Array.from(teamSelect.options);
+                        const match = opts.find(op => slugifyJS(op.dataset?.teamName || op.textContent) === want);
+                        if (match) { teamSelect.value = match.value; teamSelect.dispatchEvent(new Event("change")); }
+                    } catch(e) {}
+
+                    controlador.value = o.p || "";
+                    escuela.value = o.s || "";
+
+                    peso_g.value = (o.w ?? "");
+                    dimensiones_mm.value = o.d || "";
+                    tipo_control.value = o.y || "";
+                    frecuencia_protocolo.value = o.f || "";
+                    contacto.value = o.k || "";
+                    inspeccion_estado.value = o.a || "pendiente";
+                    inspeccion_checklist.value = (o.l || []).join("\n");
+                    foto_url.value = o.u || "";
+                    logo_url.value = o.g || "";
+
+                    renderPreviewFromCompact(o);
+
+                    lastPayloadType = "link";
+                    drawQR(rec.qr_link);
+
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(o));
+                    return;
+                } catch (e) {
+                    console.error(e);
+                    alert("No se pudo cargar desde Supabase: " + (e.message || e));
+                }
+            }
+
+            // fallback local
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) { alert("No hay guardado local. Escribe Robot ID y dale Cargar para Supabase."); return; }
+            const o = JSON.parse(raw);
+
+            robot_id.value = o.i || "";
+            robot_nombre.value = o.n || "";
+            categoria.value = o.c || "";
+            equipo.value = o.t || "";
+            controlador.value = o.p || "";
+            escuela.value = o.s || "";
+
+            peso_g.value = (o.w ?? "");
+            dimensiones_mm.value = o.d || "";
+            tipo_control.value = o.y || "";
+            frecuencia_protocolo.value = o.f || "";
+            contacto.value = o.k || "";
+            inspeccion_estado.value = o.a || "pendiente";
+            inspeccion_checklist.value = (o.l || []).join("\n");
+            foto_url.value = o.u || "";
+            logo_url.value = o.g || "";
+
+            renderPreviewFromCompact(o);
+            lastPayloadType = "link";
+            drawQR(payloadLink(o));
+        };
+/* =========================
            ✅ DASHBOARD / MINE UI EVENTS
            ========================= */
         goRegister.onclick = () => location.hash = "#/new";

@@ -751,6 +751,249 @@
                 grid-template-columns: 1fr
             }
         }
+
+        /* ============================
+           TOAST NOTIFICATIONS
+           ============================ */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast {
+            pointer-events: auto;
+            min-width: 260px;
+            max-width: 400px;
+            padding: 14px 18px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            border: 1px solid rgba(122, 63, 255, .35);
+            background: linear-gradient(180deg, rgba(11, 16, 32, .96), rgba(12, 20, 42, .92));
+            box-shadow: 0 12px 40px rgba(0, 0, 0, .5);
+            animation: toastIn .3s ease;
+            backdrop-filter: blur(12px);
+        }
+
+        .toast.success { border-color: rgba(47, 230, 255, .55); }
+        .toast.error { border-color: rgba(255, 46, 136, .55); }
+        .toast.warn { border-color: rgba(255, 176, 32, .55); }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(20px) scale(.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(20px); }
+        }
+
+        /* ============================
+           RANKING TABLE
+           ============================ */
+        .rankTable {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .rankTable th {
+            text-align: left;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            color: rgba(234, 240, 255, .55);
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(122, 63, 255, .22);
+        }
+
+        .rankTable td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(122, 63, 255, .10);
+        }
+
+        .rankTable tr:hover td {
+            background: rgba(122, 63, 255, .05);
+        }
+
+        .rankTable .pos {
+            font-weight: 900;
+            color: var(--neon2);
+            width: 40px;
+        }
+
+        .rankTable .elo {
+            font-weight: 800;
+            color: var(--neon);
+        }
+
+        /* ============================
+           MODAL / OVERLAY
+           ============================ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .65);
+            backdrop-filter: blur(6px);
+            z-index: 9000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn .2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-box {
+            background: linear-gradient(180deg, rgba(11, 16, 32, .98), rgba(12, 20, 42, .95));
+            border: 1px solid rgba(122, 63, 255, .45);
+            border-radius: 22px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
+        }
+
+        .modal-box h3 {
+            margin: 0 0 12px;
+            font-size: 18px;
+        }
+
+        .modal-box .modal-body {
+            margin-bottom: 16px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .modal-box .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        /* ============================
+           HISTORY TIMELINE
+           ============================ */
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            padding-left: 20px;
+            border-left: 2px solid rgba(122, 63, 255, .25);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding: 10px 0 10px 16px;
+        }
+
+        .timeline-item::before {
+            content: "";
+            position: absolute;
+            left: -7px;
+            top: 14px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--neon);
+            border: 2px solid var(--panel);
+        }
+
+        .timeline-item .t-title {
+            font-weight: 800;
+            font-size: 13px;
+        }
+
+        .timeline-item .t-sub {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .timeline-item .t-result {
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .timeline-item .t-result .chip {
+            display: inline-block;
+            font-size: 11px;
+            padding: 4px 8px;
+        }
+
+        /* ============================
+           CHECK-IN BADGE
+           ============================ */
+        .checkin-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .checkin-badge.checked {
+            border: 1px solid rgba(47, 230, 255, .5);
+            background: rgba(47, 230, 255, .10);
+            color: var(--good);
+        }
+
+        .checkin-badge.pending {
+            border: 1px solid rgba(255, 176, 32, .5);
+            background: rgba(255, 176, 32, .10);
+            color: var(--warn);
+        }
+
+        /* ============================
+           SHARE LINK BOX
+           ============================ */
+        .share-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(47, 230, 255, .22);
+            background: rgba(7, 10, 16, .35);
+            margin-top: 10px;
+        }
+
+        .share-box input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: var(--text);
+            font-size: 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            outline: none;
+        }
+
+        /* ============================
+           EXPORT / MISC
+           ============================ */
+        .btn.small {
+            padding: 6px 10px;
+            font-size: 12px;
+            border-radius: 10px;
+        }
+
+        .btn.success {
+            border-color: rgba(47, 230, 255, .45);
+            background: rgba(47, 230, 255, .10);
+        }
     </style>
 </head>
 
@@ -1193,6 +1436,19 @@ Batería segura" maxlength="400"></textarea>
                         </div>
                     </div>
                 </div>
+
+                <!-- Historial de torneos del robot -->
+                <div class="sectionTitle" style="margin-top:18px">Historial de torneos</div>
+                <div id="v_history" class="timeline">
+                    <div class="timeline-item"><div class="t-sub">Cargando historial…</div></div>
+                </div>
+
+                <!-- Botones extra del viewer -->
+                <div style="margin-top:18px; display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn small" id="v_btnEdit" title="Editar este robot">✏️ Editar</button>
+                    <button class="btn small hot" id="v_btnReport" title="Reportar contenido inadecuado">🚩 Reportar</button>
+                    <button class="btn small success" id="v_btnShareProfile" title="Copiar link público">🔗 Compartir perfil</button>
+                </div>
             </div>
         </section>
 
@@ -1211,7 +1467,11 @@ Batería segura" maxlength="400"></textarea>
                     <button class="btn" id="backFromTorneos">Volver</button>
                     <button class="btn" id="btnNew">Nuevo</button>
                     <button class="btn primary" id="btnSaveLocal">Guardar local</button>
+                    <button class="btn primary" id="btnSaveSupabase" title="Guardar torneo en Supabase">💾 Guardar DB</button>
                     <button class="btn" id="btnLoadLocal">Abrir local</button>
+                    <button class="btn" id="btnLoadSupabase" title="Cargar torneos de Supabase">📂 Abrir DB</button>
+                    <button class="btn success" id="btnShareTorneo" title="Compartir link espectador">🔗 Compartir</button>
+                    <button class="btn" id="btnExportBracketCSV" title="Exportar bracket CSV">⬇ CSV</button>
                     <button class="btn hot" id="btnReset">Reset</button>
                 </div>
             </div>
@@ -1289,6 +1549,8 @@ Batería segura" maxlength="400"></textarea>
                                     <div class="btnRow">
                                         <button class="btn primary" id="btnSearch">Buscar</button>
                                         <button class="btn" id="btnClearSearch">Limpiar</button>
+                                        <button class="btn success" id="btnBulkAddTeam" title="Agregar todos los robots de un equipo">+ Equipo completo</button>
+                                        <button class="btn" id="btnCheckInAll" title="Marcar check-in de todos los participantes">✅ Check-in</button>
                                     </div>
                                 </div>
                             </div>
@@ -1382,6 +1644,397 @@ Batería segura" maxlength="400"></textarea>
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const TABLE = "robot_cards";
+
+        /* =========================================================
+           ✅ OWNER TOKEN (SIN LOGIN)
+           Permite identificar al creador de robots/torneos
+           desde un mismo navegador sin requerir auth.
+           ========================================================= */
+        function getOwnerToken() {
+            let token = localStorage.getItem("apex_owner_token");
+            if (!token) {
+                token = crypto.randomUUID();
+                localStorage.setItem("apex_owner_token", token);
+            }
+            return token;
+        }
+        const OWNER_TOKEN = getOwnerToken();
+
+        /* =========================================================
+           ✅ TOAST NOTIFICATIONS (reemplazo de alerts)
+           ========================================================= */
+        function toast(msg, type = "info", duration = 3200) {
+            const container = document.getElementById("toastContainer");
+            if (!container) { console.warn("toast:", msg); return; }
+            const el = document.createElement("div");
+            el.className = "toast " + (type || "");
+            el.textContent = msg;
+            container.appendChild(el);
+            setTimeout(() => {
+                el.style.animation = "toastOut .3s ease forwards";
+                setTimeout(() => el.remove(), 350);
+            }, duration);
+        }
+
+        /* =========================================================
+           ✅ VERIFICACIÓN DE DUPLICADOS
+           Busca si ya existe un robot con mismo nombre + equipo
+           ========================================================= */
+        async function checkDuplicate(name, team) {
+            if (!name) return null;
+            try {
+                const { data, error } = await supabaseClient
+                    .from(TABLE)
+                    .select("robot_id, data")
+                    .limit(100);
+                if (error || !data) return null;
+                const nn = (name || "").trim().toLowerCase();
+                const tt = (team || "").trim().toLowerCase();
+                return data.find(r => {
+                    const rn = (r?.data?.n || "").toLowerCase();
+                    const rt = (r?.data?.t || "").toLowerCase();
+                    return rn === nn && rt === tt;
+                }) || null;
+            } catch (_) { return null; }
+        }
+
+        /* =========================================================
+           ✅ EXPORT CSV
+           Genera y descarga un CSV desde un array de objetos
+           ========================================================= */
+        function downloadCSV(filename, rows, columns) {
+            if (!rows.length) { toast("No hay datos para exportar.", "warn"); return; }
+            const header = columns.map(c => c.label).join(",");
+            const lines = rows.map(r =>
+                columns.map(c => {
+                    let val = typeof c.fn === "function" ? c.fn(r) : (r[c.key] ?? "");
+                    val = String(val).replace(/"/g, '""');
+                    return `"${val}"`;
+                }).join(",")
+            );
+            const csv = [header, ...lines].join("\n");
+            const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(a.href);
+            toast("CSV descargado: " + filename, "success");
+        }
+
+        /* =========================================================
+           ✅ RANKING / ELO (básico, calculado en cliente)
+           Cada victoria = +25, derrota = -15. Base = 1000.
+           ========================================================= */
+        async function computeRanking() {
+            try {
+                const { data: matches } = await supabaseClient
+                    .from("tournament_matches")
+                    .select("a_robot_id, b_robot_id, winner_robot_id, wa, wb")
+                    .not("winner_robot_id", "is", null);
+
+                if (!matches || !matches.length) return [];
+
+                const elo = {};
+                const stats = {};
+
+                for (const m of matches) {
+                    const a = m.a_robot_id, b = m.b_robot_id, w = m.winner_robot_id;
+                    if (!a || !b || !w) continue;
+                    if (!elo[a]) { elo[a] = 1000; stats[a] = { w: 0, l: 0, matches: 0 }; }
+                    if (!elo[b]) { elo[b] = 1000; stats[b] = { w: 0, l: 0, matches: 0 }; }
+                    stats[a].matches++; stats[b].matches++;
+                    if (w === a) {
+                        elo[a] += 25; elo[b] -= 15;
+                        stats[a].w++; stats[b].l++;
+                    } else {
+                        elo[b] += 25; elo[a] -= 15;
+                        stats[b].w++; stats[a].l++;
+                    }
+                }
+
+                // Enrich with robot names
+                const robotIds = Object.keys(elo);
+                if (!robotIds.length) return [];
+
+                const { data: cards } = await supabaseClient
+                    .from(TABLE)
+                    .select("robot_id, data")
+                    .in("robot_id", robotIds);
+
+                const nameMap = {};
+                (cards || []).forEach(c => {
+                    nameMap[c.robot_id] = c?.data?.n || c.robot_id;
+                });
+
+                return robotIds.map(id => ({
+                    robot_id: id,
+                    name: nameMap[id] || id,
+                    elo: Math.max(0, elo[id]),
+                    wins: stats[id].w,
+                    losses: stats[id].l,
+                    matches: stats[id].matches,
+                })).sort((a, b) => b.elo - a.elo);
+            } catch (e) {
+                console.warn("Ranking error:", e);
+                return [];
+            }
+        }
+
+        /* =========================================================
+           ✅ HISTORIAL DE ROBOT (torneos en los que participó)
+           ========================================================= */
+        async function loadRobotHistory(robotId) {
+            try {
+                const { data: participations } = await supabaseClient
+                    .from("tournament_players")
+                    .select("tournament_id, seed, team, compact")
+                    .eq("robot_id", robotId);
+
+                if (!participations || !participations.length) return [];
+
+                const tournamentIds = [...new Set(participations.map(p => p.tournament_id))];
+                const { data: tournaments } = await supabaseClient
+                    .from("tournaments")
+                    .select("id, name, category, venue, event_date, format")
+                    .in("id", tournamentIds);
+
+                const tMap = {};
+                (tournaments || []).forEach(t => { tMap[t.id] = t; });
+
+                // Get match results for this robot
+                const { data: matches } = await supabaseClient
+                    .from("tournament_matches")
+                    .select("tournament_id, winner_robot_id, a_robot_id, b_robot_id, wa, wb")
+                    .or(`a_robot_id.eq.${robotId},b_robot_id.eq.${robotId}`);
+
+                const matchesByTournament = {};
+                (matches || []).forEach(m => {
+                    if (!matchesByTournament[m.tournament_id]) matchesByTournament[m.tournament_id] = [];
+                    matchesByTournament[m.tournament_id].push(m);
+                });
+
+                return participations.map(p => {
+                    const t = tMap[p.tournament_id] || {};
+                    const tm = matchesByTournament[p.tournament_id] || [];
+                    const wins = tm.filter(m => m.winner_robot_id === robotId).length;
+                    const losses = tm.filter(m => m.winner_robot_id && m.winner_robot_id !== robotId).length;
+                    return {
+                        tournament_name: t.name || "Torneo",
+                        category: t.category || "—",
+                        venue: t.venue || "",
+                        event_date: t.event_date || "",
+                        format: t.format || "",
+                        seed: p.seed,
+                        wins,
+                        losses,
+                        total: tm.length,
+                    };
+                });
+            } catch (e) {
+                console.warn("History error:", e);
+                return [];
+            }
+        }
+
+        /* =========================================================
+           ✅ TOURNAMENT SUPABASE CRUD
+           ========================================================= */
+        async function saveTournamentToSupabase(state) {
+            const t = state.tournament;
+            if (!t.name) throw new Error("El torneo necesita un nombre.");
+
+            const slug = slugifyJS(t.name) + "-" + Date.now().toString(36);
+            const spectatorToken = crypto.randomUUID();
+            const organizerKey = crypto.randomUUID();
+
+            // Hash tokens (simple sha256-like via SubtleCrypto)
+            async function simpleHash(str) {
+                const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+                return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+            }
+
+            const specHash = await simpleHash(spectatorToken);
+            const orgHash = await simpleHash(organizerKey);
+
+            const tournamentRow = {
+                name: t.name,
+                category: t.category || "Mini Sumo Autónomo Profesional",
+                venue: t.venue || "",
+                event_date: t.date || null,
+                format: t.format || "single",
+                n: t.n || 8,
+                groups: t.groups || 4,
+                adv: t.adv || 2,
+                visibility: "public",
+                public_slug: slug,
+                spectator_token_hash: specHash,
+                organizer_key_hash: orgHash,
+                snapshot: {
+                    players: state.players || [],
+                    view: state.view || null,
+                },
+            };
+
+            const { data, error } = await supabaseClient
+                .from("tournaments")
+                .insert(tournamentRow)
+                .select("id, public_slug")
+                .single();
+
+            if (error) throw error;
+
+            // Save players
+            if (state.players && state.players.length) {
+                const playerRows = state.players.map((p, idx) => ({
+                    tournament_id: data.id,
+                    robot_id: p.i || "",
+                    compact: p,
+                    seed: idx + 1,
+                    team: p.t || "",
+                }));
+
+                const { error: pErr } = await supabaseClient
+                    .from("tournament_players")
+                    .insert(playerRows);
+                if (pErr) console.warn("Error guardando jugadores:", pErr);
+            }
+
+            // Save matches from bracket view
+            if (state.view?.bracket?.rounds) {
+                const matchRows = [];
+                state.view.bracket.rounds.forEach((round, ri) => {
+                    round.forEach((m, mi) => {
+                        matchRows.push({
+                            tournament_id: data.id,
+                            bracket: "W",
+                            round: ri + 1,
+                            match_no: mi + 1,
+                            a_robot_id: m.a?.rid || null,
+                            b_robot_id: m.b?.rid || null,
+                            wa: m.wa || 0,
+                            wb: m.wb || 0,
+                            winner_robot_id: m.winner === "a" ? (m.a?.rid || null) : (m.winner === "b" ? (m.b?.rid || null) : null),
+                            meta: { a_name: m.a?.name, b_name: m.b?.name },
+                        });
+                    });
+                });
+                if (matchRows.length) {
+                    const { error: mErr } = await supabaseClient
+                        .from("tournament_matches")
+                        .insert(matchRows);
+                    if (mErr) console.warn("Error guardando matches:", mErr);
+                }
+            }
+
+            return {
+                id: data.id,
+                slug: data.public_slug,
+                spectatorToken,
+                organizerKey,
+            };
+        }
+
+        async function loadTournamentsFromSupabase() {
+            const { data, error } = await supabaseClient
+                .from("tournaments")
+                .select("id, name, category, venue, event_date, format, n, public_slug, created_at")
+                .order("created_at", { ascending: false })
+                .limit(30);
+            if (error) throw error;
+            return data || [];
+        }
+
+        async function loadTournamentBySlug(slug) {
+            const { data, error } = await supabaseClient
+                .from("tournaments")
+                .select("*")
+                .eq("public_slug", slug)
+                .single();
+            if (error) throw error;
+            return data;
+        }
+
+        async function loadTournamentById(id) {
+            const { data, error } = await supabaseClient
+                .from("tournaments")
+                .select("*")
+                .eq("id", id)
+                .single();
+            if (error) throw error;
+            return data;
+        }
+
+        /* =========================================================
+           ✅ REPORT SYSTEM
+           Guarda reportes en una tabla auxiliar (o log local
+           si la tabla no existe aún).
+           ========================================================= */
+        let currentViewerRobotId = "";
+
+        async function submitReport(robotId, reason, comment) {
+            if (!reason) { toast("Selecciona un motivo.", "warn"); return false; }
+            try {
+                // Intenta guardar en Supabase (si existe tabla reports)
+                const reportRow = {
+                    robot_id: robotId,
+                    reason,
+                    comment: (comment || "").trim(),
+                    reporter_token: OWNER_TOKEN,
+                    created_at: new Date().toISOString(),
+                };
+
+                // Si no existe tabla 'reports', esto fallará silenciosamente
+                // y se guardará en localStorage como fallback
+                try {
+                    await supabaseClient.from("reports").insert(reportRow);
+                } catch (_) {
+                    const reports = JSON.parse(localStorage.getItem("apex_reports") || "[]");
+                    reports.push(reportRow);
+                    localStorage.setItem("apex_reports", JSON.stringify(reports));
+                }
+
+                toast("Reporte enviado. Gracias por ayudar.", "success");
+                return true;
+            } catch (e) {
+                toast("Error al enviar reporte: " + (e.message || e), "error");
+                return false;
+            }
+        }
+
+        /* =========================================================
+           ✅ SLUG COLLISION HANDLING
+           ========================================================= */
+        async function createTeamSafe(name, school) {
+            let slug = slugifyJS(name);
+            if (!slug) throw new Error("Nombre inválido para slug.");
+
+            // Check if slug exists
+            const { data: existing } = await supabaseClient
+                .from("teams")
+                .select("id")
+                .eq("slug", slug)
+                .limit(1);
+
+            if (existing && existing.length > 0) {
+                slug = slug + "-" + Date.now().toString(36);
+            }
+
+            const payload = {
+                name: (name || "").trim(),
+                school: (school || "").trim(),
+                slug,
+            };
+            if (!payload.name) throw new Error("Nombre de equipo requerido.");
+
+            const { data, error } = await supabaseClient
+                .from("teams")
+                .insert(payload)
+                .select("id,name,school,slug")
+                .single();
+            if (error) throw error;
+            return data;
+        }
         /* =========================================================
    ✅ ROBOT ID (0001-9999)
    - PREVIEW: peek_robot_id()  (NO consume)
@@ -2495,13 +3148,6 @@ async function route() {
                         if (match) { teamSelect.value = match.value; teamSelect.dispatchEvent(new Event("change")); }
                     } catch(e) {}
 
-                    try {
-                        const want = slugifyJS(o.t || "");
-                        const opts = Array.from(teamSelect.options);
-                        const match = opts.find(op => slugifyJS(op.dataset?.teamName || op.textContent) === want);
-                        if (match) { teamSelect.value = match.value; teamSelect.dispatchEvent(new Event("change")); }
-                    } catch(e) {}
-
                     controlador.value = o.p || "";
                     escuela.value = o.s || "";
 
@@ -3469,6 +4115,91 @@ async function route() {
             clearView();
         }
     </script>
+
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Report modal -->
+    <div class="modal-overlay hidden" id="reportModal">
+        <div class="modal-box">
+            <h3>🚩 Reportar robot</h3>
+            <div class="modal-body">
+                <label>Motivo del reporte</label>
+                <select id="reportReason">
+                    <option value="">Selecciona…</option>
+                    <option value="contenido_ofensivo">Contenido ofensivo</option>
+                    <option value="informacion_falsa">Información falsa</option>
+                    <option value="duplicado">Robot duplicado</option>
+                    <option value="spam">Spam</option>
+                    <option value="otro">Otro</option>
+                </select>
+                <div style="height:10px"></div>
+                <label>Comentario (opcional)</label>
+                <textarea id="reportComment" placeholder="Describe el problema…" maxlength="300"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn" id="reportCancel">Cancelar</button>
+                <button class="btn hot" id="reportSubmit">Enviar reporte</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tournament share modal -->
+    <div class="modal-overlay hidden" id="shareModal">
+        <div class="modal-box">
+            <h3>🔗 Compartir torneo</h3>
+            <div class="modal-body">
+                <label>Link público (modo espectador)</label>
+                <div class="share-box">
+                    <input id="shareLink" readonly />
+                    <button class="btn small primary" id="shareCopy">Copiar</button>
+                </div>
+                <div style="height:10px"></div>
+                <label>Clave organizador (no compartir)</label>
+                <div class="share-box">
+                    <input id="shareOrgKey" readonly />
+                    <button class="btn small" id="shareOrgCopy">Copiar</button>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn" id="shareClose">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tournament loader modal -->
+    <div class="modal-overlay hidden" id="loadTournamentModal">
+        <div class="modal-box">
+            <h3>📂 Cargar torneo de Supabase</h3>
+            <div class="modal-body">
+                <div id="tournamentDBList" class="list">
+                    <div class="row"><div class="left"><b>Cargando…</b></div></div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn" id="loadTournamentCancel">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk add team modal -->
+    <div class="modal-overlay hidden" id="bulkAddModal">
+        <div class="modal-box">
+            <h3>Agregar equipo completo</h3>
+            <div class="modal-body">
+                <label>Selecciona equipo</label>
+                <select id="bulkTeamSelect">
+                    <option value="">Cargando equipos…</option>
+                </select>
+                <div style="height:8px"></div>
+                <div id="bulkPreview" class="muted">Selecciona un equipo para ver sus robots.</div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn" id="bulkCancel">Cancelar</button>
+                <button class="btn primary" id="bulkConfirm">Agregar todos</button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
