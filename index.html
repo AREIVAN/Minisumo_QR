@@ -751,7 +751,30 @@
                 grid-template-columns: 1fr
             }
         }
-    </style>
+
+        /* Solo Calendar mode: muestra únicamente el directorio de torneos */
+        body.solo-calendar .topbar { display: none; }
+        body.solo-calendar #dashboard,
+        body.solo-calendar #generator,
+        body.solo-calendar #minePanel,
+        body.solo-calendar #teamsPanel,
+        body.solo-calendar #torneosPanel,
+        body.solo-calendar #viewer { display: none !important; }
+        body.solo-calendar .wrap { padding-top: 18px; }
+
+    
+/* ===== Calendario: modo Admin (oculta perfil mientras agregas/editar) ===== */
+#tournamentProfilePanel.admin-mode #tp_name,
+#tournamentProfilePanel.admin-mode #tp_chips,
+#tournamentProfilePanel.admin-mode .mediaBox,
+#tournamentProfilePanel.admin-mode #tp_kv,
+#tournamentProfilePanel.admin-mode #tp_actions{
+  display:none !important;
+}
+#tournamentProfilePanel.admin-mode #ev_adminPanel{
+  margin-top:0 !important;
+}
+</style>
 </head>
 
 <body>
@@ -812,6 +835,25 @@
                         <div class="mut">Gestión de torneos: crear llaves, inscripción de robots y brackets.</div>
                     </div>
 
+                
+                    <div class="heroCard" id="cardCalendar">
+                        <div class="chip good">Calendario</div>
+                        <b>Calendario de torneos</b>
+                        <div class="mut">Ver torneos próximos y anteriores con conteo regresivo y detalles.</div>
+                        <div style="margin-top:12px">
+                            <button class="btn primary" style="width:100%" id="openCalendarBig">Abrir calendario</button>
+                        </div>
+                    </div>
+
+                    <div class="heroCard" id="cardTeamsBig">
+                        <div class="chip">Equipos</div>
+                        <b>Equipos</b>
+                        <div class="mut">Explora equipos y sus robots registrados. (Escuela + nombre de equipo)</div>
+                        <div style="margin-top:12px">
+                            <button class="btn" style="width:100%" id="openTeamsBig">Ver equipos</button>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="sectionTitle">Estadísticas</div>
@@ -854,7 +896,215 @@
         <!-- =========================
          ✅ MIS ROBOTS (SIN LOGIN)
          ========================= -->
-        <section id="minePanel" class="panel hidden">
+        
+        <div style="height:14px;"></div>
+
+        <!-- =========================
+             ✅ CALENDARIO (DIRECTORIO / PERFIL DE TORNEOS)
+             - Independiente del panel organizador
+             ========================= -->
+        <section id="calendarPage" class="panel hidden">
+            <div class="panelHead">
+                <div class="title">
+                    <h2>Calendario</h2>
+                    <b>Directorio de torneos · próximos y anteriores</b>
+                </div>
+                <div class="btnRow">
+                    <button class="btn" id="backFromCalendar">Volver</button>
+                    <button class="btn" id="btnCalendarRefresh2">Actualizar</button>
+                <button class="btn" id="ev_adminBtn" title="Agregar/editar eventos (requiere código)">Agregar evento</button>
+                </div>
+            </div>
+
+            <div class="content">
+                <!-- Sobots-like header: search + filtros + vista -->
+                <div class="searchRow" style="margin-bottom:12px;">
+                    <input id="ev_search" placeholder="Buscar torneo (nombre, ciudad, categoría, tags)..." />
+                    <button class="btn" id="ev_clear">Limpiar</button>
+                    <button class="btn" id="ev_subscribe" title="Exporta un .ics con próximos eventos">Suscribirse (ICS)</button>
+                    <button class="btn primary" id="ev_view_list">Lista</button>
+                    <button class="btn" id="ev_view_month" title="Próximamente">Mes</button>
+                </div>
+                <div class="chipRow" id="ev_filterChips" style="margin: 6px 0 14px;"></div>
+
+                <div class="grid" id="ev_grid">
+                    <!-- LEFT: LISTAS -->
+                    <div class="panel" id="ev_left">
+                        <div class="panelHead">
+                            <div class="title">
+                                <h2>Próximos</h2>
+                                <b>Con conteo regresivo</b>
+                            </div>
+                        </div>
+                        <div class="content">
+                            <div class="list" id="calendarUpcoming">
+                                <div class="row"><div class="left"><b>Cargando…</b><span>—</span></div></div>
+                            </div>
+
+                            <div class="sectionTitle" style="margin-top:14px;">Anteriores</div>
+                            <div class="list" id="calendarPast">
+                                <div class="row"><div class="left"><b>—</b><span>—</span></div></div>
+                            </div>
+
+                            <div class="hint" style="margin-top:12px;">
+                                Tip: Si quieres notificaciones reales aunque cierres la pestaña, luego metemos PWA + Service Worker.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: PERFIL -->
+                    <div class="panel" id="tournamentProfilePanel">
+                        <div class="panelHead">
+                            <div class="title">
+                                <h2 id="tp_title">Perfil del torneo</h2>
+                                <b id="tp_name">Selecciona un torneo</b>
+                            </div>
+                            <div class="chipRow" id="tp_chips"></div>
+                        </div>
+                        <div class="content">
+                            <div class="mediaBox" style="min-height:180px; margin-bottom:12px;">
+                                <img id="tp_poster" alt="Poster" />
+                                <div class="fallback" id="tp_poster_f">POSTER</div>
+                            </div>
+
+                            <div class="kv" id="tp_kv"></div>
+
+                            <div class="btnRow" id="tp_actions" style="margin-top:12px;"></div>
+
+                            
+                            <!-- ADMIN (protegido por código) -->
+                            <div id="ev_adminPanel" class="panel2 hidden" style="padding:12px; margin-top:14px;">
+                                <div class="labelRow" style="align-items:center;">
+                                    <label style="margin:0">Admin · Eventos</label>
+                                    <div style="display:flex; gap:8px; align-items:center; justify-content:flex-end;">
+                                        <span class="muted" id="ev_adminStatus">—</span>
+                                        <button class="btn" id="ev_adminExitBtn" type="button" title="Salir del modo admin">Salir</button>
+                                    </div>
+                                </div>
+
+                                <div style="height:10px;"></div>
+                                <div class="formGrid">
+                                    <div style="grid-column:1 / -1;">
+                                        <label>Título</label>
+                                        <input id="ev_f_name" placeholder="Ej. Copa MiniSumo CDMX 2026" maxlength="80" />
+                                    </div>
+
+                                    <div>
+                                        <label>Inicio (CDMX)</label>
+                                        <input id="ev_f_start" type="datetime-local" />
+                                    </div>
+                                    <div>
+                                        <label>Fin (opcional)</label>
+                                        <input id="ev_f_end" type="datetime-local" />
+                                    </div>
+
+                                    <div>
+                                        <label>Ciudad</label>
+                                        <input id="ev_f_city" placeholder="CDMX" maxlength="48" />
+                                    </div>
+                                    <div>
+                                        <label>Sede / Venue</label>
+                                        <input id="ev_f_venue" placeholder="ESIME Azcapotzalco" maxlength="80" />
+                                    </div>
+
+                                    <div style="grid-column:1 / -1;">
+                                        <label>Dirección</label>
+                                        <input id="ev_f_address" placeholder="Calle, número, colonia…" maxlength="120" />
+                                    </div>
+
+                                    <div style="grid-column:1 / -1;">
+                                        <label>Categorías (separadas por coma)</label>
+                                        <input id="ev_f_categories" placeholder="Mini Sumo, Sumo RC, Line Following" maxlength="160" />
+                                    </div>
+
+                                    <div style="grid-column:1 / -1;">
+                                        <label>Tags (separados por coma)</label>
+                                        <input id="ev_f_tags" placeholder="autónomo, pro, rc" maxlength="160" />
+                                    </div>
+
+                                    <div style="grid-column:1 / -1;">
+                                        <label>Descripción (mini blog)</label>
+                                        <textarea id="ev_f_description" rows="5" placeholder="Detalles, reglas, notas, categorías…" maxlength="4000"></textarea>
+                                    </div>
+
+                                    <div style="grid-column:1 / -1;">
+                                        <label>Poster URL (imagen)</label>
+                                        <input id="ev_f_poster" placeholder="https://.../poster.jpg" maxlength="260" />
+                                    </div>
+
+                                    <div style="grid-column:1 / -1;">
+                                        <label>Página oficial</label>
+                                        <input id="ev_f_official" placeholder="https://evento.com" maxlength="260" />
+                                    </div>
+
+                                    <div style="grid-column:1 / -1;">
+                                        <label>Registro URL (opcional)</label>
+                                        <input id="ev_f_registration" placeholder="https://.../registro" maxlength="260" />
+                                    </div>
+
+                                    <div style="grid-column:1 / -1;">
+                                        <label>Reglas URL (opcional)</label>
+                                        <input id="ev_f_rules" placeholder="https://.../reglas.pdf" maxlength="260" />
+                                    </div>
+
+                                    <div>
+                                        <label>Contacto email</label>
+                                        <input id="ev_f_email" placeholder="info@evento.com" maxlength="120" />
+                                    </div>
+                                    <div>
+                                        <label>Contacto teléfono</label>
+                                        <input id="ev_f_phone" placeholder="+52 55 ..." maxlength="40" />
+                                    </div>
+
+                                    <div>
+                                        <label>Cuota / Fee</label>
+                                        <input id="ev_f_fee" placeholder="$250 MXN" maxlength="40" />
+                                    </div>
+                                    <div>
+                                        <label>País (código)</label>
+                                        <input id="ev_f_country" placeholder="MX" maxlength="4" />
+                                    </div>
+
+                                    <div style="display:flex; gap:10px; align-items:center; grid-column:1 / -1;">
+                                        <label style="margin:0">Público</label>
+                                        <input id="ev_f_public" type="checkbox" checked />
+                                    </div>
+                                </div>
+
+                                <div class="btnRow" style="margin-top:12px;">
+                                    <button class="btn" id="ev_adminNew">Nuevo</button>
+                                    <button class="btn primary" id="ev_adminSave">Guardar</button>
+                                    <button class="btn" id="ev_adminDelete">Eliminar</button>
+                                </div>
+
+                                <div class="hint" style="margin-top:10px;">
+                                    Tip: categorías/tags separados por coma. Guardar usa RPC y no toca brackets.
+                                </div>
+
+                                <div class="sectionTitle" style="margin-top:14px;">Eventos</div>
+                                <div id="ev_adminList" style="display:flex; flex-direction:column; gap:8px;"></div>
+                            </div>
+<div class="sectionTitle" style="margin-top:14px;">Descripción</div>
+                            <div class="mut" id="tp_desc" style="white-space:pre-wrap;">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vista Mes (placeholder) -->
+                <div class="panel hidden" id="ev_monthView" style="margin-top:12px;">
+                    <div class="panelHead">
+                        <div class="title">
+                            <h2>Vista</h2>
+                            <b>Mes (próximamente)</b>
+                        </div>
+                    </div>
+                    <div class="content">
+                        <div class="mut">Aquí vamos a poner un calendario mensual estilo sobotz. Por ahora la vista principal es “Lista”.</div>
+                    </div>
+                </div>
+</div>
+        </section>
+<section id="minePanel" class="panel hidden">
             <div class="panelHead">
                 <div class="title">
                     <h2>Robots del dispositivo</h2>
@@ -937,6 +1187,12 @@
                     </div>
                     <div class="btnRow">
                         <button class="btn" id="btnBackToDash">Volver</button>
+                        <button class="btn primary" id="btnGenLink">Generar QR</button>
+                        <button class="btn" id="btnToggleAdvanced">Avanzado</button>
+                    </div>
+
+                    <div class="btnRow hidden" id="advancedRow" style="margin-top:10px">
+                        <button class="btn" id="btnGenOffline">Generar QR (offline)</button>
                     </div>
                 </div>
 
@@ -967,44 +1223,38 @@
                             </select>
                         </div>
                         <div>
-                            <div class="labelRow">
-                                <label style="margin:0">Equipo</label>
-                                <span class="counter" id="cnt_equipo">0/24</span>
-                            </div>
+  <div class="labelRow">
+    <label style="margin:0">Equipo</label>
+    <span class="counter" id="cnt_equipo">0/24</span>
+  </div>
 
-                            <div style="display:flex; gap:8px; align-items:center;">
-                                <select id="teamSelect"
-                                    style="flex:1; padding:12px 14px; border-radius:14px; border:1px solid rgba(122, 63, 255, .55); background:rgba(11,16,32,.7); color:var(--text); outline:none;">
-                                    <option value="">Cargando equipos…</option>
-                                </select>
-                                <button class="btn" type="button" id="createTeamBtn"
-                                    title="Crear equipo nuevo">Crear</button>
-                            </div>
+  <div style="display:flex; gap:8px; align-items:center;">
+    <select id="teamSelect" style="flex:1; padding:12px 14px; border-radius:14px; border:1px solid rgba(122, 63, 255, .55); background:rgba(11,16,32,.7); color:var(--text); outline:none;">
+      <option value="">Cargando equipos…</option>
+    </select>
+    <button class="btn" type="button" id="createTeamBtn" title="Crear equipo nuevo">Crear</button>
+  </div>
 
-                            <!-- Mantengo este input (oculto) por compatibilidad con el viewer y torneos legacy -->
-                            <input id="equipo" type="hidden" maxlength="24" />
+  <!-- Mantengo este input (oculto) por compatibilidad con el viewer y torneos legacy -->
+  <input id="equipo" type="hidden" maxlength="24" />
 
-                            <div id="teamCreateBox"
-                                style="display:none; margin-top:10px; padding:12px; border:1px solid rgba(122, 63, 255, .55); border-radius:14px; background:rgba(12,20,42,.55);">
-                                <div class="labelRow"><label style="margin:0">Nombre del equipo</label><span
-                                        class="counter" id="cnt_teamNameNew">0/32</span></div>
-                                <input id="teamNameNew" placeholder="Ej. RoboDragons" maxlength="32" />
+  <div id="teamCreateBox" style="display:none; margin-top:10px; padding:12px; border:1px solid rgba(122, 63, 255, .55); border-radius:14px; background:rgba(12,20,42,.55);">
+    <div class="labelRow"><label style="margin:0">Nombre del equipo</label><span class="counter" id="cnt_teamNameNew">0/32</span></div>
+    <input id="teamNameNew" placeholder="Ej. RoboDragons" maxlength="32" />
 
-                                <div style="height:10px;"></div>
+    <div style="height:10px;"></div>
 
-                                <div class="labelRow"><label style="margin:0">Escuela</label><span class="counter"
-                                        id="cnt_teamSchoolNew">0/48</span></div>
-                                <input id="teamSchoolNew" placeholder="Ej. IPN ESIME" maxlength="48" />
+    <div class="labelRow"><label style="margin:0">Escuela</label><span class="counter" id="cnt_teamSchoolNew">0/48</span></div>
+    <input id="teamSchoolNew" placeholder="Ej. IPN ESIME" maxlength="48" />
 
-                                <div class="btnRow" style="margin-top:12px;">
-                                    <button class="btn primary" type="button" id="teamCreateConfirm">Guardar
-                                        equipo</button>
-                                    <button class="btn" type="button" id="teamCreateCancel">Cancelar</button>
-                                </div>
-                            </div>
+    <div class="btnRow" style="margin-top:12px;">
+      <button class="btn primary" type="button" id="teamCreateConfirm">Guardar equipo</button>
+      <button class="btn" type="button" id="teamCreateCancel">Cancelar</button>
+    </div>
+  </div>
 
-                            <div id="teamRobotsBox" style="margin-top:10px;"></div>
-                        </div>
+  <div id="teamRobotsBox" style="margin-top:10px;"></div>
+</div>
 
                         <div>
                             <div class="labelRow"><label style="margin:0">Controlador / Piloto</label><span
@@ -1081,12 +1331,17 @@ Batería segura" maxlength="400"></textarea>
                     </div>
 
                     <div class="btnRow" style="margin-top:12px">
-                        <button class="btn primary" id="btnSaveRecord"
-                            style="width:100%; justify-content:center;">Guardar registro</button>
+                        <button class="btn" id="btnSave">Guardar en este navegador</button>
+                        <button class="btn" id="btnLoad">Cargar guardado</button>
+                        <button class="btn hot" id="btnClear">Limpiar</button>
                     </div>
 
                     <div class="hint">
-                        Nota: al guardar, se genera el QR (link) y se sube a Supabase.
+                        Nota: el modo <b>link</b> genera un QR que abre una credencial visual. (El modo <b>offline</b>
+                        está en Avanzado)
+                        un QR que abre una credencial visual.
+                        <br><br>
+                        ✅ Con Supabase: al generar/guardar, también se sube a la base de datos.
                     </div>
                 </div>
             </section>
@@ -1207,11 +1462,13 @@ Batería segura" maxlength="400"></textarea>
                     <button class="btn" id="btnNew">Nuevo</button>
                     <button class="btn primary" id="btnSaveLocal">Guardar local</button>
                     <button class="btn" id="btnLoadLocal">Abrir local</button>
+                    <button class="btn primary" id="btnCalendar">Calendario</button>
                     <button class="btn hot" id="btnReset">Reset</button>
                 </div>
             </div>
 
             <div class="content">
+
                 <div class="grid">
 
                     <!-- LEFT -->
@@ -1587,7 +1844,7 @@ Batería segura" maxlength="400"></textarea>
                             <div style="font-weight:700;">${title}</div>
                             <div class="muted" style="font-size:12px;">ID: ${esc(r.robot_id)} · ${cat}</div>
                         </div>
-                        <button class="btn" type="button" onclick="location.hash='#id=${encodeURIComponent(r.robot_id)}'">Ver</button>
+                        <button class="btn" type="button" data-open="${esc(r.robot_id)}">Ver</button>
                     </div>
                 `;
             }).join("");
@@ -1602,6 +1859,13 @@ Batería segura" maxlength="400"></textarea>
                     ${items}
                 </div>
             `;
+            // wire open buttons inside team robots list
+            teamRobotsBox.querySelectorAll("[data-open]").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const rid = btn.getAttribute("data-open");
+                    location.hash = "#id=" + encodeURIComponent(rid);
+                });
+            });
         }
 
         function wireTeamCreateUI() {
@@ -2009,7 +2273,651 @@ Batería segura" maxlength="400"></textarea>
         }
 
         /* =========================
-           ✅ ROUTER
+           
+        /* =========================
+           ✅ CALENDARIO (DIRECTORIO / PERFIL) - GLOBAL
+           - Lee de tabla: tournaments
+           - Muestra próximos / anteriores
+           - Click abre perfil (nombre, categorías, fecha/hora, ubicación, descripción, link)
+           ========================= */
+        
+        /* =========================
+           ✅ DIRECTORIO (tipo sobotz)
+           - Tabla: events (independiente de brackets)
+           - Vista: Lista (próximos / anteriores) + Perfil (derecha)
+           ========================= */
+        let calendarTick = null;
+        let calendarRows = []; // {t, d, ts}
+        const evState = { q: "", chip: "ALL", view: "list" };
+        const EV_TZ_DEFAULT = "America/Mexico_City";
+
+        // ===== ADMIN (código) =====
+        const evAdmin = {
+            code: sessionStorage.getItem("apex_admin_code") || "",
+            authed: false,
+            editingId: null,
+            rows: []
+        };
+
+        function evParseCSV(s) {
+            return (s || "")
+                .split(",")
+                .map(x => x.trim())
+                .filter(Boolean)
+                .slice(0, 40);
+        }
+
+        function evSetAdminStatus(msg) {
+            const el = document.getElementById("ev_adminStatus");
+            if (el) el.textContent = msg || "—";
+        }
+
+        function evAdminShowPanel(show) {
+            const p = document.getElementById("ev_adminPanel");
+            if (!p) return;
+
+            // toggles
+            p.classList.toggle("hidden", !show);
+
+            // Cuando admin está activo, ocultamos temporalmente el perfil (poster/kv/acciones)
+            const prof = document.getElementById("tournamentProfilePanel");
+            if (prof) prof.classList.toggle("admin-mode", !!show);
+
+            // Cambiar título del panel derecho para evitar confusión
+            const ttl = document.getElementById("tp_title");
+            if (ttl) ttl.textContent = show ? "Agregar / editar evento" : "Perfil del torneo";
+
+            // Texto secundario
+            const sub = document.getElementById("tp_name");
+            if (sub) sub.textContent = show ? "Modo admin (directorio)" : (sub.textContent || "Selecciona un torneo");
+        }
+
+        async function evAdminAuthPrompt() {
+            const code = window.prompt("Admin code (para agregar/editar eventos):", evAdmin.code || "");
+            if (!code) return;
+            evAdmin.code = code.trim();
+            sessionStorage.setItem("apex_admin_code", evAdmin.code);
+
+            // Verificar código vía RPC
+            const { data, error } = await supabaseClient.rpc("admin_check_code", { p_code: evAdmin.code });
+            if (error || data !== true) {
+                evAdmin.authed = false;
+                evSetAdminStatus("Código inválido");
+                evAdminShowPanel(false);
+                alert("Código inválido.");
+                return;
+            }
+            evAdmin.authed = true;
+            evSetAdminStatus("Autenticado");
+            evAdminShowPanel(true);
+            await evAdminLoadAll();
+        }
+
+        function evAdminFillForm(ev) {
+            const get = (id) => document.getElementById(id);
+            if (!ev) {
+                evAdmin.editingId = null;
+                if (get("ev_f_name")) get("ev_f_name").value = "";
+                if (get("ev_f_start")) get("ev_f_start").value = "";
+                if (get("ev_f_end")) get("ev_f_end").value = "";
+                if (get("ev_f_city")) get("ev_f_city").value = "";
+                if (get("ev_f_venue")) get("ev_f_venue").value = "";
+                if (get("ev_f_address")) get("ev_f_address").value = "";
+                if (get("ev_f_categories")) get("ev_f_categories").value = "";
+                if (get("ev_f_tags")) get("ev_f_tags").value = "";
+                if (get("ev_f_description")) get("ev_f_description").value = "";
+                if (get("ev_f_poster")) get("ev_f_poster").value = "";
+                if (get("ev_f_official")) get("ev_f_official").value = "";
+                if (get("ev_f_registration")) get("ev_f_registration").value = "";
+                if (get("ev_f_rules")) get("ev_f_rules").value = "";
+                if (get("ev_f_email")) get("ev_f_email").value = "";
+                if (get("ev_f_phone")) get("ev_f_phone").value = "";
+                if (get("ev_f_fee")) get("ev_f_fee").value = "";
+                if (get("ev_f_country")) get("ev_f_country").value = "";
+                if (get("ev_f_public")) get("ev_f_public").checked = true;
+                return;
+            }
+
+            evAdmin.editingId = ev.id || null;
+
+            const toLocalInput = (iso) => {
+                if (!iso) return "";
+                const d = new Date(iso);
+                if (isNaN(d.getTime())) return "";
+                const pad = (n) => String(n).padStart(2, "0");
+                return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+            };
+
+            if (get("ev_f_name")) get("ev_f_name").value = ev.name || "";
+            if (get("ev_f_start")) get("ev_f_start").value = toLocalInput(ev.start_at);
+            if (get("ev_f_end")) get("ev_f_end").value = toLocalInput(ev.end_at);
+            if (get("ev_f_city")) get("ev_f_city").value = ev.city || "";
+            if (get("ev_f_venue")) get("ev_f_venue").value = ev.venue || "";
+            if (get("ev_f_address")) get("ev_f_address").value = ev.address || "";
+            if (get("ev_f_categories")) get("ev_f_categories").value = (ev.categories || []).join(", ");
+            if (get("ev_f_tags")) get("ev_f_tags").value = (ev.tags || []).join(", ");
+            if (get("ev_f_description")) get("ev_f_description").value = ev.description || "";
+            if (get("ev_f_poster")) get("ev_f_poster").value = ev.poster_url || "";
+            if (get("ev_f_official")) get("ev_f_official").value = ev.official_url || "";
+            if (get("ev_f_registration")) get("ev_f_registration").value = ev.registration_url || "";
+            if (get("ev_f_rules")) get("ev_f_rules").value = ev.rules_url || "";
+            if (get("ev_f_email")) get("ev_f_email").value = ev.contact_email || "";
+            if (get("ev_f_phone")) get("ev_f_phone").value = ev.contact_phone || "";
+            if (get("ev_f_fee")) get("ev_f_fee").value = ev.fee || "";
+            if (get("ev_f_country")) get("ev_f_country").value = ev.country_code || "";
+            if (get("ev_f_public")) get("ev_f_public").checked = (ev.is_public !== false);
+        }
+
+        async function evAdminLoadAll() {
+            if (!evAdmin.authed) return;
+            const { data, error } = await supabaseClient.rpc("admin_list_events", { p_code: evAdmin.code });
+            if (error) {
+                evSetAdminStatus("Error admin_list_events");
+                console.error(error);
+                return;
+            }
+            evAdmin.rows = (data || []).slice().sort((a,b)=> {
+                const da = a.start_at ? new Date(a.start_at).getTime() : 0;
+                const db = b.start_at ? new Date(b.start_at).getTime() : 0;
+                return da - db;
+            });
+            evAdminRenderList();
+        }
+
+        function evAdminRenderList() {
+            const host = document.getElementById("ev_adminList");
+            if (!host) return;
+            if (!evAdmin.authed) { host.innerHTML = ""; return; }
+
+            const tz = EV_TZ_DEFAULT;
+            if (!evAdmin.rows.length) {
+                host.innerHTML = `<div class="mut">Sin eventos.</div>`;
+                return;
+            }
+
+            host.innerHTML = evAdmin.rows.slice(0, 240).map(ev => {
+                const d = ev.start_at ? new Date(ev.start_at) : null;
+                const when = d && !isNaN(d.getTime()) ? evFmtDate(d, tz) : "—";
+                const place = [ev.city, ev.venue].filter(Boolean).join(" · ");
+                const pub = (ev.is_public !== false) ? "Público" : "Privado";
+                return `
+                    <div class="row" style="align-items:flex-start;">
+                        <div class="left">
+                            <b>${evEscape(ev.name || "—")}</b>
+                            <span>${evEscape(when)}${place ? " · " + evEscape(place) : ""} · ${pub}</span>
+                        </div>
+                        <div class="right">
+                            <button class="btn" data-admin-edit="${evEscape(ev.id)}">Editar</button>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+
+            host.querySelectorAll("[data-admin-edit]").forEach(b => {
+                b.onclick = () => {
+                    const id = b.getAttribute("data-admin-edit");
+                    const ev = evAdmin.rows.find(x => String(x.id) === String(id));
+                    evAdminFillForm(ev);
+                };
+            });
+        }
+
+        async function evAdminSave() {
+            if (!evAdmin.authed) return alert("No estás autenticado.");
+            const get = (id) => document.getElementById(id);
+
+            const name = (get("ev_f_name")?.value || "").trim();
+            const startLocal = (get("ev_f_start")?.value || "").trim();
+            if (!name) return alert("Falta el título.");
+            if (!startLocal) return alert("Falta la fecha/hora de inicio.");
+
+            const payload = {
+                id: evAdmin.editingId,
+                name,
+                start_at: new Date(startLocal).toISOString(),
+                end_at: (get("ev_f_end")?.value || "").trim() ? new Date(get("ev_f_end").value).toISOString() : null,
+                timezone: EV_TZ_DEFAULT,
+                city: (get("ev_f_city")?.value || "").trim() || null,
+                venue: (get("ev_f_venue")?.value || "").trim() || null,
+                address: (get("ev_f_address")?.value || "").trim() || null,
+                categories: evParseCSV(get("ev_f_categories")?.value),
+                tags: evParseCSV(get("ev_f_tags")?.value),
+                description: (get("ev_f_description")?.value || "").trim() || null,
+                poster_url: (get("ev_f_poster")?.value || "").trim() || null,
+                official_url: (get("ev_f_official")?.value || "").trim() || null,
+                registration_url: (get("ev_f_registration")?.value || "").trim() || null,
+                rules_url: (get("ev_f_rules")?.value || "").trim() || null,
+                contact_email: (get("ev_f_email")?.value || "").trim() || null,
+                contact_phone: (get("ev_f_phone")?.value || "").trim() || null,
+                fee: (get("ev_f_fee")?.value || "").trim() || null,
+                country_code: (get("ev_f_country")?.value || "").trim() || null,
+                is_public: !!get("ev_f_public")?.checked
+            };
+
+            const { data, error } = await supabaseClient.rpc("admin_upsert_event", {
+                p_code: evAdmin.code,
+                p_event: payload
+            });
+
+            if (error) {
+                console.error(error);
+                alert("No pude guardar. Revisa consola.");
+                return;
+            }
+
+            // actualizar listas
+            evSetAdminStatus("Guardado");
+            evAdmin.editingId = data || payload.id || null;
+            await evAdminLoadAll();
+            await calendarLoadFromDB();
+        }
+
+        async function evAdminDelete() {
+            if (!evAdmin.authed) return alert("No estás autenticado.");
+            if (!evAdmin.editingId) return alert("Selecciona un evento (Editar) antes.");
+            if (!confirm("¿Eliminar este evento?")) return;
+
+            const { error } = await supabaseClient.rpc("admin_delete_event", {
+                p_code: evAdmin.code,
+                p_id: evAdmin.editingId
+            });
+
+            if (error) {
+                console.error(error);
+                alert("No pude eliminar. Revisa consola.");
+                return;
+            }
+
+            evSetAdminStatus("Eliminado");
+            evAdminFillForm(null);
+            await evAdminLoadAll();
+            await calendarLoadFromDB();
+        }
+
+
+        function evPickDate(t) {
+            const keys = ["start_at", "start_date", "starts_at", "datetime", "scheduled_at", "date"];
+            for (const k of keys) {
+                if (t && t[k]) {
+                    const d = new Date(t[k]);
+                    if (!isNaN(d.getTime())) return d;
+                }
+            }
+            return null;
+        }
+
+        function evFmtDate(d, tz) {
+            if (!d) return "—";
+            try {
+                const opt = { weekday: "short", year: "numeric", month: "short", day: "2-digit", hour: "2-digit", minute: "2-digit" };
+                // Si el usuario guardó timezone (ej. America/Mexico_City), lo usamos si el navegador soporta
+                if (tz) opt.timeZone = tz;
+                return new Intl.DateTimeFormat("es-MX", opt).format(d);
+            } catch {
+                return d.toISOString();
+            }
+        }
+
+        function evFmtCountdown(ms) {
+            ms = Math.max(0, ms);
+            const s = Math.floor(ms / 1000);
+            const days = Math.floor(s / 86400);
+            const hrs = Math.floor((s % 86400) / 3600);
+            const mins = Math.floor((s % 3600) / 60);
+            const secs = s % 60;
+            if (days > 0) return `${days}d ${hrs}h ${mins}m`;
+            if (hrs > 0) return `${hrs}h ${mins}m ${secs}s`;
+            return `${mins}m ${secs}s`;
+        }
+
+        function evEscape(str) {
+            return String(str ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        function evArr(v) {
+            if (!v) return [];
+            if (Array.isArray(v)) return v.map(x => String(x)).filter(Boolean);
+            // Si viene como texto: "a,b,c"
+            return String(v).split(",").map(s => s.trim()).filter(Boolean);
+        }
+
+        function evMainCategory(t) {
+            // Campo simple opcional: category
+            const base = (t.category || "").trim();
+            if (base) return base;
+            const cats = evArr(t.categories);
+            return cats[0] || "";
+        }
+
+        function evMatchesQuery(t, q) {
+            if (!q) return true;
+            const hay = [
+                t.name, t.city, t.venue, t.address, t.description,
+                t.official_url, t.registration_url, t.rules_url,
+                ...(evArr(t.categories)), ...(evArr(t.tags))
+            ].filter(Boolean).join(" ").toLowerCase();
+            return hay.includes(q.toLowerCase());
+        }
+
+        function evMatchesChip(t, chip) {
+            if (!chip || chip === "ALL") return true;
+            const all = new Set([evMainCategory(t), ...evArr(t.categories), ...evArr(t.tags)].filter(Boolean).map(x => x.toLowerCase()));
+            return all.has(String(chip).toLowerCase());
+        }
+
+        function evBuildFilterChips(rows) {
+            const set = new Map(); // lower -> original
+            for (const r of rows) {
+                const t = r.t || {};
+                const vals = [evMainCategory(t), ...evArr(t.categories), ...evArr(t.tags)];
+                for (const v of vals) {
+                    const s = String(v || "").trim();
+                    if (!s) continue;
+                    const key = s.toLowerCase();
+                    if (!set.has(key)) set.set(key, s);
+                }
+            }
+            // top 14 (orden alfabético)
+            return Array.from(set.values()).sort((a,b)=>a.localeCompare(b, "es")).slice(0, 14);
+        }
+
+        function evRenderChips() {
+            const wrap = document.getElementById("ev_filterChips");
+            if (!wrap) return;
+
+            const chips = ["ALL", ...evBuildFilterChips(calendarRows)];
+            wrap.innerHTML = chips.map(c => {
+                const active = (evState.chip === c) ? "good" : "";
+                const label = (c === "ALL") ? "Todos" : c;
+                return `<span class="chip ${active}" data-chip="${evEscape(c)}" style="cursor:pointer;">${evEscape(label)}</span>`;
+            }).join("");
+
+            wrap.querySelectorAll("[data-chip]").forEach(el => {
+                el.onclick = () => {
+                    evState.chip = el.getAttribute("data-chip") || "ALL";
+                    evRenderLists();
+                };
+            });
+        }
+
+        function evMapsLink(t) {
+            const q = [t.venue, t.address, t.city].filter(Boolean).join(" ");
+            if (!q) return "";
+            return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
+        }
+
+        function evSelectById(id) {
+            const row = calendarRows.find(r => String(r.t?.id) === String(id));
+            if (!row) return;
+
+            const t = row.t || {};
+            const d = row.d;
+            const tz = t.timezone || "";
+
+            // Title
+            tp_name.textContent = t.name || "Torneo";
+
+            // Chips
+            const chipList = [evMainCategory(t), ...evArr(t.categories), ...evArr(t.tags)].filter(Boolean).slice(0, 12);
+            tp_chips.innerHTML = chipList.map(x => `<span class="chip">${evEscape(x)}</span>`).join("");
+
+            // Poster
+            const poster = t.poster_url || "";
+            if (poster) {
+                tp_poster.src = poster;
+                tp_poster.style.display = "block";
+                tp_poster_f.style.display = "none";
+            } else {
+                tp_poster.style.display = "none";
+                tp_poster_f.style.display = "block";
+            }
+
+            // KV
+            const kv = [];
+            kv.push(["Fecha/Hora", evFmtDate(d, tz)]);
+            if (t.end_at) kv.push(["Fin", evFmtDate(new Date(t.end_at), tz)]);
+            if (t.venue) kv.push(["Sede", t.venue]);
+            if (t.city) kv.push(["Ciudad", t.city]);
+            if (t.address) kv.push(["Dirección", t.address]);
+            if (t.contact_email) kv.push(["Email", t.contact_email]);
+            if (t.contact_phone) kv.push(["Teléfono", t.contact_phone]);
+            if (t.fee != null && String(t.fee).trim() !== "") kv.push(["Costo", String(t.fee)]);
+            if (t.country_code) kv.push(["País", t.country_code]);
+
+            tp_kv.innerHTML = kv.map(([k,v]) => `
+                <div class="k">${evEscape(k)}</div>
+                <div class="v">${evEscape(v || "—")}</div>
+            `).join("");
+
+            // Actions
+            const actions = [];
+            if (t.official_url) actions.push(`<a class="btn primary" href="${evEscape(t.official_url)}" target="_blank" rel="noopener">Página oficial</a>`);
+            if (t.registration_url) actions.push(`<a class="btn" href="${evEscape(t.registration_url)}" target="_blank" rel="noopener">Registro</a>`);
+            if (t.rules_url) actions.push(`<a class="btn" href="${evEscape(t.rules_url)}" target="_blank" rel="noopener">Reglas</a>`);
+            const maps = evMapsLink(t);
+            if (maps) actions.push(`<a class="btn" href="${evEscape(maps)}" target="_blank" rel="noopener">Abrir en Maps</a>`);
+            tp_actions.innerHTML = actions.length ? actions.join(" ") : `<span class="mut">—</span>`;
+
+            // Description
+            tp_desc.textContent = t.description ? String(t.description) : "—";
+        }
+
+        function evRenderLists() {
+            const up = document.getElementById("calendarUpcoming");
+            const past = document.getElementById("calendarPast");
+            if (!up || !past) return;
+
+            const now = new Date();
+
+            const filtered = calendarRows.filter(r => {
+                const t = r.t || {};
+                return evMatchesQuery(t, evState.q) && evMatchesChip(t, evState.chip);
+            });
+
+            const upcoming = filtered.filter(r => r.d >= now);
+            const previous = filtered.filter(r => r.d < now).reverse();
+
+            const renderRow = (r, isUpcoming) => {
+                const t = r.t || {};
+                const name = t.name || "Torneo";
+                const venue = t.venue || "";
+                const city = t.city || "";
+                const tz = t.timezone || "";
+                const chips = [evMainCategory(t), ...evArr(t.categories)].filter(Boolean).slice(0, 4);
+                const chipHtml = chips.map(x => `<span class="chip" style="display:inline-block;margin-right:6px;">${evEscape(x)}</span>`).join("");
+                const countdown = isUpcoming ? `<span class="mut" data-countdown="${r.d.toISOString()}">(${evFmtCountdown(r.d - now)})</span>` : "";
+                const id = t.id ?? "";
+                const dateLine = evFmtDate(r.d, tz);
+                const placeLine = [city, venue].filter(Boolean).join(" · ");
+                return `
+                    <div class="row" style="align-items:flex-start; cursor:pointer;" data-event-id="${evEscape(id)}">
+                        <div class="left">
+                            <b>${evEscape(name)} ${countdown}</b>
+                            <span>${evEscape(dateLine)}${placeLine ? " · " + evEscape(placeLine) : ""}</span>
+                            ${chipHtml ? `<div style="margin-top:8px;">${chipHtml}</div>` : ""}
+                        </div>
+                        <div class="right"><button class="btn">Ver</button></div>
+                    </div>
+                `;
+            };
+
+            up.innerHTML = upcoming.length
+                ? upcoming.map(r => renderRow(r, true)).join("")
+                : `<div class="row"><div class="left"><b>Sin torneos próximos</b><span>—</span></div></div>`;
+
+            past.innerHTML = previous.length
+                ? previous.slice(0, 140).map(r => renderRow(r, false)).join("")
+                : `<div class="row"><div class="left"><b>Sin torneos anteriores</b><span>—</span></div></div>`;
+
+            document.querySelectorAll("[data-event-id]").forEach(el => {
+                el.onclick = () => {
+                    const id = el.getAttribute("data-event-id");
+                    if (id) evSelectById(id);
+                };
+            });
+
+            const first = (upcoming[0] || previous[0]);
+            if (first?.t?.id != null) evSelectById(first.t.id);
+
+            if (calendarTick) clearInterval(calendarTick);
+            calendarTick = setInterval(() => {
+                const now2 = new Date();
+                document.querySelectorAll("[data-countdown]").forEach(el => {
+                    const iso = el.getAttribute("data-countdown");
+                    const d = new Date(iso);
+                    if (isNaN(d.getTime())) return;
+                    el.textContent = `(${evFmtCountdown(d - now2)})`;
+                });
+            }, 1000);
+        }
+
+        async function calendarLoadFromDB() {
+            const up = document.getElementById("calendarUpcoming");
+            const past = document.getElementById("calendarPast");
+            if (!up || !past) return;
+
+            up.innerHTML = `<div class="row"><div class="left"><b>Cargando…</b><span>events</span></div></div>`;
+            past.innerHTML = `<div class="row"><div class="left"><b>Cargando…</b><span>events</span></div></div>`;
+
+            const { data, error } = await supabaseClient
+                .from("events")
+                .select("*")
+                .eq("is_public", true)
+                .order("start_at", { ascending: true })
+                .limit(500);
+
+            if (error) {
+                up.innerHTML = `<div class="row"><div class="left"><b>Error</b><span>${evEscape(error.message || "No pude leer events")}</span></div></div>`;
+                past.innerHTML = "";
+                return;
+            }
+
+            calendarRows = (data || []).map(t => {
+                const d = evPickDate(t);
+                return { t, d, ts: d ? d.getTime() : 0 };
+            }).filter(r => r.d);
+
+            calendarRows.sort((a, b) => (a.ts || 0) - (b.ts || 0));
+
+            // render chips + lists
+            evRenderChips();
+            evRenderLists();
+        }
+
+        function evSetView(mode) {
+            evState.view = mode;
+            const listBtn = document.getElementById("ev_view_list");
+            const monthBtn = document.getElementById("ev_view_month");
+            const monthView = document.getElementById("ev_monthView");
+            const grid = document.getElementById("ev_grid");
+
+            if (mode === "month") {
+                listBtn.classList.remove("primary");
+                monthBtn.classList.add("primary");
+                if (grid) grid.classList.add("hidden");
+                if (monthView) monthView.classList.remove("hidden");
+            } else {
+                listBtn.classList.add("primary");
+                monthBtn.classList.remove("primary");
+                if (monthView) monthView.classList.add("hidden");
+                if (grid) grid.classList.remove("hidden");
+            }
+        }
+
+        function evWireCalendarUI() {
+            const q = document.getElementById("ev_search");
+            const clear = document.getElementById("ev_clear");
+            const sub = document.getElementById("ev_subscribe");
+            const listBtn = document.getElementById("ev_view_list");
+            const monthBtn = document.getElementById("ev_view_month");
+
+            if (q) {
+                q.oninput = () => { evState.q = (q.value || "").trim(); evRenderLists(); };
+                q.addEventListener("keydown", (e) => { if (e.key === "Escape") { q.value = ""; evState.q=""; evRenderLists(); } });
+            }
+            if (clear) clear.onclick = () => { if (q) q.value = ""; evState.q=""; evState.chip="ALL"; evRenderChips(); evRenderLists(); };
+            if (listBtn) listBtn.onclick = () => evSetView("list");
+            if (monthBtn) monthBtn.onclick = () => evSetView("month");
+
+            // Suscribirse (ICS) – genera un .ics con próximos eventos (simple, sin servidor)
+            if (sub) sub.onclick = () => {
+                const now = new Date();
+                const upcoming = calendarRows.filter(r => r.d >= now).slice(0, 80);
+                if (!upcoming.length) return alert("No hay eventos próximos para exportar.");
+
+                function pad(n){ return String(n).padStart(2,"0"); }
+                function dtICS(d){
+                    const x = new Date(d);
+                    // formato UTC: YYYYMMDDTHHMMSSZ
+                    return x.getUTCFullYear()+pad(x.getUTCMonth()+1)+pad(x.getUTCDate())+"T"+pad(x.getUTCHours())+pad(x.getUTCMinutes())+pad(x.getUTCSeconds())+"Z";
+                }
+
+                const lines = [];
+                lines.push("BEGIN:VCALENDAR");
+                lines.push("VERSION:2.0");
+                lines.push("PRODID:-//APEX//Minisumo Events//ES");
+                upcoming.forEach(r => {
+                    const t = r.t || {};
+                    const uid = (t.id || (t.name+"-"+r.ts)).toString() + "@apex";
+                    const start = dtICS(r.d);
+                    const end = t.end_at ? dtICS(new Date(t.end_at)) : dtICS(new Date(r.d.getTime()+2*60*60*1000));
+                    const summary = (t.name || "Evento").replace(/\n/g," ");
+                    const loc = [t.venue, t.address, t.city].filter(Boolean).join(", ").replace(/\n/g," ");
+                    const url = (t.official_url || "").replace(/\n/g," ");
+                    lines.push("BEGIN:VEVENT");
+                    lines.push("UID:"+uid);
+                    lines.push("DTSTAMP:"+dtICS(new Date()));
+                    lines.push("DTSTART:"+start);
+                    lines.push("DTEND:"+end);
+                    lines.push("SUMMARY:"+summary);
+                    if (loc) lines.push("LOCATION:"+loc);
+                    if (url) lines.push("URL:"+url);
+                    lines.push("END:VEVENT");
+                });
+                lines.push("END:VCALENDAR");
+
+                const blob = new Blob([lines.join("\r\n")], { type: "text/calendar;charset=utf-8" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "apex_torneos.ics";
+                a.click();
+                setTimeout(()=>URL.revokeObjectURL(url), 2500);
+            };
+
+            
+            // Admin
+            const adminBtn = document.getElementById("ev_adminBtn");
+            const aExit = document.getElementById("ev_adminExitBtn");
+            const aNew = document.getElementById("ev_adminNew");
+            const aSave = document.getElementById("ev_adminSave");
+            const aDel = document.getElementById("ev_adminDelete");
+
+            if (adminBtn) adminBtn.onclick = () => evAdminAuthPrompt();
+            if (aExit) aExit.onclick = () => { evAdminShowPanel(false); evSetAdminStatus("—"); };
+            if (aNew) aNew.onclick = () => evAdminFillForm(null);
+            if (aSave) aSave.onclick = () => evAdminSave();
+            if (aDel) aDel.onclick = () => evAdminDelete();
+
+            // Si ya hay código guardado, intenta autologin al entrar al calendario (sin prompt)
+            if (evAdmin.code && !evAdmin.authed) {
+                supabaseClient.rpc("admin_check_code", { p_code: evAdmin.code }).then(({ data }) => {
+                    if (data === true) {
+                        evAdmin.authed = true;
+                        evSetAdminStatus("Autenticado");
+                        evAdminShowPanel(true);
+                        evAdminLoadAll();
+                    }
+                }).catch(()=>{});
+            }
+evSetView("list");
+        }
+/* ✅ ROUTER
            - #/         dashboard
            - #/new      generator
            - #/mine     mine list
@@ -2021,8 +2929,10 @@ Batería segura" maxlength="400"></textarea>
             minePanel.classList.add("hidden");
             document.getElementById("torneosPanel").classList.add("hidden");
             teamsPanel.classList.add("hidden");
+            calendarPage.classList.add("hidden");
             dashboard.classList.remove("hidden");
             modeBadge.textContent = "dashboard";
+            document.body.classList.remove("solo-calendar");
             refreshDashboard().catch(console.error);
         }
 
@@ -2032,6 +2942,7 @@ Batería segura" maxlength="400"></textarea>
             minePanel.classList.add("hidden");
             document.getElementById("torneosPanel").classList.add("hidden");
             teamsPanel.classList.add("hidden");
+            calendarPage.classList.add("hidden");
             generator.classList.remove("hidden");
             modeBadge.textContent = "generator";
             // ✅ Teams selector + robots del equipo
@@ -2039,7 +2950,7 @@ Batería segura" maxlength="400"></textarea>
                 if (!window.__teamsWired) { wireTeamCreateUI(); window.__teamsWired = true; }
                 await loadTeamsIntoSelect();
                 teamRobotsBox.innerHTML = "";
-            } catch (e) {
+            } catch(e) {
                 console.warn(e);
             }
             // pinta canvas blanco si está vacío
@@ -2096,8 +3007,10 @@ Batería segura" maxlength="400"></textarea>
             generator.classList.add("hidden");
             document.getElementById("torneosPanel").classList.add("hidden");
             teamsPanel.classList.add("hidden");
+            calendarPage.classList.add("hidden");
             minePanel.classList.remove("hidden");
             modeBadge.textContent = "mine";
+            document.body.classList.remove("solo-calendar");
             loadMineList().catch(console.error);
         }
 
@@ -2107,8 +3020,10 @@ Batería segura" maxlength="400"></textarea>
             generator.classList.add("hidden");
             minePanel.classList.add("hidden");
             teamsPanel.classList.add("hidden");
+            calendarPage.classList.add("hidden");
             document.getElementById("torneosPanel").classList.remove("hidden");
             modeBadge.textContent = "torneos";
+            document.body.classList.remove("solo-calendar");
             // boot torneos si aún no se inicializó
             if (!torneosBoot) {
                 torneosBoot = true;
@@ -2116,20 +3031,40 @@ Batería segura" maxlength="400"></textarea>
             }
         }
 
-
+        
         function showTeams() {
             viewer.style.display = "none";
             dashboard.classList.add("hidden");
             generator.classList.add("hidden");
             minePanel.classList.add("hidden");
+            calendarPage.classList.add("hidden");
             document.getElementById("torneosPanel").classList.add("hidden");
             teamsPanel.classList.remove("hidden");
             modeBadge.textContent = "teams";
+            document.body.classList.remove("solo-calendar");
             loadTeamsDirectory().catch(console.error);
         }
 
-        async function route() {
+        function showCalendar() {
+            viewer.style.display = "none";
+            dashboard.classList.add("hidden");
+            generator.classList.add("hidden");
+            minePanel.classList.add("hidden");
+            document.getElementById("torneosPanel").classList.add("hidden");
+            teamsPanel.classList.add("hidden");
+            calendarPage.classList.remove("hidden");
+            modeBadge.textContent = "calendar";
+            document.body.classList.add("solo-calendar");
+            if (!window.__evWired) { evWireCalendarUI(); window.__evWired = true; }
+            calendarLoadFromDB().catch(console.error);
+        }
+
+
+async function route() {
             const hash = location.hash || "";
+
+            // ✅ Calendario (directorio)
+            if (hash === "#/calendar") { showCalendar(); return; }
 
             // ✅ Viewer por #id=
             if (hash.startsWith("#id=")) {
@@ -2320,48 +3255,87 @@ Batería segura" maxlength="400"></textarea>
         /* --------------------------
            Buttons (GENERATOR)
         --------------------------- */
-        // ✅ ÚNICO BOTÓN: Guardar registro
-        // - Reserva Robot ID real
-        // - Genera QR (link)
-        // - Guarda local + Supabase
-        const btnSaveRecord = document.getElementById("btnSaveRecord");
+        function validateBasic() {
+            const id = cleanStr(robot_id.value);
+            const name = cleanStr(robot_nombre.value);
 
-        if (btnSaveRecord) {
-            btnSaveRecord.onclick = async () => {
-                const name = cleanStr(robot_nombre.value);
-                if (!name) { alert("Pon al menos el Nombre del robot."); return; }
+            if (!id) {
+                alert("Aún no tengo Robot ID automático. Intenta de nuevo.");
+                return false;
+            }
+            if (!name) {
+                alert("Pon al menos el Nombre del robot.");
+                return false;
+            }
+            return true;
+        }
 
-                // ✅ requiere equipo (team_id)
-                const teamId = (teamSelect && teamSelect.value) ? teamSelect.value : "";
-                if (!teamId) { alert("Selecciona un equipo antes de guardar."); return; }
+        // ✅ Generar OFFLINE + guardar en Supabase
+        // ✅ Generar OFFLINE + guardar en Supabase
+        btnGenOffline.onclick = async () => {
+            const name = cleanStr(robot_nombre.value);
+            if (!name) { alert("Pon al menos el Nombre del robot."); return; }
 
-                // ✅ Reserva real SOLO cuando ya vas a guardar (consume ID)
-                const realId = await reserveRobotIdReal();
-                if (!realId) return;
+            // ✅ Reserva real SOLO cuando ya vas a guardar (consume ID)
+            const realId = await reserveRobotIdReal();
+            if (!realId) return;
 
-                const compact = buildRobotObj();
-                renderPreviewFromCompact(compact);
+            const compact = buildRobotObj();
+            renderPreviewFromCompact(compact);
 
-                // ✅ QR siempre en modo LINK
-                lastPayloadType = "link";
-                const link = payloadLink(compact);
-                drawQR(link);
+            lastPayloadType = "offline";
+            drawQR(payloadOffline(compact));
 
-                // ✅ guardado local (para recuperación rápida)
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
 
-                try {
-                    const saved = await saveToSupabase(compact);
-                    addToMyList(saved.robot_id);
+            try {
+                const saved = await saveToSupabase(compact);
+                addToMyList(saved.robot_id); // ✅ agrega a "Mis Robots"
 
-                    // ✅ siguiente PREVIEW (no consume)
-                    await peekRobotId();
+                // ✅ siguiente PREVIEW (no consume)
+                await peekRobotId();
+            } catch (e) {
+                console.error(e);
+                alert("No se pudo guardar en Supabase: " + (e.message || e));
+            }
+        };
 
-                    alert("Registro guardado ✅");
-                } catch (e) {
-                    console.error(e);
-                    alert("Guardado local OK, pero Supabase falló: " + (e.message || e));
-                }
+        // ✅ Generar LINK + guardar en Supabase
+        // ✅ Generar LINK + guardar en Supabase
+        btnGenLink.onclick = async () => {
+            const name = cleanStr(robot_nombre.value);
+            if (!name) { alert("Pon al menos el Nombre del robot."); return; }
+
+            // ✅ Reserva real SOLO cuando ya vas a guardar (consume ID)
+            const realId = await reserveRobotIdReal();
+            if (!realId) return;
+
+            const compact = buildRobotObj();
+            renderPreviewFromCompact(compact);
+
+            lastPayloadType = "link";
+            const link = payloadLink(compact);
+            drawQR(link);
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
+
+            try {
+                const saved = await saveToSupabase(compact);
+                addToMyList(saved.robot_id); // ✅ agrega a "Mis Robots"
+
+                // ✅ siguiente PREVIEW (no consume)
+                await peekRobotId();
+            } catch (e) {
+                console.error(e);
+                alert("No se pudo guardar en Supabase: " + (e.message || e));
+            }
+        };
+
+        // ✅ Avanzado: mostrar/ocultar QR OFFLINE (opcional)
+        if (typeof btnToggleAdvanced !== "undefined" && typeof advancedRow !== "undefined") {
+            btnToggleAdvanced.onclick = () => {
+                advancedRow.classList.toggle("hidden");
+                btnToggleAdvanced.textContent = advancedRow.classList.contains("hidden") ? "Avanzado" : "Ocultar avanzado";
             };
         }
 
@@ -2394,7 +3368,143 @@ Batería segura" maxlength="400"></textarea>
             a.click();
         };
 
-        // (Botones viejos de generator removidos: guardar/cargar/limpiar/avanzado/offline)
+        // Guardar en navegador + también subir a Supabase
+        // Guardar en navegador + (opcional) subir a Supabase
+        btnSave.onclick = async () => {
+            const name = cleanStr(robot_nombre.value);
+            const compact = buildRobotObj();
+
+            // siempre guardado local
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
+
+            try {
+                if (!name) {
+                    alert("Guardado local. Para subir a Supabase, pon al menos el Nombre del robot.");
+                    return;
+                }
+
+                // ✅ Si vas a subir a Supabase, reserva ID real aquí
+                const realId = await reserveRobotIdReal();
+                if (!realId) return;
+
+                // reconstruye objeto para asegurar que i=ID real
+                const compact2 = buildRobotObj();
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(compact2));
+
+                const saved = await saveToSupabase(compact2);
+                addToMyList(saved.robot_id);
+
+                // ✅ siguiente PREVIEW (no consume)
+                await peekRobotId();
+
+                alert("Guardado (local + Supabase).");
+            } catch (e) {
+                console.error(e);
+                alert("Guardado local. Supabase falló: " + (e.message || e));
+            }
+        };
+
+        // Cargar guardado:
+        btnLoad.onclick = async () => {
+            const rid = cleanStr(robot_id.value);
+
+            if (rid) {
+                try {
+                    const rec = await loadFromSupabaseByRobotId(rid);
+                    const o = rec.data;
+
+                    robot_id.value = o.i || "";
+                    robot_nombre.value = o.n || "";
+                    categoria.value = o.c || "";
+                    equipo.value = o.t || "";
+                    try { await loadTeamsIntoSelect(); } catch(e) {}
+                    try {
+                        const want = slugifyJS(o.t || "");
+                        const opts = Array.from(teamSelect.options);
+                        const match = opts.find(op => slugifyJS(op.dataset?.teamName || op.textContent) === want);
+                        if (match) { teamSelect.value = match.value; teamSelect.dispatchEvent(new Event("change")); }
+                    } catch(e) {}
+
+                    try {
+                        const want = slugifyJS(o.t || "");
+                        const opts = Array.from(teamSelect.options);
+                        const match = opts.find(op => slugifyJS(op.dataset?.teamName || op.textContent) === want);
+                        if (match) { teamSelect.value = match.value; teamSelect.dispatchEvent(new Event("change")); }
+                    } catch(e) {}
+
+                    controlador.value = o.p || "";
+                    escuela.value = o.s || "";
+
+                    peso_g.value = (o.w ?? "");
+                    dimensiones_mm.value = o.d || "";
+                    tipo_control.value = o.y || "";
+                    frecuencia_protocolo.value = o.f || "";
+                    contacto.value = o.k || "";
+                    inspeccion_estado.value = o.a || "pendiente";
+                    inspeccion_checklist.value = (o.l || []).join("\n");
+                    foto_url.value = o.u || "";
+                    logo_url.value = o.g || "";
+
+                    renderPreviewFromCompact(o);
+
+                    lastPayloadType = "link";
+                    drawQR(rec.qr_link);
+
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(o));
+                    return;
+                } catch (e) {
+                    console.error(e);
+                    alert("No se pudo cargar desde Supabase: " + (e.message || e));
+                }
+            }
+
+            // fallback local
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) { alert("No hay guardado local. Escribe Robot ID y dale Cargar para Supabase."); return; }
+            const o = JSON.parse(raw);
+
+            robot_id.value = o.i || "";
+            robot_nombre.value = o.n || "";
+            categoria.value = o.c || "";
+            equipo.value = o.t || "";
+            controlador.value = o.p || "";
+            escuela.value = o.s || "";
+
+            peso_g.value = (o.w ?? "");
+            dimensiones_mm.value = o.d || "";
+            tipo_control.value = o.y || "";
+            frecuencia_protocolo.value = o.f || "";
+            contacto.value = o.k || "";
+            inspeccion_estado.value = o.a || "pendiente";
+            inspeccion_checklist.value = (o.l || []).join("\n");
+            foto_url.value = o.u || "";
+            logo_url.value = o.g || "";
+
+            renderPreviewFromCompact(o);
+            lastPayloadType = "link";
+            drawQR(payloadLink(o));
+        };
+
+        btnClear.onclick = () => {
+            ["robot_id", "robot_nombre", "equipo", "controlador", "escuela",
+                "peso_g", "dimensiones_mm", "frecuencia_protocolo", "contacto",
+                "inspeccion_checklist", "foto_url", "logo_url"
+            ].forEach(id => document.getElementById(id).value = "");
+
+            categoria.value = "";
+            tipo_control.value = "";
+            inspeccion_estado.value = "pendiente";
+
+            chipRow.innerHTML = "";
+            previewKV.innerHTML = "";
+            payloadPreview.textContent = "Payload (preview): —";
+
+            const ctx = qrCanvas.getContext("2d");
+            ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, qrCanvas.width, qrCanvas.height);
+
+            lastPayload = "";
+            lastPayloadType = "";
+        };
 
         /* =========================
            ✅ DASHBOARD / MINE UI EVENTS
@@ -2403,9 +3513,18 @@ Batería segura" maxlength="400"></textarea>
         goMine.onclick = () => location.hash = "#/mine";
         goTorneos.onclick = () => location.hash = "#/torneos";
         goTeams.onclick = () => location.hash = "#/teams";
+        openCalendarBig.onclick = () => location.hash = "#/calendar";
+        openTeamsBig.onclick = () => location.hash = "#/teams";
+        cardCalendar.onclick = () => location.hash = "#/calendar";
+        cardTeamsBig.onclick = () => location.hash = "#/teams";
         refreshDash.onclick = () => refreshDashboard().catch(console.error);
 
         backFromTeams.onclick = () => location.hash = "#/";
+        backFromCalendar.onclick = () => location.hash = "#/";
+        btnCalendarRefresh2.onclick = () => calendarLoadFromDB().catch(console.error);
+        const btnCalendarSmall = document.getElementById("btnCalendar");
+        if (btnCalendarSmall) btnCalendarSmall.onclick = () => location.hash = "#/calendar";
+
         refreshTeams.onclick = () => loadTeamsDirectory().catch(console.error);
         teamsSearch.oninput = () => loadTeamsDirectory().catch(console.error);
 
@@ -2413,6 +3532,9 @@ Batería segura" maxlength="400"></textarea>
         cardNew.onclick = () => location.hash = "#/new";
         cardMine.onclick = () => location.hash = "#/mine";
         cardTorneos.onclick = () => location.hash = "#/torneos";
+
+        cardCalendar.onclick = () => { location.hash = "#/calendar"; };
+        cardTeamsBig.onclick = () => location.hash = "#/teams";
 
         btnBackToDash.onclick = () => location.hash = "#/";
         document.getElementById("backFromTorneos").onclick = () => location.hash = "#/";
