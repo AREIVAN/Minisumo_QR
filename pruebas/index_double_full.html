@@ -4164,17 +4164,38 @@ function slotFromPlayer(p) {
             let VIEW_MODE = "organizer";
             let VIEW_STYLE = "columns";
 
-            function renderBracketColumns(bracket, mountId) {
+            
+function renderBracketColumns(bracket, mountId, opts = {}) {
                 const wrap = document.getElementById(mountId);
                 wrap.innerHTML = "";
                 if (!bracket) {
                     wrap.innerHTML = `<div class="round"><div class="roundTitle"><span>Vista</span><span class="chip">—</span></div><div class="match"><div class="hint">Genera para ver.</div></div></div>`;
                     return;
                 }
+
+                const roundTitleFn = opts.roundTitle || ((ri, b) => (ri === b.rounds.length - 1 ? "Final" : `Ronda ${ri + 1}`));
+                const getBracket = opts.getBracket || (() => {
+                    if (mountId === "finalBracket") return state.view?.finalBracket || null;
+                    // default single
+                    return state.view?.bracket || null;
+                });
+
+                const onInc = opts.onIncWin || ((side, ri, mi) => {
+                    const b = getBracket();
+                    if (!b) return;
+                    incWinBO3(b, ri, mi, side);
+                });
+
+                const onClear = opts.onClear || ((ri, mi) => {
+                    const b = getBracket();
+                    if (!b) return;
+                    clearMatchBO3(b, ri, mi);
+                });
+
                 bracket.rounds.forEach((matches, ri) => {
                     const roundEl = document.createElement("div");
                     roundEl.className = "round";
-                    const title = (ri === bracket.rounds.length - 1) ? "Final" : `Ronda ${ri + 1}`;
+                    const title = roundTitleFn(ri, bracket);
                     roundEl.innerHTML = `<div class="roundTitle"><span>${title}</span><span class="chip mono">${matches.length} matches</span></div>`;
 
                     matches.forEach((m, mi) => {
@@ -4184,9 +4205,9 @@ function slotFromPlayer(p) {
                         const bLine = `${[m.b.rid, m.b.team].filter(Boolean).join(" · ")}`;
                         const organizerControls = (VIEW_MODE === "organizer") ? `
                             <div class="btnRow" style="margin-top:10px">
-                                <button class="btn primary" data-wina="1" data-ri="${ri}" data-mi="${mi}" data-mount="${mountId}">+win A</button>
-                                <button class="btn primary" data-winb="1" data-ri="${ri}" data-mi="${mi}" data-mount="${mountId}">+win B</button>
-                                <button class="btn" data-clear="1" data-ri="${ri}" data-mi="${mi}" data-mount="${mountId}">Reset</button>
+                                <button type="button" class="btn primary" data-wina="1" data-ri="${ri}" data-mi="${mi}">+win A</button>
+                                <button type="button" class="btn primary" data-winb="1" data-ri="${ri}" data-mi="${mi}">+win B</button>
+                                <button type="button" class="btn" data-clear="1" data-ri="${ri}" data-mi="${mi}">Reset</button>
                             </div>` : ``;
                         matchEl.innerHTML = `
                             <div class="slot ${m.winner === "a" ? "win" : ""}">
@@ -4207,41 +4228,31 @@ function slotFromPlayer(p) {
                 if (VIEW_MODE === "organizer") {
                     wrap.querySelectorAll("[data-wina]").forEach(btn => {
                         btn.addEventListener("click", () => {
-                            const mount = btn.getAttribute("data-mount");
                             const ri = parseInt(btn.getAttribute("data-ri"), 10);
                             const mi = parseInt(btn.getAttribute("data-mi"), 10);
-                            const b = (mount === "finalBracket") ? state.view.finalBracket : state.view.bracket;
-                            if (!b) return;
-                            incWinBO3(b, ri, mi, "a");
+                            onInc("a", ri, mi);
                             renderCurrent();
                         });
                     });
                     wrap.querySelectorAll("[data-winb]").forEach(btn => {
                         btn.addEventListener("click", () => {
-                            const mount = btn.getAttribute("data-mount");
                             const ri = parseInt(btn.getAttribute("data-ri"), 10);
                             const mi = parseInt(btn.getAttribute("data-mi"), 10);
-                            const b = (mount === "finalBracket") ? state.view.finalBracket : state.view.bracket;
-                            if (!b) return;
-                            incWinBO3(b, ri, mi, "b");
+                            onInc("b", ri, mi);
                             renderCurrent();
                         });
                     });
                     wrap.querySelectorAll("[data-clear]").forEach(btn => {
                         btn.addEventListener("click", () => {
-                            const mount = btn.getAttribute("data-mount");
                             const ri = parseInt(btn.getAttribute("data-ri"), 10);
                             const mi = parseInt(btn.getAttribute("data-mi"), 10);
-                            const b = (mount === "finalBracket") ? state.view.finalBracket : state.view.bracket;
-                            if (!b) return;
-                            clearMatchBO3(b, ri, mi);
+                            onClear(ri, mi);
                             renderCurrent();
                         });
                     });
                 }
             }
-
-            function renderBracketMapSVG(bracket, mountEl) {
+function renderBracketMapSVG(bracket, mountEl) {
                 mountEl.innerHTML = "";
                 if (!bracket) { mountEl.innerHTML = `<div class="hint">Genera una llave para ver el mapa.</div>`; return; }
                 const colW = 320, rowH = 86, padX = 24, padY = 24;
@@ -4336,7 +4347,11 @@ function slotFromPlayer(p) {
                         T$("bracketArea").classList.add("hidden"); T$("mapWrap").classList.remove("hidden");
                         renderBracketMapSVG(b, T$("bracketMap"));
                     } else {
-                        T$("mapWrap").classList.add("hidden"); T$("bracketArea").classList.remove("hidden");
+                                        if (t === "double") {
+                    renderDoubleCurrent();
+                    return;
+                }
+T$("mapWrap").classList.add("hidden"); T$("bracketArea").classList.remove("hidden");
                         renderBracketColumns(b, "bracket");
                     }
                     return;
@@ -4370,30 +4385,248 @@ function slotFromPlayer(p) {
                         const line = document.createElement("div");
                         line.className = "groupLine";
                         line.innerHTML = `<b>${tEsc(info.name)}</b><span>${tEsc([info.rid, p.t || ""].filter(Boolean).join(" · "))}</span>`;
-                        card.appendChild(line);
-                    });
-                    grid.appendChild(card);
-                });
-            }
+                        card.appendC
+function buildDoubleStructure(players, N) {
+                // Winners bracket is a normal single-elim (BO3)
+                const winners = buildSingleBracketBO3(players, N);
+                const size = winners.size; // power of 2
+                const k = winners.rounds.length; // log2(size)
+                const lbRounds = 2 * (k - 1);
 
-            function buildDoubleStructure(players, N) {
-                const wb = buildSingleBracketBO3(players, N);
-                const size = wb.size;
-                const wbRounds = wb.rounds.length;
-                const lbRoundsCount = 2 * (wbRounds - 1);
-                const lb = {
+                // Losers bracket: round counts follow pattern [size/4, size/4, size/8, size/8, ...]
+                const losers = {
                     type: "losers",
-                    rounds: Array.from({ length: lbRoundsCount }, (_, i) => {
-                        const approxMatches = Math.max(1, Math.floor(size / Math.pow(2, Math.floor((i + 2) / 2) + 1)));
-                        return Array.from({ length: approxMatches }, (__, mi) => ({
-                            id: `L${i + 1}M${mi + 1}`, a: emptySlot(), b: emptySlot(), wa: 0, wb: 0, winner: null
+                    size,
+                    rounds: Array.from({ length: lbRounds }, (_, r) => {
+                        const matchesCount = Math.max(1, Math.floor(size / Math.pow(2, (Math.floor((r + 2) / 2) + 1))));
+                        return Array.from({ length: matchesCount }, (__, mi) => ({
+                            id: `L${r + 1}M${mi + 1}`, a: emptySlot(), b: emptySlot(), wa: 0, wb: 0, winner: null
                         }));
                     })
                 };
-                const gf = {
+
+                const grandFinal = {
                     type: "grand_final",
-                    rounds: [[{ id: "GF", a: { id: "", name: "Winners Champ", rid: "", team: "", compact: null, bye: false }, b: { id: "", name: "Losers Champ", rid: "", team: "", compact: null, bye: false }, wa: 0, wb: 0, winner: null }]]
+                    rounds: [[{
+                        id: "GF",
+                        a: emptySlot(), // Winners champ
+                        b: emptySlot(), // Losers champ
+                        wa: 0, wb: 0, winner: null
+                    }]]
                 };
+
+                // Precompute where each WB loser goes in LB.
+                // Rules (size is power-of-2):
+                // - WB R1 losers -> LB R1, paired in twos (M1/M2 -> LB M1 a/b, etc.)
+                // - WB Rr (r>=2) losers -> LB round (2r-2), same match index, slot 'a'
+                const wbToLb = winners.rounds.map((round, wbRi) => {
+                    return round.map((m, wbMi) => {
+                        if (wbRi === 0) {
+                            return { lbRi: 0, lbMi: Math.floor(wbMi / 2), side: (wbMi % 2 === 0 ? "a" : "b") };
+                        }
+                        return { lbRi: 2 * wbRi - 1, lbMi: wbMi, side: "a" }; // even-numbered LB rounds reserve 'a' for WB losers
+                    });
+                });
+
+                return { type: "double", winners, losers, grandFinal, links: { wbToLb } };
+            }
+
+            function loserOfMatch(m) {
+                if (m.winner === "a") return m.b;
+                if (m.winner === "b") return m.a;
+                return null;
+            }
+
+            function copySlot(s) {
+                return s ? { id: s.id, name: s.name, rid: s.rid, team: s.team, compact: s.compact || null, bye: !!s.bye } : emptySlot();
+            }
+
+            function clearDownstreamLB(dbl, fromLbRi, fromLbMi) {
+                const lb = dbl.losers;
+                for (let r = fromLbRi; r < lb.rounds.length; r++) {
+                    const round = lb.rounds[r];
+                    // mapping differs by round parity; to be safe, clear all rounds from r onward that could be affected:
+                    for (let mi = 0; mi < round.length; mi++) {
+                        // but don't clear the slot inputs of the first affected match (we want to keep its current a/b if upstream sets them)
+                        if (r === fromLbRi && mi !== fromLbMi) continue;
+                        round[mi].winner = null;
+                        round[mi].wa = 0;
+                        round[mi].wb = 0;
+                        // We do NOT clear a/b here (they are participant slots). Those are managed by upstream placement.
+                    }
+                }
+                // Clear GF participants too (they depend on champs)
+                dbl.grandFinal.rounds[0][0].a = emptySlot();
+                dbl.grandFinal.rounds[0][0].b = emptySlot();
+                dbl.grandFinal.rounds[0][0].wa = 0;
+                dbl.grandFinal.rounds[0][0].wb = 0;
+                dbl.grandFinal.rounds[0][0].winner = null;
+            }
+
+            function placeIntoLBFromWB(dbl, wbRi, wbMi) {
+                const map = dbl.links.wbToLb?.[wbRi]?.[wbMi];
+                if (!map) return;
+                const lb = dbl.losers;
+                const mW = dbl.winners.rounds[wbRi][wbMi];
+                const loser = loserOfMatch(mW);
+                const target = lb.rounds[map.lbRi]?.[map.lbMi];
+                if (!target) return;
+
+                // Put loser into target slot; if match not decided, clear that slot.
+                const slotVal = (loser && !isBye(loser)) ? copySlot(loser) : emptySlot();
+                target[map.side] = slotVal;
+
+                // If we changed participants, any existing result in that LB match becomes invalid.
+                target.winner = null; target.wa = 0; target.wb = 0;
+
+                // Also clear downstream from this LB match because it can affect later rounds.
+                clearDownstreamLB(dbl, map.lbRi, map.lbMi);
+            }
+
+            function advanceLBWinner(dbl, lbRi, lbMi) {
+                const lb = dbl.losers;
+                const m = lb.rounds[lbRi][lbMi];
+                const next = lb.rounds[lbRi + 1];
+                if (!next) return;
+
+                const winnerSlot = (m.winner === "a") ? m.a : (m.winner === "b" ? m.b : null);
+                const ws = (winnerSlot && !isBye(winnerSlot)) ? copySlot(winnerSlot) : emptySlot();
+
+                // LB advancement rules:
+                // lbRi even (LB round 1,3,5...) -> next round has SAME match count, winner goes to slot 'b'
+                // lbRi odd  (LB round 2,4,6...) -> next round has HALF match count, winner goes to (floor/2) and side by parity
+                if (lbRi % 2 === 0) {
+                    const tm = next[lbMi];
+                    if (!tm) return;
+                    tm.b = ws; // slot 'a' reserved for WB loser when applicable
+                    tm.winner = null; tm.wa = 0; tm.wb = 0;
+                    clearDownstreamLB(dbl, lbRi + 1, lbMi);
+                } else {
+                    const targetMatchIndex = Math.floor(lbMi / 2);
+                    const targetSide = (lbMi % 2 === 0) ? "a" : "b";
+                    const tm = next[targetMatchIndex];
+                    if (!tm) return;
+                    tm[targetSide] = ws;
+                    tm.winner = null; tm.wa = 0; tm.wb = 0;
+                    clearDownstreamLB(dbl, lbRi + 1, targetMatchIndex);
+                }
+            }
+
+            function setWinnerLB(dbl, lbRi, lbMi, side) {
+                const lb = dbl.losers;
+                const m = lb.rounds[lbRi][lbMi];
+                m.winner = side;
+
+                // If last LB round, push champ to GF
+                if (lbRi === lb.rounds.length - 1) {
+                    const champ = (side === "a") ? m.a : m.b;
+                    dbl.grandFinal.rounds[0][0].b = copySlot(champ);
+                    return;
+                }
+                advanceLBWinner(dbl, lbRi, lbMi);
+            }
+
+            function clearMatchLB(dbl, lbRi, lbMi) {
+                const lb = dbl.losers;
+                const m = lb.rounds[lbRi][lbMi];
+                m.winner = null; m.wa = 0; m.wb = 0;
+                // also clear the winner placement downstream
+                clearDownstreamLB(dbl, lbRi, lbMi);
+            }
+
+            function incWinLB(dbl, lbRi, lbMi, side) {
+                const lb = dbl.losers;
+                const m = lb.rounds[lbRi][lbMi];
+                if (side === "a") m.wa = clamp(m.wa + 1, 0, 2);
+                if (side === "b") m.wb = clamp(m.wb + 1, 0, 2);
+                if (m.wa >= 2) setWinnerLB(dbl, lbRi, lbMi, "a");
+                else if (m.wb >= 2) setWinnerLB(dbl, lbRi, lbMi, "b");
+            }
+
+            function onWBMatchResolved(dbl, wbRi, wbMi) {
+                // Place loser into LB
+                placeIntoLBFromWB(dbl, wbRi, wbMi);
+
+                // If WB final decided, push winner champ to GF
+                if (wbRi === dbl.winners.rounds.length - 1) {
+                    const m = dbl.winners.rounds[wbRi][wbMi];
+                    const champ = (m.winner === "a") ? m.a : (m.winner === "b" ? m.b : null);
+                    dbl.grandFinal.rounds[0][0].a = champ ? copySlot(champ) : emptySlot();
+                }
+            }
+
+            function incWinWB(dbl, wbRi, wbMi, side) {
+                incWinBO3(dbl.winners, wbRi, wbMi, side);
+                const m = dbl.winners.rounds[wbRi][wbMi];
+                if (m.winner) onWBMatchResolved(dbl, wbRi, wbMi);
+            }
+
+            function clearMatchWB(dbl, wbRi, wbMi) {
+                clearMatchBO3(dbl.winners, wbRi, wbMi);
+                // Clear LB slot fed by this WB match
+                const map = dbl.links.wbToLb?.[wbRi]?.[wbMi];
+                if (map) {
+                    const t = dbl.losers.rounds?.[map.lbRi]?.[map.lbMi];
+                    if (t) {
+                        t[map.side] = emptySlot();
+                        t.winner = null; t.wa = 0; t.wb = 0;
+                        clearDownstreamLB(dbl, map.lbRi, map.lbMi);
+                    }
+                }
+                // Clear GF winners champ if final was affected
+                if (wbRi === dbl.winners.rounds.length - 1) {
+                    dbl.grandFinal.rounds[0][0].a = emptySlot();
+                    dbl.grandFinal.rounds[0][0].wa = 0;
+                    dbl.grandFinal.rounds[0][0].wb = 0;
+                    dbl.grandFinal.rounds[0][0].winner = null;
+                }
+            }
+
+            function renderDoubleCurrent() {
+                const dbl = state.view?.dbl;
+                if (!dbl) {
+                    renderBracketColumns(null, "bracket");
+                    return;
+                }
+
+                // Ensure container exists
+                const mount = T$("bracket");
+                if (!T$("winnersBracket")) {
+                    mount.innerHTML = `
+                        <div class="round"><div class="roundTitle"><span>Winners Bracket</span><span class="chip mono">WB</span></div></div>
+                        <div id="winnersBracket"></div>
+                        <div class="round" style="margin-top:14px"><div class="roundTitle"><span>Losers Bracket</span><span class="chip mono">LB</span></div></div>
+                        <div id="losersBracket"></div>
+                        <div class="round" style="margin-top:14px"><div class="roundTitle"><span>Grand Final</span><span class="chip mono">GF</span></div></div>
+                        <div id="gfBracket"></div>
+                    `;
+                }
+
+                renderBracketColumns(dbl.winners, "winnersBracket", {
+                    getBracket: () => dbl.winners,
+                    onIncWin: (side, ri, mi) => incWinWB(dbl, ri, mi, side),
+                    onClear: (ri, mi) => clearMatchWB(dbl, ri, mi),
+                    roundTitle: (ri, b) => (ri === b.rounds.length - 1 ? "WB Final" : `WB R${ri + 1}`)
+                });
+
+                renderBracketColumns(dbl.losers, "losersBracket", {
+                    getBracket: () => dbl.losers,
+                    onIncWin: (side, ri, mi) => incWinLB(dbl, ri, mi, side),
+                    onClear: (ri, mi) => clearMatchLB(dbl, ri, mi),
+                    roundTitle: (ri, b) => `LB R${ri + 1}`
+                });
+
+                renderBracketColumns(dbl.grandFinal, "gfBracket", {
+                    getBracket: () => dbl.grandFinal,
+                    onIncWin: (side, ri, mi) => incWinBO3(dbl.grandFinal, ri, mi, side),
+                    onClear: (ri, mi) => clearMatchBO3(dbl.grandFinal, ri, mi),
+                    roundTitle: () => "Grand Final"
+                });
+
+                T$("mapWrap").classList.add("hidden"); 
+                T$("bracketArea").classList.remove("hidden");
+            }
+             };
                 return { type: "double", winners: wb, losers: lb, grandFinal: gf };
             }
 
@@ -4470,22 +4703,15 @@ function slotFromPlayer(p) {
                 }
                 if (fmt === "double") {
                     const dbl = buildDoubleStructure(state.players, N);
+                    autoAdvanceByesBO3(dbl.winners);
+                    // After auto-advance, push any decided WB losers into LB (usually BYEs -> empty)
+                    for (let r = 0; r < dbl.winners.rounds.length; r++) {
+                        for (let mi = 0; mi < dbl.winners.rounds[r].length; mi++) {
+                            if (dbl.winners.rounds[r][mi].winner) onWBMatchResolved(dbl, r, mi);
+                        }
+                    }
                     state.view = { type: "double", dbl };
-                    const mount = T$("bracket");
-                    mount.innerHTML = "";
-                    const wl = document.createElement("div"); wl.className = "round";
-                    wl.innerHTML = `<div class="roundTitle"><span>Winners Bracket</span><span class="chip mono">${dbl.winners.size}</span></div>`;
-                    mount.appendChild(wl);
-                    renderBracketInlineBO3(dbl.winners, mount);
-                    const ll = document.createElement("div"); ll.className = "round";
-                    ll.innerHTML = `<div class="roundTitle"><span>Losers Bracket</span><span class="chip mono">${dbl.losers.rounds.length} rounds</span></div><div class="match"><div class="hint">Estructura demo: falta conectar derrotados → LB.</div></div>`;
-                    mount.appendChild(ll);
-                    renderBracketInlineBO3(dbl.losers, mount);
-                    const gfl = document.createElement("div"); gfl.className = "round";
-                    gfl.innerHTML = `<div class="roundTitle"><span>Grand Final</span><span class="chip mono">GF</span></div>`;
-                    mount.appendChild(gfl);
-                    renderBracketInlineBO3(dbl.grandFinal, mount);
-                    T$("mapWrap").classList.add("hidden"); T$("bracketArea").classList.remove("hidden");
+                    renderCurrent();
                 }
                 } catch (e) {
                     console.error(e);
