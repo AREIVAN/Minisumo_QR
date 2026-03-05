@@ -751,249 +751,6 @@
                 grid-template-columns: 1fr
             }
         }
-
-        /* ============================
-           TOAST NOTIFICATIONS
-           ============================ */
-        .toast-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column-reverse;
-            gap: 10px;
-            pointer-events: none;
-        }
-
-        .toast {
-            pointer-events: auto;
-            min-width: 260px;
-            max-width: 400px;
-            padding: 14px 18px;
-            border-radius: 16px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text);
-            border: 1px solid rgba(122, 63, 255, .35);
-            background: linear-gradient(180deg, rgba(11, 16, 32, .96), rgba(12, 20, 42, .92));
-            box-shadow: 0 12px 40px rgba(0, 0, 0, .5);
-            animation: toastIn .3s ease;
-            backdrop-filter: blur(12px);
-        }
-
-        .toast.success { border-color: rgba(47, 230, 255, .55); }
-        .toast.error { border-color: rgba(255, 46, 136, .55); }
-        .toast.warn { border-color: rgba(255, 176, 32, .55); }
-
-        @keyframes toastIn {
-            from { opacity: 0; transform: translateY(20px) scale(.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        @keyframes toastOut {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(20px); }
-        }
-
-        /* ============================
-           RANKING TABLE
-           ============================ */
-        .rankTable {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-
-        .rankTable th {
-            text-align: left;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: .6px;
-            color: rgba(234, 240, 255, .55);
-            padding: 10px 12px;
-            border-bottom: 1px solid rgba(122, 63, 255, .22);
-        }
-
-        .rankTable td {
-            padding: 10px 12px;
-            border-bottom: 1px solid rgba(122, 63, 255, .10);
-        }
-
-        .rankTable tr:hover td {
-            background: rgba(122, 63, 255, .05);
-        }
-
-        .rankTable .pos {
-            font-weight: 900;
-            color: var(--neon2);
-            width: 40px;
-        }
-
-        .rankTable .elo {
-            font-weight: 800;
-            color: var(--neon);
-        }
-
-        /* ============================
-           MODAL / OVERLAY
-           ============================ */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, .65);
-            backdrop-filter: blur(6px);
-            z-index: 9000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn .2s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-box {
-            background: linear-gradient(180deg, rgba(11, 16, 32, .98), rgba(12, 20, 42, .95));
-            border: 1px solid rgba(122, 63, 255, .45);
-            border-radius: 22px;
-            padding: 24px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
-        }
-
-        .modal-box h3 {
-            margin: 0 0 12px;
-            font-size: 18px;
-        }
-
-        .modal-box .modal-body {
-            margin-bottom: 16px;
-            color: var(--muted);
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .modal-box .modal-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        /* ============================
-           HISTORY TIMELINE
-           ============================ */
-        .timeline {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-            padding-left: 20px;
-            border-left: 2px solid rgba(122, 63, 255, .25);
-        }
-
-        .timeline-item {
-            position: relative;
-            padding: 10px 0 10px 16px;
-        }
-
-        .timeline-item::before {
-            content: "";
-            position: absolute;
-            left: -7px;
-            top: 14px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--neon);
-            border: 2px solid var(--panel);
-        }
-
-        .timeline-item .t-title {
-            font-weight: 800;
-            font-size: 13px;
-        }
-
-        .timeline-item .t-sub {
-            font-size: 12px;
-            color: var(--muted);
-        }
-
-        .timeline-item .t-result {
-            font-size: 12px;
-            margin-top: 4px;
-        }
-
-        .timeline-item .t-result .chip {
-            display: inline-block;
-            font-size: 11px;
-            padding: 4px 8px;
-        }
-
-        /* ============================
-           CHECK-IN BADGE
-           ============================ */
-        .checkin-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .checkin-badge.checked {
-            border: 1px solid rgba(47, 230, 255, .5);
-            background: rgba(47, 230, 255, .10);
-            color: var(--good);
-        }
-
-        .checkin-badge.pending {
-            border: 1px solid rgba(255, 176, 32, .5);
-            background: rgba(255, 176, 32, .10);
-            color: var(--warn);
-        }
-
-        /* ============================
-           SHARE LINK BOX
-           ============================ */
-        .share-box {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 14px;
-            border-radius: 14px;
-            border: 1px solid rgba(47, 230, 255, .22);
-            background: rgba(7, 10, 16, .35);
-            margin-top: 10px;
-        }
-
-        .share-box input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            color: var(--text);
-            font-size: 12px;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            outline: none;
-        }
-
-        /* ============================
-           EXPORT / MISC
-           ============================ */
-        .btn.small {
-            padding: 6px 10px;
-            font-size: 12px;
-            border-radius: 10px;
-        }
-
-        .btn.success {
-            border-color: rgba(47, 230, 255, .45);
-            background: rgba(47, 230, 255, .10);
-        }
     </style>
 </head>
 
@@ -1180,12 +937,6 @@
                     </div>
                     <div class="btnRow">
                         <button class="btn" id="btnBackToDash">Volver</button>
-                        <button class="btn primary" id="btnGenLink">Generar QR</button>
-                        <button class="btn" id="btnToggleAdvanced">Avanzado</button>
-                    </div>
-
-                    <div class="btnRow hidden" id="advancedRow" style="margin-top:10px">
-                        <button class="btn" id="btnGenOffline">Generar QR (offline)</button>
                     </div>
                 </div>
 
@@ -1216,38 +967,44 @@
                             </select>
                         </div>
                         <div>
-  <div class="labelRow">
-    <label style="margin:0">Equipo</label>
-    <span class="counter" id="cnt_equipo">0/24</span>
-  </div>
+                            <div class="labelRow">
+                                <label style="margin:0">Equipo</label>
+                                <span class="counter" id="cnt_equipo">0/24</span>
+                            </div>
 
-  <div style="display:flex; gap:8px; align-items:center;">
-    <select id="teamSelect" style="flex:1; padding:12px 14px; border-radius:14px; border:1px solid rgba(122, 63, 255, .55); background:rgba(11,16,32,.7); color:var(--text); outline:none;">
-      <option value="">Cargando equipos…</option>
-    </select>
-    <button class="btn" type="button" id="createTeamBtn" title="Crear equipo nuevo">Crear</button>
-  </div>
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <select id="teamSelect"
+                                    style="flex:1; padding:12px 14px; border-radius:14px; border:1px solid rgba(122, 63, 255, .55); background:rgba(11,16,32,.7); color:var(--text); outline:none;">
+                                    <option value="">Cargando equipos…</option>
+                                </select>
+                                <button class="btn" type="button" id="createTeamBtn"
+                                    title="Crear equipo nuevo">Crear</button>
+                            </div>
 
-  <!-- Mantengo este input (oculto) por compatibilidad con el viewer y torneos legacy -->
-  <input id="equipo" type="hidden" maxlength="24" />
+                            <!-- Mantengo este input (oculto) por compatibilidad con el viewer y torneos legacy -->
+                            <input id="equipo" type="hidden" maxlength="24" />
 
-  <div id="teamCreateBox" style="display:none; margin-top:10px; padding:12px; border:1px solid rgba(122, 63, 255, .55); border-radius:14px; background:rgba(12,20,42,.55);">
-    <div class="labelRow"><label style="margin:0">Nombre del equipo</label><span class="counter" id="cnt_teamNameNew">0/32</span></div>
-    <input id="teamNameNew" placeholder="Ej. RoboDragons" maxlength="32" />
+                            <div id="teamCreateBox"
+                                style="display:none; margin-top:10px; padding:12px; border:1px solid rgba(122, 63, 255, .55); border-radius:14px; background:rgba(12,20,42,.55);">
+                                <div class="labelRow"><label style="margin:0">Nombre del equipo</label><span
+                                        class="counter" id="cnt_teamNameNew">0/32</span></div>
+                                <input id="teamNameNew" placeholder="Ej. RoboDragons" maxlength="32" />
 
-    <div style="height:10px;"></div>
+                                <div style="height:10px;"></div>
 
-    <div class="labelRow"><label style="margin:0">Escuela</label><span class="counter" id="cnt_teamSchoolNew">0/48</span></div>
-    <input id="teamSchoolNew" placeholder="Ej. IPN ESIME" maxlength="48" />
+                                <div class="labelRow"><label style="margin:0">Escuela</label><span class="counter"
+                                        id="cnt_teamSchoolNew">0/48</span></div>
+                                <input id="teamSchoolNew" placeholder="Ej. IPN ESIME" maxlength="48" />
 
-    <div class="btnRow" style="margin-top:12px;">
-      <button class="btn primary" type="button" id="teamCreateConfirm">Guardar equipo</button>
-      <button class="btn" type="button" id="teamCreateCancel">Cancelar</button>
-    </div>
-  </div>
+                                <div class="btnRow" style="margin-top:12px;">
+                                    <button class="btn primary" type="button" id="teamCreateConfirm">Guardar
+                                        equipo</button>
+                                    <button class="btn" type="button" id="teamCreateCancel">Cancelar</button>
+                                </div>
+                            </div>
 
-  <div id="teamRobotsBox" style="margin-top:10px;"></div>
-</div>
+                            <div id="teamRobotsBox" style="margin-top:10px;"></div>
+                        </div>
 
                         <div>
                             <div class="labelRow"><label style="margin:0">Controlador / Piloto</label><span
@@ -1324,17 +1081,12 @@ Batería segura" maxlength="400"></textarea>
                     </div>
 
                     <div class="btnRow" style="margin-top:12px">
-                        <button class="btn" id="btnSave">Guardar en este navegador</button>
-                        <button class="btn" id="btnLoad">Cargar guardado</button>
-                        <button class="btn hot" id="btnClear">Limpiar</button>
+                        <button class="btn primary" id="btnSaveRecord"
+                            style="width:100%; justify-content:center;">Guardar registro</button>
                     </div>
 
                     <div class="hint">
-                        Nota: el modo <b>link</b> genera un QR que abre una credencial visual. (El modo <b>offline</b>
-                        está en Avanzado)
-                        un QR que abre una credencial visual.
-                        <br><br>
-                        ✅ Con Supabase: al generar/guardar, también se sube a la base de datos.
+                        Nota: al guardar, se genera el QR (link) y se sube a Supabase.
                     </div>
                 </div>
             </section>
@@ -1436,19 +1188,6 @@ Batería segura" maxlength="400"></textarea>
                         </div>
                     </div>
                 </div>
-
-                <!-- Historial de torneos del robot -->
-                <div class="sectionTitle" style="margin-top:18px">Historial de torneos</div>
-                <div id="v_history" class="timeline">
-                    <div class="timeline-item"><div class="t-sub">Cargando historial…</div></div>
-                </div>
-
-                <!-- Botones extra del viewer -->
-                <div style="margin-top:18px; display:flex; gap:10px; flex-wrap:wrap;">
-                    <button class="btn small" id="v_btnEdit" title="Editar este robot">✏️ Editar</button>
-                    <button class="btn small hot" id="v_btnReport" title="Reportar contenido inadecuado">🚩 Reportar</button>
-                    <button class="btn small success" id="v_btnShareProfile" title="Copiar link público">🔗 Compartir perfil</button>
-                </div>
             </div>
         </section>
 
@@ -1467,16 +1206,63 @@ Batería segura" maxlength="400"></textarea>
                     <button class="btn" id="backFromTorneos">Volver</button>
                     <button class="btn" id="btnNew">Nuevo</button>
                     <button class="btn primary" id="btnSaveLocal">Guardar local</button>
-                    <button class="btn primary" id="btnSaveSupabase" title="Guardar torneo en Supabase">💾 Guardar DB</button>
                     <button class="btn" id="btnLoadLocal">Abrir local</button>
-                    <button class="btn" id="btnLoadSupabase" title="Cargar torneos de Supabase">📂 Abrir DB</button>
-                    <button class="btn success" id="btnShareTorneo" title="Compartir link espectador">🔗 Compartir</button>
-                    <button class="btn" id="btnExportBracketCSV" title="Exportar bracket CSV">⬇ CSV</button>
+                    <button class="btn" id="btnCalendar">Calendario</button>
                     <button class="btn hot" id="btnReset">Reset</button>
                 </div>
             </div>
 
             <div class="content">
+                <!-- ✅ CALENDARIO TORNEOS (DB) -->
+                <div id="tCalendar" class="panel2 hidden" style="padding:14px; margin-bottom:12px; border-radius:18px; border:1px solid rgba(47,230,255,.18); background:rgba(7,10,16,.22);">
+                    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+                        <div>
+                            <div style="font-size:16px; font-weight:900;">Calendario de torneos</div>
+                            <div class="muted" style="font-size:12px; margin-top:4px;">Torneos guardados en Supabase: próximos y anteriores. Click para ver detalles.</div>
+                        </div>
+                        <div class="btnRow">
+                            <button class="btn" id="btnCalendarRefresh">Actualizar</button>
+                            <button class="btn" id="btnCalendarClose">Cerrar</button>
+                        </div>
+                    </div>
+
+                    <div style="height:12px;"></div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                        <div class="panel2" style="padding:12px; border-radius:16px; border:1px solid rgba(122,63,255,.22); background:rgba(0,0,0,.12);">
+                            <div class="labelRow">
+                                <label style="margin:0">Próximos</label>
+                                <span class="muted" id="tUpcomingCount"></span>
+                            </div>
+                            <div style="height:8px;"></div>
+                            <div id="tUpcomingList" style="display:flex; flex-direction:column; gap:8px;"></div>
+                        </div>
+
+                        <div class="panel2" style="padding:12px; border-radius:16px; border:1px solid rgba(122,63,255,.22); background:rgba(0,0,0,.12);">
+                            <div class="labelRow">
+                                <label style="margin:0">Anteriores</label>
+                                <span class="muted" id="tPastCount"></span>
+                            </div>
+                            <div style="height:8px;"></div>
+                            <div id="tPastList" style="display:flex; flex-direction:column; gap:8px;"></div>
+                        </div>
+                    </div>
+
+                    <div style="height:12px;"></div>
+
+                    <div class="panel2" style="padding:12px; border-radius:16px; border:1px solid rgba(47,230,255,.18); background:rgba(7,10,16,.18);">
+                        <div class="labelRow">
+                            <label style="margin:0">Detalle / Blog</label>
+                            <span class="muted" id="tDetailHint">Selecciona un torneo.</span>
+                        </div>
+                        <div style="height:8px;"></div>
+                        <div id="tDetail" class="muted">—</div>
+                        <div class="hint" style="margin-top:10px">
+                            Notificaciones: sin Service Worker, los recordatorios solo pueden dispararse mientras tengas la página abierta.
+                        </div>
+                    </div>
+                </div>
+
                 <div class="grid">
 
                     <!-- LEFT -->
@@ -1549,8 +1335,6 @@ Batería segura" maxlength="400"></textarea>
                                     <div class="btnRow">
                                         <button class="btn primary" id="btnSearch">Buscar</button>
                                         <button class="btn" id="btnClearSearch">Limpiar</button>
-                                        <button class="btn success" id="btnBulkAddTeam" title="Agregar todos los robots de un equipo">+ Equipo completo</button>
-                                        <button class="btn" id="btnCheckInAll" title="Marcar check-in de todos los participantes">✅ Check-in</button>
                                     </div>
                                 </div>
                             </div>
@@ -1644,487 +1428,6 @@ Batería segura" maxlength="400"></textarea>
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const TABLE = "robot_cards";
-
-        /* =========================================================
-           ✅ OWNER TOKEN (SIN LOGIN)
-           Permite identificar al creador de robots/torneos
-           desde un mismo navegador sin requerir auth.
-           ========================================================= */
-        function getOwnerToken() {
-            let token = localStorage.getItem("apex_owner_token");
-            if (!token) {
-                token = crypto.randomUUID();
-                localStorage.setItem("apex_owner_token", token);
-            }
-            return token;
-        }
-        const OWNER_TOKEN = getOwnerToken();
-
-        /* =========================================================
-           ✅ TOAST NOTIFICATIONS (reemplazo de alerts)
-           ========================================================= */
-        function toast(msg, type = "info", duration = 3200) {
-            const container = document.getElementById("toastContainer");
-            if (!container) { console.warn("toast:", msg); return; }
-            const el = document.createElement("div");
-            el.className = "toast " + (type || "");
-            el.textContent = msg;
-            container.appendChild(el);
-            setTimeout(() => {
-                el.style.animation = "toastOut .3s ease forwards";
-                setTimeout(() => el.remove(), 350);
-            }, duration);
-        }
-
-        /* =========================================================
-           ✅ VERIFICACIÓN DE DUPLICADOS
-           Busca si ya existe un robot con mismo nombre + equipo
-           ========================================================= */
-        async function checkDuplicate(name, team) {
-            if (!name) return null;
-            try {
-                const { data, error } = await supabaseClient
-                    .from(TABLE)
-                    .select("robot_id, data")
-                    .limit(100);
-                if (error || !data) return null;
-                const nn = (name || "").trim().toLowerCase();
-                const tt = (team || "").trim().toLowerCase();
-                return data.find(r => {
-                    const rn = (r?.data?.n || "").toLowerCase();
-                    const rt = (r?.data?.t || "").toLowerCase();
-                    return rn === nn && rt === tt;
-                }) || null;
-            } catch (_) { return null; }
-        }
-
-        /* =========================================================
-           ✅ EXPORT CSV
-           Genera y descarga un CSV desde un array de objetos
-           ========================================================= */
-        function downloadCSV(filename, rows, columns) {
-            if (!rows.length) { toast("No hay datos para exportar.", "warn"); return; }
-            const header = columns.map(c => c.label).join(",");
-            const lines = rows.map(r =>
-                columns.map(c => {
-                    let val = typeof c.fn === "function" ? c.fn(r) : (r[c.key] ?? "");
-                    val = String(val).replace(/"/g, '""');
-                    return `"${val}"`;
-                }).join(",")
-            );
-            const csv = [header, ...lines].join("\n");
-            const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-            const a = document.createElement("a");
-            a.href = URL.createObjectURL(blob);
-            a.download = filename;
-            a.click();
-            URL.revokeObjectURL(a.href);
-            toast("CSV descargado: " + filename, "success");
-        }
-
-        /* =========================================================
-           ✅ RANKING / ELO (básico, calculado en cliente)
-           Cada victoria = +25, derrota = -15. Base = 1000.
-           ========================================================= */
-        async function computeRanking() {
-            try {
-                const { data: matches } = await supabaseClient
-                    .from("tournament_matches")
-                    .select("a_robot_id, b_robot_id, winner_robot_id, wa, wb")
-                    .not("winner_robot_id", "is", null);
-
-                if (!matches || !matches.length) return [];
-
-                const elo = {};
-                const stats = {};
-
-                for (const m of matches) {
-                    const a = m.a_robot_id, b = m.b_robot_id, w = m.winner_robot_id;
-                    if (!a || !b || !w) continue;
-                    if (!elo[a]) { elo[a] = 1000; stats[a] = { w: 0, l: 0, matches: 0 }; }
-                    if (!elo[b]) { elo[b] = 1000; stats[b] = { w: 0, l: 0, matches: 0 }; }
-                    stats[a].matches++; stats[b].matches++;
-                    if (w === a) {
-                        elo[a] += 25; elo[b] -= 15;
-                        stats[a].w++; stats[b].l++;
-                    } else {
-                        elo[b] += 25; elo[a] -= 15;
-                        stats[b].w++; stats[a].l++;
-                    }
-                }
-
-                // Enrich with robot names
-                const robotIds = Object.keys(elo);
-                if (!robotIds.length) return [];
-
-                const { data: cards } = await supabaseClient
-                    .from(TABLE)
-                    .select("robot_id, data")
-                    .in("robot_id", robotIds);
-
-                const nameMap = {};
-                (cards || []).forEach(c => {
-                    nameMap[c.robot_id] = c?.data?.n || c.robot_id;
-                });
-
-                return robotIds.map(id => ({
-                    robot_id: id,
-                    name: nameMap[id] || id,
-                    elo: Math.max(0, elo[id]),
-                    wins: stats[id].w,
-                    losses: stats[id].l,
-                    matches: stats[id].matches,
-                })).sort((a, b) => b.elo - a.elo);
-            } catch (e) {
-                console.warn("Ranking error:", e);
-                return [];
-            }
-        }
-
-        /* =========================================================
-           ✅ HISTORIAL DE ROBOT (torneos en los que participó)
-           ========================================================= */
-        async function loadRobotHistory(robotId) {
-            try {
-                const { data: participations } = await supabaseClient
-                    .from("tournament_players")
-                    .select("tournament_id, seed, team, compact")
-                    .eq("robot_id", robotId);
-
-                if (!participations || !participations.length) return [];
-
-                const tournamentIds = [...new Set(participations.map(p => p.tournament_id))];
-                const { data: tournaments } = await supabaseClient
-                    .from("tournaments")
-                    .select("id, name, category, venue, event_date, format")
-                    .in("id", tournamentIds);
-
-                const tMap = {};
-                (tournaments || []).forEach(t => { tMap[t.id] = t; });
-
-                // Get match results for this robot
-                const { data: matches } = await supabaseClient
-                    .from("tournament_matches")
-                    .select("tournament_id, winner_robot_id, a_robot_id, b_robot_id, wa, wb")
-                    .or(`a_robot_id.eq.${robotId},b_robot_id.eq.${robotId}`);
-
-                const matchesByTournament = {};
-                (matches || []).forEach(m => {
-                    if (!matchesByTournament[m.tournament_id]) matchesByTournament[m.tournament_id] = [];
-                    matchesByTournament[m.tournament_id].push(m);
-                });
-
-                return participations.map(p => {
-                    const t = tMap[p.tournament_id] || {};
-                    const tm = matchesByTournament[p.tournament_id] || [];
-                    const wins = tm.filter(m => m.winner_robot_id === robotId).length;
-                    const losses = tm.filter(m => m.winner_robot_id && m.winner_robot_id !== robotId).length;
-                    return {
-                        tournament_name: t.name || "Torneo",
-                        category: t.category || "—",
-                        venue: t.venue || "",
-                        event_date: t.event_date || "",
-                        format: t.format || "",
-                        seed: p.seed,
-                        wins,
-                        losses,
-                        total: tm.length,
-                    };
-                });
-            } catch (e) {
-                console.warn("History error:", e);
-                return [];
-            }
-        }
-
-        /* =========================================================
-           ✅ TOURNAMENT SUPABASE CRUD
-           ========================================================= */
-        async function saveTournamentToSupabase(state) {
-            const t = state.tournament;
-            if (!t.name) throw new Error("El torneo necesita un nombre.");
-
-            const slug = slugifyJS(t.name) + "-" + Date.now().toString(36);
-            const spectatorToken = crypto.randomUUID();
-            const organizerKey = crypto.randomUUID();
-
-            // Hash tokens (simple sha256-like via SubtleCrypto)
-            async function simpleHash(str) {
-                const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
-                return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
-            }
-
-            const specHash = await simpleHash(spectatorToken);
-            const orgHash = await simpleHash(organizerKey);
-
-            const tournamentRow = {
-                name: t.name,
-                category: t.category || "Mini Sumo Autónomo Profesional",
-                venue: t.venue || "",
-                event_date: t.date || null,
-                format: t.format || "single",
-                n: t.n || 8,
-                groups: t.groups || 4,
-                adv: t.adv || 2,
-                visibility: "public",
-                public_slug: slug,
-                spectator_token_hash: specHash,
-                organizer_key_hash: orgHash,
-                snapshot: {
-                    players: state.players || [],
-                    view: state.view || null,
-                },
-            };
-
-            const { data, error } = await supabaseClient
-                .from("tournaments")
-                .insert(tournamentRow)
-                .select("id, public_slug")
-                .single();
-
-            if (error) throw error;
-
-            // Save players
-            if (state.players && state.players.length) {
-                const playerRows = state.players.map((p, idx) => ({
-                    tournament_id: data.id,
-                    robot_id: p.i || "",
-                    compact: p,
-                    seed: idx + 1,
-                    team: p.t || "",
-                }));
-
-                const { error: pErr } = await supabaseClient
-                    .from("tournament_players")
-                    .insert(playerRows);
-                if (pErr) console.warn("Error guardando jugadores:", pErr);
-            }
-
-            // Save matches from bracket view
-            if (state.view?.bracket?.rounds) {
-                const matchRows = [];
-                state.view.bracket.rounds.forEach((round, ri) => {
-                    round.forEach((m, mi) => {
-                        matchRows.push({
-                            tournament_id: data.id,
-                            bracket: "W",
-                            round: ri + 1,
-                            match_no: mi + 1,
-                            a_robot_id: m.a?.rid || null,
-                            b_robot_id: m.b?.rid || null,
-                            wa: m.wa || 0,
-                            wb: m.wb || 0,
-                            winner_robot_id: m.winner === "a" ? (m.a?.rid || null) : (m.winner === "b" ? (m.b?.rid || null) : null),
-                            meta: { a_name: m.a?.name, b_name: m.b?.name },
-                        });
-                    });
-                });
-                if (matchRows.length) {
-                    const { error: mErr } = await supabaseClient
-                        .from("tournament_matches")
-                        .insert(matchRows);
-                    if (mErr) console.warn("Error guardando matches:", mErr);
-                }
-            }
-
-            return {
-                id: data.id,
-                slug: data.public_slug,
-                spectatorToken,
-                organizerKey,
-            };
-        }
-
-        async function loadTournamentsFromSupabase() {
-            const { data, error } = await supabaseClient
-                .from("tournaments")
-                .select("id, name, category, venue, event_date, format, n, public_slug, created_at")
-                .order("created_at", { ascending: false })
-                .limit(30);
-            if (error) throw error;
-            return data || [];
-        }
-
-        async function loadTournamentBySlug(slug) {
-            const { data, error } = await supabaseClient
-                .from("tournaments")
-                .select("*")
-                .eq("public_slug", slug)
-                .single();
-            if (error) throw error;
-            return data;
-        }
-
-        async function loadTournamentById(id) {
-            const { data, error } = await supabaseClient
-                .from("tournaments")
-                .select("*")
-                .eq("id", id)
-                .single();
-            if (error) throw error;
-            return data;
-        }
-
-        /* =========================================================
-           ✅ REPORT SYSTEM
-           Guarda reportes en una tabla auxiliar (o log local
-           si la tabla no existe aún).
-           ========================================================= */
-        let currentViewerRobotId = "";
-
-        async function submitReport(robotId, reason, comment) {
-            if (!reason) { toast("Selecciona un motivo.", "warn"); return false; }
-            try {
-                // Intenta guardar en Supabase (si existe tabla reports)
-                const reportRow = {
-                    robot_id: robotId,
-                    reason,
-                    comment: (comment || "").trim(),
-                    reporter_token: OWNER_TOKEN,
-                    created_at: new Date().toISOString(),
-                };
-
-                // Si no existe tabla 'reports', esto fallará silenciosamente
-                // y se guardará en localStorage como fallback
-                try {
-                    await supabaseClient.from("reports").insert(reportRow);
-                } catch (_) {
-                    const reports = JSON.parse(localStorage.getItem("apex_reports") || "[]");
-                    reports.push(reportRow);
-                    localStorage.setItem("apex_reports", JSON.stringify(reports));
-                }
-
-                toast("Reporte enviado. Gracias por ayudar.", "success");
-                return true;
-            } catch (e) {
-                toast("Error al enviar reporte: " + (e.message || e), "error");
-                return false;
-            }
-        }
-
-        /* =========================================================
-           ✅ SLUG COLLISION HANDLING
-           ========================================================= */
-        async function createTeamSafe(name, school) {
-            let slug = slugifyJS(name);
-            if (!slug) throw new Error("Nombre inválido para slug.");
-
-            // Check if slug exists
-            const { data: existing } = await supabaseClient
-                .from("teams")
-                .select("id")
-                .eq("slug", slug)
-                .limit(1);
-
-            if (existing && existing.length > 0) {
-                slug = slug + "-" + Date.now().toString(36);
-            }
-
-            const payload = {
-                name: (name || "").trim(),
-                school: (school || "").trim(),
-                slug,
-            };
-            if (!payload.name) throw new Error("Nombre de equipo requerido.");
-
-            const { data, error } = await supabaseClient
-                .from("teams")
-                .insert(payload)
-                .select("id,name,school,slug")
-                .single();
-            if (error) throw error;
-            return data;
-        }
-
-        /* =========================================================
-           ✅ DOM ELEMENTS - Referencias globales
-           ========================================================= */
-        const dashboard = document.getElementById("dashboard");
-        const generator = document.getElementById("generator");
-        const viewer = document.getElementById("viewer");
-        const minePanel = document.getElementById("minePanel");
-        const teamsPanel = document.getElementById("teamsPanel");
-        const modeBadge = document.getElementById("modeBadge");
-        const miniStatus = document.getElementById("miniStatus");
-
-        // Generator elements
-        const robot_id = document.getElementById("robot_id");
-        const robot_nombre = document.getElementById("robot_nombre");
-        const robot_categoria = document.getElementById("robot_categoria");
-        const tipo_control = document.getElementById("tipo_control");
-        const equipo = document.getElementById("equipo");
-        const controlador = document.getElementById("controlador");
-        const escuela = document.getElementById("escuela");
-        const peso_g = document.getElementById("peso_g");
-        const dimensiones_mm = document.getElementById("dimensiones_mm");
-        const frecuencia_protocolo = document.getElementById("frecuencia_protocolo");
-        const contacto = document.getElementById("contacto");
-        const inspeccion_estado = document.getElementById("inspeccion_estado");
-        const inspeccion_checklist = document.getElementById("inspeccion_checklist");
-        const foto_url = document.getElementById("foto_url");
-        const logo_url = document.getElementById("logo_url");
-        const chipRow = document.getElementById("chipRow");
-        const previewKV = document.getElementById("previewKV");
-        const qrCanvas = document.getElementById("qrCanvas");
-        const payloadPreview = document.getElementById("payloadPreview");
-        const btnGenOffline = document.getElementById("btnGenOffline");
-        const btnGenLink = document.getElementById("btnGenLink");
-        const btnCopy = document.getElementById("btnCopy");
-        const btnOpen = document.getElementById("btnOpen");
-        const btnDownload = document.getElementById("btnDownload");
-        const btnBack = document.getElementById("btnBack");
-        const btnBackToDash = document.getElementById("btnBackToDash");
-
-        // Dashboard elements
-        const cardHome = document.getElementById("cardHome");
-        const cardNew = document.getElementById("cardNew");
-        const cardMine = document.getElementById("cardMine");
-        const cardTorneos = document.getElementById("cardTorneos");
-        const statTotal = document.getElementById("statTotal");
-        const statToday = document.getElementById("statToday");
-        const statMine = document.getElementById("statMine");
-        const searchRid = document.getElementById("searchRid");
-        const btnSearchRid = document.getElementById("btnSearchRid");
-        const latestList = document.getElementById("latestList");
-
-        // Mine panel elements
-        const backFromMine = document.getElementById("backFromMine");
-        const reloadMine = document.getElementById("reloadMine");
-        const clearMine = document.getElementById("clearMine");
-        const mineSearch = document.getElementById("mineSearch");
-        const mineSearchBtn = document.getElementById("mineSearchBtn");
-        const mineList = document.getElementById("mineList");
-
-        // Teams panel elements
-        const backFromTeams = document.getElementById("backFromTeams");
-        const refreshTeams = document.getElementById("refreshTeams");
-        const teamsSearch = document.getElementById("teamsSearch");
-        const teamsList = document.getElementById("teamsList");
-        const teamDetail = document.getElementById("teamDetail");
-        const teamsCount = document.getElementById("teamsCount");
-
-        // Team selector in generator
-        const teamSelect = document.getElementById("teamSelect");
-        const createTeamBtn = document.getElementById("createTeamBtn");
-        const teamCreateBox = document.getElementById("teamCreateBox");
-        const teamNameNew = document.getElementById("teamNameNew");
-        const teamSchoolNew = document.getElementById("teamSchoolNew");
-        const teamCreateCancel = document.getElementById("teamCreateCancel");
-        const teamCreateConfirm = document.getElementById("teamCreateConfirm");
-        const teamRobotsBox = document.getElementById("teamRobotsBox");
-
-        // Viewer elements
-        const v_name = document.getElementById("v_name");
-        const v_title = document.getElementById("v_title");
-        const v_sub = document.getElementById("v_sub");
-        const v_chips = document.getElementById("v_chips");
-        const v_kv = document.getElementById("v_kv");
-        const v_check = document.getElementById("v_check");
-        const v_photo = document.getElementById("v_photo");
-        const v_photo_f = document.getElementById("v_photo_f");
-        const v_logo = document.getElementById("v_logo");
-        const v_logo_f = document.getElementById("v_logo_f");
-
         /* =========================================================
    ✅ ROBOT ID (0001-9999)
    - PREVIEW: peek_robot_id()  (NO consume)
@@ -2151,7 +1454,7 @@ Batería segura" maxlength="400"></textarea>
                 console.error(e);
                 miniStatus.textContent = "· error ⚠️";
                 robot_id.value = "----";
-                toast("No pude obtener PREVIEW del Robot ID. Revisa Supabase.", "error");
+                alert("No pude obtener PREVIEW del Robot ID. Revisa el SQL/Policies de Supabase.\n\n" + (e.message || e));
                 return "";
             }
         }
@@ -2175,7 +1478,7 @@ Batería segura" maxlength="400"></textarea>
             } catch (e) {
                 console.error(e);
                 miniStatus.textContent = "· error ⚠️";
-                toast("No pude reservar Robot ID. Revisa Supabase.", "error");
+                alert("No pude reservar Robot ID real. Revisa el SQL/Policies de Supabase.\n\n" + (e.message || e));
                 return "";
             }
         }
@@ -2243,8 +1546,21 @@ Batería segura" maxlength="400"></textarea>
         }
 
         async function createTeam(name, school) {
-            // Usa createTeamSafe que maneja colisiones de slug
-            return await createTeamSafe(name, school);
+            const payload = {
+                name: (name || "").trim(),
+                school: (school || "").trim(),
+                slug: slugifyJS(name),
+            };
+            if (!payload.name) throw new Error("Nombre de equipo requerido.");
+            if (!payload.school) throw new Error("Escuela requerida.");
+            if (!payload.slug) throw new Error("Nombre inválido para slug.");
+            const { data, error } = await supabaseClient
+                .from("teams")
+                .insert(payload)
+                .select("id,name,school,slug")
+                .single();
+            if (error) throw error;
+            return data;
         }
 
         async function fetchTeamRobots(teamId) {
@@ -2360,7 +1676,7 @@ Batería segura" maxlength="400"></textarea>
                     await loadTeamsIntoSelect(t.id);
                 } catch (e) {
                     console.error(e);
-                    toast("No se pudo crear el equipo: " + (e?.message || e), "error");
+                    alert("No se pudo crear el equipo: " + (e?.message || e));
                 }
             };
 
@@ -2586,20 +1902,12 @@ Batería segura" maxlength="400"></textarea>
             const team_id = (teamSelect && teamSelect.value) ? teamSelect.value : null;
             if (!team_id) throw new Error("Selecciona un equipo antes de guardar.");
 
-            // ✅ Verificación de duplicados
-            const dup = await checkDuplicate(compact.n, compact.t);
-            if (dup) {
-                const ok = confirm(`⚠️ Ya existe un robot "${dup.data?.n || dup.robot_id}" en el equipo "${dup.data?.t || '—'}".\n\n¿Deseas registrar de todos modos?`);
-                if (!ok) throw new Error("Cancelado por usuario (duplicado detectado).");
-            }
-
             const row = {
                 robot_id,
                 team_id,
                 data: compact,
                 qr_link: payloadLink(compact),
                 qr_offline: payloadOffline(compact),
-                owner_token: OWNER_TOKEN,
             };
 
             const { data, error } = await supabaseClient
@@ -2749,44 +2057,6 @@ Batería segura" maxlength="400"></textarea>
                 v_logo.style.display = "none";
                 v_logo_f.style.display = "block";
             }
-
-            // ✅ Guardar ID actual para report/edit/share
-            currentViewerRobotId = o.robot_id || "";
-
-            // ✅ Cargar historial de torneos
-            renderRobotHistory(o.robot_id);
-        }
-
-        async function renderRobotHistory(robotId) {
-            const histEl = document.getElementById("v_history");
-            if (!histEl) return;
-
-            histEl.innerHTML = `<div class="timeline-item"><div class="t-sub">Cargando historial…</div></div>`;
-
-            try {
-                const history = await loadRobotHistory(robotId);
-                if (!history.length) {
-                    histEl.innerHTML = `<div class="timeline-item"><div class="t-sub">Este robot aún no ha participado en torneos registrados.</div></div>`;
-                    return;
-                }
-
-                histEl.innerHTML = history.map(h => {
-                    const resultChip = h.wins > h.losses
-                        ? `<span class="chip good">${h.wins}W - ${h.losses}L</span>`
-                        : (h.losses > h.wins
-                            ? `<span class="chip bad">${h.wins}W - ${h.losses}L</span>`
-                            : `<span class="chip warn">${h.wins}W - ${h.losses}L</span>`);
-                    return `
-                        <div class="timeline-item">
-                            <div class="t-title">${esc(h.tournament_name)}</div>
-                            <div class="t-sub">${esc(h.category)} · ${esc(h.venue)} · ${esc(h.event_date || '—')} · Seed #${h.seed}</div>
-                            <div class="t-result">${resultChip} <span style="font-size:11px; color:var(--muted)">(${h.total} partidas)</span></div>
-                        </div>
-                    `;
-                }).join("");
-            } catch (e) {
-                histEl.innerHTML = `<div class="timeline-item"><div class="t-sub">No se pudo cargar el historial.</div></div>`;
-            }
         }
 
         /* =========================
@@ -2820,7 +2090,7 @@ Batería segura" maxlength="400"></textarea>
                 if (!window.__teamsWired) { wireTeamCreateUI(); window.__teamsWired = true; }
                 await loadTeamsIntoSelect();
                 teamRobotsBox.innerHTML = "";
-            } catch(e) {
+            } catch (e) {
                 console.warn(e);
             }
             // pinta canvas blanco si está vacío
@@ -2897,7 +2167,7 @@ Batería segura" maxlength="400"></textarea>
             }
         }
 
-        
+
         function showTeams() {
             viewer.style.display = "none";
             dashboard.classList.add("hidden");
@@ -2909,7 +2179,7 @@ Batería segura" maxlength="400"></textarea>
             loadTeamsDirectory().catch(console.error);
         }
 
-async function route() {
+        async function route() {
             const hash = location.hash || "";
 
             // ✅ Viewer por #id=
@@ -2924,7 +2194,7 @@ async function route() {
                     return;
                 } catch (e) {
                     console.error(e);
-                    toast("No se encontró este Robot ID en Supabase: " + rid, "warn");
+                    alert("No se encontró este Robot ID en Supabase: " + rid);
                     location.hash = "#/";
                     return;
                 }
@@ -3020,140 +2290,6 @@ async function route() {
             }
 
             miniStatus.textContent = "· listo ✅";
-
-            // ✅ Renderizar ranking
-            renderRanking().catch(console.warn);
-        }
-
-        /* =========================
-           ✅ RANKING RENDER
-           ========================= */
-        let lastRankingData = [];
-        async function renderRanking() {
-            const rankEl = document.getElementById("rankingList");
-            if (!rankEl) return;
-
-            try {
-                const ranking = await computeRanking();
-                lastRankingData = ranking;
-
-                if (!ranking.length) {
-                    rankEl.innerHTML = `<div class="row"><div class="left"><b>Sin datos</b><span>Aún no hay partidas registradas para calcular ranking.</span></div></div>`;
-                    return;
-                }
-
-                const top10 = ranking.slice(0, 10);
-                rankEl.innerHTML = `
-                    <table class="rankTable">
-                        <thead><tr>
-                            <th>#</th><th>Robot</th><th>ELO</th><th>W</th><th>L</th><th>Partidas</th>
-                        </tr></thead>
-                        <tbody>
-                            ${top10.map((r, i) => `
-                                <tr style="cursor:pointer" data-rankid="${esc(r.robot_id)}">
-                                    <td class="pos">${i + 1}</td>
-                                    <td><b>${esc(r.name)}</b></td>
-                                    <td class="elo">${r.elo}</td>
-                                    <td style="color:var(--good)">${r.wins}</td>
-                                    <td style="color:var(--hot)">${r.losses}</td>
-                                    <td>${r.matches}</td>
-                                </tr>
-                            `).join("")}
-                        </tbody>
-                    </table>
-                `;
-
-                // Click en fila abre robot
-                rankEl.querySelectorAll("[data-rankid]").forEach(tr => {
-                    tr.addEventListener("click", () => {
-                        location.hash = "#id=" + encodeURIComponent(tr.getAttribute("data-rankid"));
-                    });
-                });
-            } catch (e) {
-                rankEl.innerHTML = `<div class="row"><div class="left"><b>Error</b><span>${esc(e.message || "")}</span></div></div>`;
-            }
-        }
-
-        /* =========================
-           ✅ EXPORT FUNCTIONS
-           ========================= */
-        async function exportAllRobotsCSV() {
-            toast("Exportando robots…", "info");
-            try {
-                const { data, error } = await supabaseClient
-                    .from(TABLE)
-                    .select("robot_id, data, created_at, updated_at")
-                    .order("updated_at", { ascending: false })
-                    .limit(5000);
-                if (error) throw error;
-                if (!data || !data.length) { toast("No hay robots para exportar.", "warn"); return; }
-
-                const rows = data.map(r => ({
-                    robot_id: r.robot_id,
-                    nombre: r?.data?.n || "",
-                    categoria: r?.data?.c || "",
-                    equipo: r?.data?.t || "",
-                    piloto: r?.data?.p || "",
-                    escuela: r?.data?.s || "",
-                    peso_g: r?.data?.w ?? "",
-                    dimensiones: r?.data?.d || "",
-                    control: r?.data?.y || "",
-                    contacto: r?.data?.k || "",
-                    inspeccion: r?.data?.a || "",
-                    creado: r.created_at || "",
-                    actualizado: r.updated_at || "",
-                }));
-
-                downloadCSV("robots_export_" + new Date().toISOString().slice(0, 10) + ".csv", rows, [
-                    { label: "Robot ID", key: "robot_id" },
-                    { label: "Nombre", key: "nombre" },
-                    { label: "Categoría", key: "categoria" },
-                    { label: "Equipo", key: "equipo" },
-                    { label: "Piloto", key: "piloto" },
-                    { label: "Escuela", key: "escuela" },
-                    { label: "Peso (g)", key: "peso_g" },
-                    { label: "Dimensiones", key: "dimensiones" },
-                    { label: "Control", key: "control" },
-                    { label: "Contacto", key: "contacto" },
-                    { label: "Inspección", key: "inspeccion" },
-                    { label: "Creado", key: "creado" },
-                    { label: "Actualizado", key: "actualizado" },
-                ]);
-            } catch (e) {
-                toast("Error exportando: " + (e.message || e), "error");
-            }
-        }
-
-        function exportMineCSV() {
-            if (!mineCache.length) { toast("No hay robots en tu lista.", "warn"); return; }
-            const rows = mineCache.map(r => ({
-                robot_id: r.robot_id,
-                nombre: r?.data?.n || "",
-                categoria: r?.data?.c || "",
-                equipo: r?.data?.t || "",
-                piloto: r?.data?.p || "",
-                escuela: r?.data?.s || "",
-            }));
-            downloadCSV("mis_robots_" + new Date().toISOString().slice(0, 10) + ".csv", rows, [
-                { label: "Robot ID", key: "robot_id" },
-                { label: "Nombre", key: "nombre" },
-                { label: "Categoría", key: "categoria" },
-                { label: "Equipo", key: "equipo" },
-                { label: "Piloto", key: "piloto" },
-                { label: "Escuela", key: "escuela" },
-            ]);
-        }
-
-        function exportRankingCSV() {
-            if (!lastRankingData.length) { toast("No hay datos de ranking.", "warn"); return; }
-            downloadCSV("ranking_" + new Date().toISOString().slice(0, 10) + ".csv", lastRankingData, [
-                { label: "Robot ID", key: "robot_id" },
-                { label: "Nombre", key: "name" },
-                { label: "ELO", key: "elo" },
-                { label: "Victorias", key: "wins" },
-                { label: "Derrotas", key: "losses" },
-                { label: "Partidas", key: "matches" },
-            ]);
         }
 
         /* =========================
@@ -3235,94 +2371,55 @@ async function route() {
         /* --------------------------
            Buttons (GENERATOR)
         --------------------------- */
-        function validateBasic() {
-            const id = cleanStr(robot_id.value);
-            const name = cleanStr(robot_nombre.value);
+        // ✅ ÚNICO BOTÓN: Guardar registro
+        // - Reserva Robot ID real
+        // - Genera QR (link)
+        // - Guarda local + Supabase
+        const btnSaveRecord = document.getElementById("btnSaveRecord");
 
-            if (!id) {
-                toast("Aún no tengo Robot ID automático. Intenta de nuevo.", "warn");
-                return false;
-            }
-            if (!name) {
-                toast("Pon al menos el Nombre del robot.", "warn");
-                return false;
-            }
-            return true;
-        }
+        if (btnSaveRecord) {
+            btnSaveRecord.onclick = async () => {
+                const name = cleanStr(robot_nombre.value);
+                if (!name) { alert("Pon al menos el Nombre del robot."); return; }
 
-        // ✅ Generar OFFLINE + guardar en Supabase
-        // ✅ Generar OFFLINE + guardar en Supabase
-        btnGenOffline.onclick = async () => {
-            const name = cleanStr(robot_nombre.value);
-            if (!name) { toast("Pon al menos el Nombre del robot.", "warn"); return; }
+                // ✅ requiere equipo (team_id)
+                const teamId = (teamSelect && teamSelect.value) ? teamSelect.value : "";
+                if (!teamId) { alert("Selecciona un equipo antes de guardar."); return; }
 
-            // ✅ Reserva real SOLO cuando ya vas a guardar (consume ID)
-            const realId = await reserveRobotIdReal();
-            if (!realId) return;
+                // ✅ Reserva real SOLO cuando ya vas a guardar (consume ID)
+                const realId = await reserveRobotIdReal();
+                if (!realId) return;
 
-            const compact = buildRobotObj();
-            renderPreviewFromCompact(compact);
+                const compact = buildRobotObj();
+                renderPreviewFromCompact(compact);
 
-            lastPayloadType = "offline";
-            drawQR(payloadOffline(compact));
+                // ✅ QR siempre en modo LINK
+                lastPayloadType = "link";
+                const link = payloadLink(compact);
+                drawQR(link);
 
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
+                // ✅ guardado local (para recuperación rápida)
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
 
-            try {
-                const saved = await saveToSupabase(compact);
-                addToMyList(saved.robot_id); // ✅ agrega a "Mis Robots"
+                try {
+                    const saved = await saveToSupabase(compact);
+                    addToMyList(saved.robot_id);
 
-                // ✅ siguiente PREVIEW (no consume)
-                await peekRobotId();
-            } catch (e) {
-                console.error(e);
-                toast("No se pudo guardar en Supabase: " + (e.message || e), "error");
-            }
-        };
+                    // ✅ siguiente PREVIEW (no consume)
+                    await peekRobotId();
 
-        // ✅ Generar LINK + guardar en Supabase
-        // ✅ Generar LINK + guardar en Supabase
-        btnGenLink.onclick = async () => {
-            const name = cleanStr(robot_nombre.value);
-            if (!name) { toast("Pon al menos el Nombre del robot.", "warn"); return; }
-
-            // ✅ Reserva real SOLO cuando ya vas a guardar (consume ID)
-            const realId = await reserveRobotIdReal();
-            if (!realId) return;
-
-            const compact = buildRobotObj();
-            renderPreviewFromCompact(compact);
-
-            lastPayloadType = "link";
-            const link = payloadLink(compact);
-            drawQR(link);
-
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
-
-            try {
-                const saved = await saveToSupabase(compact);
-                addToMyList(saved.robot_id); // ✅ agrega a "Mis Robots"
-
-                // ✅ siguiente PREVIEW (no consume)
-                await peekRobotId();
-            } catch (e) {
-                console.error(e);
-                toast("No se pudo guardar en Supabase: " + (e.message || e), "error");
-            }
-        };
-
-        // ✅ Avanzado: mostrar/ocultar QR OFFLINE (opcional)
-        if (typeof btnToggleAdvanced !== "undefined" && typeof advancedRow !== "undefined") {
-            btnToggleAdvanced.onclick = () => {
-                advancedRow.classList.toggle("hidden");
-                btnToggleAdvanced.textContent = advancedRow.classList.contains("hidden") ? "Avanzado" : "Ocultar avanzado";
+                    alert("Registro guardado ✅");
+                } catch (e) {
+                    console.error(e);
+                    alert("Guardado local OK, pero Supabase falló: " + (e.message || e));
+                }
             };
         }
 
 
 
         btnCopy.onclick = async () => {
-            if (!lastPayload) { toast("Primero genera un QR.", "warn"); return; }
+            if (!lastPayload) { alert("Primero genera un QR."); return; }
             try {
                 await navigator.clipboard.writeText(lastPayload);
             } catch (e) {
@@ -3333,9 +2430,9 @@ async function route() {
         };
 
         btnOpen.onclick = () => {
-            if (!lastPayload) { toast("Primero genera un QR.", "warn"); return; }
+            if (!lastPayload) { alert("Primero genera un QR."); return; }
             if (!/^https?:\/\//i.test(lastPayload)) {
-                toast("Este QR es OFFLINE (JSON). Genera el QR (link) para abrir en navegador.", "warn");
+                alert("Este QR es OFFLINE (JSON). Genera el QR (link) para abrir en navegador.");
                 return;
             }
             window.open(lastPayload, "_blank");
@@ -3348,136 +2445,7 @@ async function route() {
             a.click();
         };
 
-        // Guardar en navegador + también subir a Supabase
-        // Guardar en navegador + (opcional) subir a Supabase
-        btnSave.onclick = async () => {
-            const name = cleanStr(robot_nombre.value);
-            const compact = buildRobotObj();
-
-            // siempre guardado local
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
-
-            try {
-                if (!name) {
-                    toast("Guardado local. Para subir a Supabase, pon al menos el Nombre del robot.", "warn");
-                    return;
-                }
-
-                // ✅ Si vas a subir a Supabase, reserva ID real aquí
-                const realId = await reserveRobotIdReal();
-                if (!realId) return;
-
-                // reconstruye objeto para asegurar que i=ID real
-                const compact2 = buildRobotObj();
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(compact2));
-
-                const saved = await saveToSupabase(compact2);
-                addToMyList(saved.robot_id);
-
-                // ✅ siguiente PREVIEW (no consume)
-                await peekRobotId();
-
-                toast("Guardado (local + Supabase) ✅", "success");
-            } catch (e) {
-                console.error(e);
-                toast("Guardado local. Supabase falló: " + (e.message || e), "warn");
-            }
-        };
-
-        // Cargar guardado:
-        btnLoad.onclick = async () => {
-            const rid = cleanStr(robot_id.value);
-
-            if (rid) {
-                try {
-                    const rec = await loadFromSupabaseByRobotId(rid);
-                    const o = rec.data;
-
-                    robot_id.value = o.i || "";
-                    robot_nombre.value = o.n || "";
-                    categoria.value = o.c || "";
-                    equipo.value = o.t || "";
-                    try { await loadTeamsIntoSelect(); } catch(e) {}
-                    try {
-                        const want = slugifyJS(o.t || "");
-                        const opts = Array.from(teamSelect.options);
-                        const match = opts.find(op => slugifyJS(op.dataset?.teamName || op.textContent) === want);
-                        if (match) { teamSelect.value = match.value; teamSelect.dispatchEvent(new Event("change")); }
-                    } catch(e) {}
-
-                    controlador.value = o.p || "";
-                    escuela.value = o.s || "";
-
-                    peso_g.value = (o.w ?? "");
-                    dimensiones_mm.value = o.d || "";
-                    tipo_control.value = o.y || "";
-                    frecuencia_protocolo.value = o.f || "";
-                    contacto.value = o.k || "";
-                    inspeccion_estado.value = o.a || "pendiente";
-                    inspeccion_checklist.value = (o.l || []).join("\n");
-                    foto_url.value = o.u || "";
-                    logo_url.value = o.g || "";
-
-                    renderPreviewFromCompact(o);
-
-                    lastPayloadType = "link";
-                    drawQR(rec.qr_link);
-
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(o));
-                    return;
-                } catch (e) {
-                    console.error(e);
-                    toast("No se pudo cargar desde Supabase: " + (e.message || e), "error");
-                }
-            }
-
-            // fallback local
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (!raw) { toast("No hay guardado local. Escribe Robot ID y dale Cargar para Supabase.", "warn"); return; }
-            const o = JSON.parse(raw);
-
-            robot_id.value = o.i || "";
-            robot_nombre.value = o.n || "";
-            categoria.value = o.c || "";
-            equipo.value = o.t || "";
-            controlador.value = o.p || "";
-            escuela.value = o.s || "";
-
-            peso_g.value = (o.w ?? "");
-            dimensiones_mm.value = o.d || "";
-            tipo_control.value = o.y || "";
-            frecuencia_protocolo.value = o.f || "";
-            contacto.value = o.k || "";
-            inspeccion_estado.value = o.a || "pendiente";
-            inspeccion_checklist.value = (o.l || []).join("\n");
-            foto_url.value = o.u || "";
-            logo_url.value = o.g || "";
-
-            renderPreviewFromCompact(o);
-            lastPayloadType = "link";
-            drawQR(payloadLink(o));
-        };
-
-        btnClear.onclick = () => {
-            ["robot_id", "robot_nombre", "equipo", "controlador", "escuela",
-                "peso_g", "dimensiones_mm", "frecuencia_protocolo", "contacto",
-                "inspeccion_checklist", "foto_url", "logo_url"
-            ].forEach(id => document.getElementById(id).value = "");
-
-            categoria.value = "";
-            tipo_control.value = "";
-            inspeccion_estado.value = "pendiente";
-
-            chipRow.innerHTML = "";
-            previewKV.innerHTML = "";
-            payloadPreview.textContent = "Payload (preview): —";
-
-            const ctx = qrCanvas.getContext("2d");
-            ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, qrCanvas.width, qrCanvas.height);
-
-            lastPayload = "";
-            lastPayloadType = "";
-        };
+        // (Botones viejos de generator removidos: guardar/cargar/limpiar/avanzado/offline)
 
         /* =========================
            ✅ DASHBOARD / MINE UI EVENTS
@@ -3502,7 +2470,7 @@ async function route() {
 
         btnSearchRid.onclick = () => {
             const rid = (searchRid.value || "").trim();
-            if (!rid) { toast("Escribe un Robot ID.", "warn"); return; }
+            if (!rid) return alert("Escribe un Robot ID.");
             location.hash = "#id=" + encodeURIComponent(rid);
         };
         searchRid.addEventListener("keydown", (e) => { if (e.key === "Enter") btnSearchRid.click(); });
@@ -3532,7 +2500,7 @@ async function route() {
 
         if (v_btnCopy) {
             v_btnCopy.onclick = async () => {
-                if (!viewerPayload) { toast("No hay payload para copiar.", "warn"); return; }
+                if (!viewerPayload) return alert("No hay payload para copiar.");
                 try {
                     await navigator.clipboard.writeText(viewerPayload);
                 } catch (e) {
@@ -3548,9 +2516,9 @@ async function route() {
 
         if (v_btnOpen) {
             v_btnOpen.onclick = () => {
-                if (!viewerPayload) { toast("No hay payload.", "warn"); return; }
+                if (!viewerPayload) return alert("No hay payload.");
                 if (!/^https?:\/\//i.test(viewerPayload)) {
-                    toast("Este payload es OFFLINE (JSON). Para abrir en navegador necesitas el QR (link).", "warn");
+                    alert("Este payload es OFFLINE (JSON). Para abrir en navegador necesitas el QR (link).");
                     return;
                 }
                 window.open(viewerPayload, "_blank");
@@ -3567,95 +2535,6 @@ async function route() {
                 a.click();
             };
         }
-
-        /* =========================
-           ✅ VIEWER EXTRA BUTTONS (Edit, Report, Share)
-           ========================= */
-        const v_btnEdit = document.getElementById("v_btnEdit");
-        const v_btnReport = document.getElementById("v_btnReport");
-        const v_btnShareProfile = document.getElementById("v_btnShareProfile");
-
-        if (v_btnEdit) {
-            v_btnEdit.onclick = () => {
-                if (!currentViewerRobotId) return;
-                // Carga el robot en el generador para edición
-                robot_id.value = currentViewerRobotId;
-                location.hash = "#/new";
-                setTimeout(() => btnLoad.click(), 300);
-            };
-        }
-
-        if (v_btnReport) {
-            v_btnReport.onclick = () => {
-                if (!currentViewerRobotId) return;
-                document.getElementById("reportModal").classList.remove("hidden");
-            };
-        }
-
-        if (v_btnShareProfile) {
-            v_btnShareProfile.onclick = async () => {
-                if (!currentViewerRobotId) return;
-                const url = window.location.origin + window.location.pathname + "#id=" + encodeURIComponent(currentViewerRobotId);
-                try {
-                    await navigator.clipboard.writeText(url);
-                    toast("Link copiado: " + url, "success");
-                } catch (e) {
-                    toast(url, "info", 6000);
-                }
-            };
-        }
-
-        // Report modal handlers
-        document.getElementById("reportCancel").onclick = () => {
-            document.getElementById("reportModal").classList.add("hidden");
-            document.getElementById("reportReason").value = "";
-            document.getElementById("reportComment").value = "";
-        };
-
-        document.getElementById("reportSubmit").onclick = async () => {
-            const reason = document.getElementById("reportReason").value;
-            const comment = document.getElementById("reportComment").value;
-            const ok = await submitReport(currentViewerRobotId, reason, comment);
-            if (ok) {
-                document.getElementById("reportModal").classList.add("hidden");
-                document.getElementById("reportReason").value = "";
-                document.getElementById("reportComment").value = "";
-            }
-        };
-
-        // Share modal close
-        document.getElementById("shareClose").onclick = () => {
-            document.getElementById("shareModal").classList.add("hidden");
-        };
-
-        document.getElementById("shareCopy").onclick = async () => {
-            const link = document.getElementById("shareLink").value;
-            try { await navigator.clipboard.writeText(link); toast("Link espectador copiado", "success"); }
-            catch (_) { toast(link, "info", 6000); }
-        };
-
-        document.getElementById("shareOrgCopy").onclick = async () => {
-            const key = document.getElementById("shareOrgKey").value;
-            try { await navigator.clipboard.writeText(key); toast("Clave organizador copiada", "success"); }
-            catch (_) { toast(key, "info", 6000); }
-        };
-
-        // Load tournament modal close
-        document.getElementById("loadTournamentCancel").onclick = () => {
-            document.getElementById("loadTournamentModal").classList.add("hidden");
-        };
-
-        // Bulk add modal
-        document.getElementById("bulkCancel").onclick = () => {
-            document.getElementById("bulkAddModal").classList.add("hidden");
-        };
-
-        /* =========================
-           ✅ EXPORT BUTTON EVENTS
-           ========================= */
-        document.getElementById("btnExportAllRobotsCSV").onclick = () => exportAllRobotsCSV();
-        document.getElementById("btnExportMineCSV").onclick = () => exportMineCSV();
-        document.getElementById("btnExportRankCSV").onclick = () => exportRankingCSV();
 
 
 
@@ -3888,7 +2767,7 @@ async function route() {
                 if (state.players.some(p => p.i === compact.i)) return;
                 const N = state.tournament.n;
                 if (state.players.length >= N) {
-                    toast(`Ya tienes ${N} participantes (N). Sube N o quita uno.`, "warn");
+                    alert(`Ya tienes ${N} participantes (N). Sube N o quita uno.`);
                     return;
                 }
                 state.players.push(compact);
@@ -4342,8 +3221,8 @@ async function route() {
                 syncParticipantsToN();
                 const t = state.tournament;
                 const N = t.n;
-                if (state.players.length < 2) { toast("Agrega al menos 2 participantes.", "warn"); return; }
-                if (state.players.length > N) { toast(`Tienes más de N=${N}. Quita participantes o sube N.`, "warn"); return; }
+                if (state.players.length < 2) { alert("Agrega al menos 2 participantes."); return; }
+                if (state.players.length > N) { alert(`Tienes más de N=${N}. Quita participantes o sube N.`); return; }
                 const fmt = t.format;
                 VIEW_STYLE = "columns"; VIEW_MODE = "organizer";
                 T$("btnMode").textContent = "Modo: Organizador";
@@ -4419,6 +3298,274 @@ async function route() {
 
             T$("btnReset").onclick = () => { if (confirm("¿Reiniciar todo?")) { torneosBoot = false; location.hash = "#/torneos"; showTorneos(); } };
 
+            
+            /* =========================================================
+               ✅ CALENDARIO DE TORNEOS (SUPABASE)
+               - Lista próximos / anteriores
+               - Conteo regresivo
+               - "Blog" del torneo (detalles)
+               - Recordatorio local (solo mientras la página esté abierta)
+               ========================================================= */
+            const TBL_TOURNAMENTS = "tournaments";
+
+            const REM_KEY = "apex_tournament_reminders_v1";
+            let __tCalendarTimer = null;
+
+            function parseDateAny(v) {
+                // acepta "YYYY-MM-DD" o ISO
+                if (!v) return null;
+                const s = String(v).trim();
+                if (!s) return null;
+                const d = new Date(s.length === 10 ? (s + "T00:00:00") : s);
+                return isNaN(d.getTime()) ? null : d;
+            }
+
+            function msToCountdown(ms) {
+                if (ms <= 0) return "Iniciado";
+                const sec = Math.floor(ms / 1000);
+                const days = Math.floor(sec / 86400);
+                const hrs = Math.floor((sec % 86400) / 3600);
+                const mins = Math.floor((sec % 3600) / 60);
+                return `${days}d ${hrs}h ${mins}m`;
+            }
+
+            function getTournamentId(row) {
+                return row?.id ?? row?.tournament_id ?? row?.uuid ?? row?.slug ?? null;
+            }
+
+            function pickTournamentFields(row) {
+                // Intentamos mapear a tus columnas (si existen). Si no, caemos a valores alternos.
+                const name = row?.name ?? row?.tournament_name ?? row?.title ?? "Torneo";
+                const category = row?.category ?? row?.t_category ?? row?.division ?? "";
+                const venue = row?.venue ?? row?.location ?? row?.place ?? "";
+                const dateVal = row?.date ?? row?.event_date ?? row?.t_date ?? row?.starts_at ?? row?.start_date ?? "";
+                const date = parseDateAny(dateVal);
+                const blog = row?.blog ?? row?.description ?? row?.details ?? row?.info ?? "";
+                const address = row?.address ?? row?.venue_address ?? row?.maps ?? "";
+                const categories = row?.categories ?? row?.tags ?? row?.divisions ?? "";
+                const url = row?.url ?? row?.website ?? row?.link ?? "";
+                return { name, category, venue, date, blog, address, categories, url, raw: row };
+            }
+
+            function safeStr(v) {
+                if (Array.isArray(v)) return v.join(", ");
+                if (typeof v === "object" && v) return JSON.stringify(v);
+                return String(v ?? "").trim();
+            }
+
+            async function fetchTournamentsDB() {
+                // Nota: si tu tabla usa RLS, asegúrate de permitir SELECT público.
+                const { data, error } = await supabaseClient
+                    .from(TBL_TOURNAMENTS)
+                    .select("*")
+                    .order("date", { ascending: true }); // si "date" no existe, supabase ignora y devuelve error → lo manejamos
+                if (error) {
+                    // Reintento sin order por si la columna no se llama "date"
+                    const r2 = await supabaseClient.from(TBL_TOURNAMENTS).select("*").limit(200);
+                    if (r2.error) throw r2.error;
+                    return r2.data || [];
+                }
+                return data || [];
+            }
+
+            function renderTournamentLists(rows) {
+                const now = new Date();
+                const parsed = rows.map(r => {
+                    const f = pickTournamentFields(r);
+                    return { id: getTournamentId(r), ...f };
+                }).filter(x => x.date); // requiere fecha para "próximos/anterior"
+
+                parsed.sort((a, b) => a.date - b.date);
+
+                const upcoming = parsed.filter(x => x.date >= now);
+                const past = parsed.filter(x => x.date < now).reverse();
+
+                tUpcomingCount.textContent = `(${upcoming.length})`;
+                tPastCount.textContent = `(${past.length})`;
+
+                const makeItem = (t, isUpcoming) => {
+                    const id = t.id ?? (t.name + "|" + t.date.toISOString());
+                    const when = t.date.toISOString().slice(0, 10);
+                    const cd = isUpcoming ? `<span class="chip mono">${msToCountdown(t.date - now)}</span>` : `<span class="chip mono">Finalizó</span>`;
+                    const sub = [when, t.category, t.venue].filter(Boolean).join(" · ");
+                    return `
+                        <div class="panel2" style="padding:10px; border-radius:14px; border:1px solid rgba(122,63,255,.22); background:rgba(0,0,0,.10); cursor:pointer;" data-tid="${tEsc(id)}">
+                            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                                <div style="min-width:0;">
+                                    <div style="font-weight:900; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${tEsc(t.name)}</div>
+                                    <div class="muted" style="font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${tEsc(sub)}</div>
+                                </div>
+                                ${cd}
+                            </div>
+                        </div>
+                    `;
+                };
+
+                tUpcomingList.innerHTML = upcoming.length
+                    ? upcoming.map(t => makeItem(t, true)).join("")
+                    : `<div class="muted">No hay próximos torneos con fecha.</div>`;
+
+                tPastList.innerHTML = past.length
+                    ? past.map(t => makeItem(t, false)).join("")
+                    : `<div class="muted">No hay torneos anteriores con fecha.</div>`;
+
+                const byId = new Map(parsed.map(t => [(t.id ?? (t.name + "|" + t.date.toISOString())), t]));
+
+                const hookClicks = (root) => {
+                    root.querySelectorAll("[data-tid]").forEach(el => {
+                        el.addEventListener("click", () => {
+                            const tid = el.getAttribute("data-tid");
+                            const t = byId.get(tid);
+                            if (t) openTournamentDetail(t);
+                        });
+                    });
+                };
+
+                hookClicks(tUpcomingList);
+                hookClicks(tPastList);
+
+                // refresca conteo cada minuto si hay próximos
+                if (__tCalendarTimer) clearInterval(__tCalendarTimer);
+                if (upcoming.length) {
+                    __tCalendarTimer = setInterval(() => {
+                        // volver a render sin refetch (solo conteo)
+                        renderTournamentLists(rows);
+                    }, 60_000);
+                }
+            }
+
+            function loadReminders() {
+                try { return JSON.parse(localStorage.getItem(REM_KEY) || "[]"); } catch (_) { return []; }
+            }
+
+            function saveReminders(list) {
+                localStorage.setItem(REM_KEY, JSON.stringify(list.slice(0, 300)));
+            }
+
+            function scheduleReminder(t, minutesBefore) {
+                const when = new Date(t.date.getTime() - minutesBefore * 60_000);
+                const delay = when.getTime() - Date.now();
+                if (delay <= 0) return;
+
+                setTimeout(() => {
+                    try {
+                        if (Notification?.permission === "granted") {
+                            new Notification(`Torneo: ${t.name}`, { body: `Empieza en ${minutesBefore} min · ${t.venue || "—"}` });
+                        } else {
+                            alert(`Recordatorio: ${t.name}\nEmpieza en ${minutesBefore} min\n${t.venue || ""}`);
+                        }
+                    } catch (_) {
+                        alert(`Recordatorio: ${t.name}\nEmpieza en ${minutesBefore} min\n${t.venue || ""}`);
+                    }
+                }, delay);
+            }
+
+            async function ensureNotificationPermission() {
+                if (!("Notification" in window)) return false;
+                if (Notification.permission === "granted") return true;
+                if (Notification.permission === "denied") return false;
+                const res = await Notification.requestPermission();
+                return res === "granted";
+            }
+
+            async function toggleRemindersForTournament(t) {
+                const tid = t.id ?? (t.name + "|" + t.date.toISOString());
+                const list = loadReminders();
+                const exists = list.find(x => x.tid === tid);
+
+                if (exists) {
+                    const next = list.filter(x => x.tid !== tid);
+                    saveReminders(next);
+                    alert("Recordatorios desactivados ✅");
+                    openTournamentDetail(t);
+                    return;
+                }
+
+                // Activar
+                await ensureNotificationPermission(); // aunque no conceda, igual guardamos y usamos alert fallback
+                const item = { tid, name: t.name, date: t.date.toISOString(), venue: t.venue || "", mins: [1440, 60] }; // 24h y 1h
+                saveReminders([item, ...list]);
+
+                // Programar en sesión actual
+                item.mins.forEach(m => scheduleReminder(t, m));
+
+                alert("Recordatorios activados ✅ (24h y 1h antes, mientras tengas la página abierta)");
+                openTournamentDetail(t);
+            }
+
+            function openTournamentDetail(t) {
+                const tid = t.id ?? (t.name + "|" + t.date.toISOString());
+                const list = loadReminders();
+                const active = !!list.find(x => x.tid === tid);
+
+                const when = t.date ? t.date.toISOString().slice(0, 10) : "—";
+                const countdown = t.date ? msToCountdown(t.date - new Date()) : "—";
+
+                const cats = safeStr(t.categories);
+                const blog = safeStr(t.blog);
+
+                tDetailHint.textContent = active ? "Recordatorios: ACTIVOS" : "Recordatorios: apagados";
+
+                tDetail.innerHTML = `
+                    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+                        <div style="min-width:0;">
+                            <div style="font-size:18px; font-weight:900;">${tEsc(t.name)}</div>
+                            <div class="muted" style="margin-top:4px;">${tEsc([when, t.category, t.venue].filter(Boolean).join(" · "))}</div>
+                        </div>
+                        <div class="chipRow">
+                            <div class="chip good">Cuenta regresiva: ${tEsc(countdown)}</div>
+                            <button class="btn ${active ? "hot" : "primary"}" id="btnToggleReminder">${active ? "Quitar recordatorio" : "Activar recordatorio"}</button>
+                        </div>
+                    </div>
+
+                    <div style="height:10px;"></div>
+
+                    <div class="kv">
+                        <div class="k">Ubicación</div><div class="v">${tEsc(t.venue || "—")}</div>
+                        <div class="k">Dirección / mapa</div><div class="v">${tEsc(t.address || "—")}</div>
+                        <div class="k">Categorías</div><div class="v">${tEsc(cats || "—")}</div>
+                        <div class="k">Link</div><div class="v">${t.url ? `<a href="${tEsc(t.url)}" target="_blank" style="color:var(--neon2); font-weight:800; text-decoration:none;">Abrir</a>` : "—"}</div>
+                    </div>
+
+                    <div class="sectionTitle" style="margin-top:12px;">Blog / info</div>
+                    <div class="mono">${tEsc(blog || "—")}</div>
+                `;
+
+                const btn = document.getElementById("btnToggleReminder");
+                if (btn) btn.onclick = () => toggleRemindersForTournament(t);
+            }
+
+            async function openCalendar() {
+                T$("tCalendar").classList.remove("hidden");
+                document.getElementById("miniStatus").textContent = "· cargando torneos…";
+                try {
+                    const rows = await fetchTournamentsDB();
+                    renderTournamentLists(rows);
+
+                    // reprogramar recordatorios guardados (solo sesión actual)
+                    const rem = loadReminders();
+                    for (const r of rem) {
+                        const d = parseDateAny(r.date);
+                        if (!d) continue;
+                        const t = { id: r.tid, name: r.name, venue: r.venue, date: d, category: "", blog: "", address: "", categories: "", url: "" };
+                        (r.mins || [60]).forEach(m => scheduleReminder(t, m));
+                    }
+
+                    document.getElementById("miniStatus").textContent = "· listo ✅";
+                } catch (e) {
+                    console.error(e);
+                    document.getElementById("miniStatus").textContent = "· error ⚠️";
+                    T$("tUpcomingList").innerHTML = `<div class="muted">No pude leer "${TBL_TOURNAMENTS}". Revisa RLS/policies y nombres de columnas. (${tEsc(e.message || e)})</div>`;
+                    T$("tPastList").innerHTML = `<div class="muted">—</div>`;
+                }
+            }
+
+            // UI hooks
+            T$("btnCalendar").onclick = () => openCalendar();
+            T$("btnCalendarClose").onclick = () => { T$("tCalendar").classList.add("hidden"); };
+            T$("btnCalendarRefresh").onclick = () => openCalendar();
+
+
             const LOCAL_KEY = "apex_tournament_flex_demo_v2_bo3_map";
 
             T$("btnSaveLocal").onclick = () => {
@@ -4431,7 +3578,7 @@ async function route() {
 
             T$("btnLoadLocal").onclick = () => {
                 const raw = localStorage.getItem(LOCAL_KEY);
-                if (!raw) { toast("No hay guardado local.", "warn"); return; }
+                if (!raw) return alert("No hay guardado local.");
                 try {
                     const payload = JSON.parse(raw);
                     state.tournament = payload.tournament || state.tournament;
@@ -4452,299 +3599,8 @@ async function route() {
                     if (state.view?.type === "single" || state.view?.type === "groups") renderCurrent();
                     else if (state.view?.type === "double") { clearView(); generate(); }
                     else clearView();
-                } catch (e) { toast("No pude abrir guardado local.", "error"); }
+                } catch (e) { alert("No pude abrir guardado local."); }
             };
-
-            /* ═══ Guardar torneo en Supabase ═══ */
-            T$("btnSaveSupabase").onclick = async () => {
-                syncTournamentFromForm();
-                if (!state.tournament.name.trim()) { toast("Pon nombre al torneo antes de guardar.", "warn"); return; }
-                toast("Guardando torneo en Supabase…", "info");
-                try {
-                    const saved = await saveTournamentToSupabase(state);
-                    if (saved && saved.id) {
-                        state._supaId = saved.id;
-                        state._slug = saved.slug;
-                        toast("Torneo guardado ✅ (ID: " + saved.id + ")", "ok");
-                    }
-                } catch (err) {
-                    toast("Error al guardar: " + (err.message || err), "error");
-                }
-            };
-
-            /* ═══ Cargar torneo de Supabase ═══ */
-            T$("btnLoadSupabase").onclick = async () => {
-                const modal = document.getElementById("loadTournamentModal");
-                const listEl = document.getElementById("tournamentDBList");
-                modal.classList.remove("hidden");
-                listEl.innerHTML = `<div class="row"><div class="left"><b>Cargando…</b></div></div>`;
-                try {
-                    const tournaments = await loadTournamentsFromSupabase();
-                    if (!tournaments || !tournaments.length) {
-                        listEl.innerHTML = `<div class="row"><div class="left"><b>Sin torneos</b><span>No hay torneos guardados en Supabase.</span></div></div>`;
-                        return;
-                    }
-                    listEl.innerHTML = tournaments.map(t => `
-                        <div class="row">
-                            <div class="left">
-                                <b>${tEsc(t.name || "Sin nombre")}</b>
-                                <span>${tEsc(t.category || "")} · ${tEsc(t.date || "sin fecha")} · ID: ${t.id}</span>
-                            </div>
-                            <div class="right">
-                                <button class="btn primary" data-loadid="${t.id}">Cargar</button>
-                            </div>
-                        </div>
-                    `).join("");
-                    listEl.querySelectorAll("[data-loadid]").forEach(btn => {
-                        btn.addEventListener("click", async () => {
-                            const tid = btn.getAttribute("data-loadid");
-                            toast("Cargando torneo…", "info");
-                            try {
-                                const full = await loadTournamentById(tid);
-                                if (!full) { toast("No se encontró el torneo.", "warn"); return; }
-                                // Restore state from DB
-                                state.tournament.name = full.name || "";
-                                state.tournament.category = full.category || "Mini Sumo Autónomo Profesional";
-                                state.tournament.venue = full.venue || "";
-                                state.tournament.date = full.date || "";
-                                state.tournament.format = full.format || "single";
-                                state.tournament.n = full.n || 8;
-                                state._supaId = full.id;
-                                state._slug = full.slug;
-                                // Restore players from tournament_players
-                                if (full.players && full.players.length) {
-                                    state.players = full.players.map(p => p.robot_data || p).filter(Boolean);
-                                } else {
-                                    state.players = [];
-                                }
-                                // Restore form
-                                T$("t_name").value = state.tournament.name;
-                                T$("t_category").value = state.tournament.category;
-                                T$("t_venue").value = state.tournament.venue;
-                                T$("t_date").value = state.tournament.date;
-                                T$("t_format").value = state.tournament.format;
-                                T$("t_n").value = String(state.tournament.n);
-                                setTChips(); updateViewMode(); renderPlayers();
-                                clearView();
-                                modal.classList.add("hidden");
-                                toast("Torneo cargado ✅", "ok");
-                            } catch (e) {
-                                toast("Error al cargar: " + (e.message || e), "error");
-                            }
-                        });
-                    });
-                } catch (err) {
-                    listEl.innerHTML = `<div class="row"><div class="left"><b>Error</b><span>${tEsc(err.message || err)}</span></div></div>`;
-                }
-            };
-
-            /* ═══ Compartir torneo (link espectador) ═══ */
-            T$("btnShareTorneo").onclick = async () => {
-                syncTournamentFromForm();
-                if (!state._supaId) {
-                    // Auto-save first
-                    if (!state.tournament.name.trim()) { toast("Pon nombre al torneo primero.", "warn"); return; }
-                    toast("Guardando torneo antes de compartir…", "info");
-                    try {
-                        const saved = await saveTournamentToSupabase(state);
-                        if (saved && saved.id) { state._supaId = saved.id; state._slug = saved.slug; }
-                        else { toast("No se pudo guardar el torneo.", "error"); return; }
-                    } catch (e) { toast("Error al guardar: " + (e.message || e), "error"); return; }
-                }
-                const modal = document.getElementById("shareModal");
-                const base = location.origin + location.pathname;
-                document.getElementById("shareLink").value = base + "#/torneo/" + (state._slug || state._supaId);
-                document.getElementById("shareOrgKey").value = OWNER_TOKEN;
-                modal.classList.remove("hidden");
-            };
-
-            /* ═══ Exportar bracket a CSV ═══ */
-            T$("btnExportBracketCSV").onclick = () => {
-                syncTournamentFromForm();
-                if (!state.view) { toast("Genera un bracket primero.", "warn"); return; }
-                const rows = [];
-                function extractMatches(bracket, prefix) {
-                    if (!bracket || !bracket.rounds) return;
-                    bracket.rounds.forEach((matches, ri) => {
-                        matches.forEach((m, mi) => {
-                            rows.push({
-                                fase: prefix,
-                                ronda: ri + 1,
-                                match: mi + 1,
-                                robot_a: m.a?.name || "—",
-                                id_a: m.a?.rid || "",
-                                equipo_a: m.a?.team || "",
-                                score_a: m.wa || 0,
-                                robot_b: m.b?.name || "—",
-                                id_b: m.b?.rid || "",
-                                equipo_b: m.b?.team || "",
-                                score_b: m.wb || 0,
-                                ganador: m.winner === "a" ? (m.a?.name || "A") : (m.winner === "b" ? (m.b?.name || "B") : "—")
-                            });
-                        });
-                    });
-                }
-                if (state.view.type === "single") extractMatches(state.view.bracket, "Single");
-                if (state.view.type === "groups") {
-                    extractMatches(state.view.finalBracket, "Final");
-                }
-                if (state.view.type === "double") {
-                    extractMatches(state.view.dbl?.winners, "Winners");
-                    extractMatches(state.view.dbl?.losers, "Losers");
-                    extractMatches(state.view.dbl?.grandFinal, "GrandFinal");
-                }
-                if (!rows.length) { toast("No hay matches que exportar.", "warn"); return; }
-                const cols = ["fase", "ronda", "match", "robot_a", "id_a", "equipo_a", "score_a", "robot_b", "id_b", "equipo_b", "score_b", "ganador"];
-                downloadCSV(`bracket_${state.tournament.name || "torneo"}.csv`, rows, cols);
-                toast("Bracket exportado ✅", "ok");
-            };
-
-            /* ═══ Bulk Add: Agregar equipo completo ═══ */
-            T$("btnBulkAddTeam").onclick = async () => {
-                const modal = document.getElementById("bulkAddModal");
-                const sel = document.getElementById("bulkTeamSelect");
-                const preview = document.getElementById("bulkPreview");
-                modal.classList.remove("hidden");
-                sel.innerHTML = '<option value="">Cargando equipos…</option>';
-                preview.innerHTML = '<span class="muted">Cargando…</span>';
-                try {
-                    const teams = await fetchTeams();
-                    if (!teams || !teams.length) {
-                        sel.innerHTML = '<option value="">No hay equipos</option>';
-                        preview.innerHTML = '<span class="muted">No se encontraron equipos.</span>';
-                        return;
-                    }
-                    sel.innerHTML = '<option value="">Selecciona un equipo…</option>' +
-                        teams.map(t => `<option value="${tEsc(t.name)}">${tEsc(t.name)} (${tEsc(t.school || "—")})</option>`).join("");
-                    preview.innerHTML = '<span class="muted">Selecciona un equipo para ver sus robots.</span>';
-                } catch (e) {
-                    sel.innerHTML = '<option value="">Error al cargar</option>';
-                    preview.innerHTML = '<span class="muted">Error: ' + tEsc(e.message || e) + '</span>';
-                }
-            };
-
-            // Bulk add: when team is selected, show preview of robots
-            document.getElementById("bulkTeamSelect").addEventListener("change", async function() {
-                const teamName = this.value;
-                const preview = document.getElementById("bulkPreview");
-                if (!teamName) { preview.innerHTML = '<span class="muted">Selecciona un equipo.</span>'; return; }
-                preview.innerHTML = '<span class="muted">Buscando robots del equipo…</span>';
-                try {
-                    const { data, error } = await supabaseClient
-                        .from("robot_cards")
-                        .select("robot_id, data")
-                        .order("updated_at", { ascending: false })
-                        .limit(200);
-                    if (error) { preview.innerHTML = '<span class="muted">Error: ' + tEsc(error.message) + '</span>'; return; }
-                    const teamRobots = (data || []).filter(r => (r.data?.t || "").toLowerCase() === teamName.toLowerCase());
-                    if (!teamRobots.length) {
-                        preview.innerHTML = '<span class="muted">No se encontraron robots para este equipo.</span>';
-                        return;
-                    }
-                    preview.innerHTML = '<b>' + teamRobots.length + ' robots encontrados:</b><br>' +
-                        teamRobots.map(r => {
-                            const already = state.players.some(p => p.i === r.data?.i);
-                            return `<span style="display:inline-block;margin:2px 6px 2px 0;padding:2px 8px;border-radius:8px;background:${already ? "rgba(47,230,255,.15)" : "rgba(122,63,255,.15)"};font-size:13px">${tEsc(r.data?.n || r.robot_id)} ${already ? "✅" : ""}</span>`;
-                        }).join("");
-                    // Store for confirm
-                    preview._robotsToAdd = teamRobots.map(r => r.data).filter(Boolean);
-                } catch (e) {
-                    preview.innerHTML = '<span class="muted">Error: ' + tEsc(e.message || e) + '</span>';
-                }
-            });
-
-            // Bulk add: confirm button
-            document.getElementById("bulkConfirm").addEventListener("click", () => {
-                const preview = document.getElementById("bulkPreview");
-                const robotsToAdd = preview._robotsToAdd || [];
-                if (!robotsToAdd.length) { toast("No hay robots para agregar.", "warn"); return; }
-                let added = 0;
-                robotsToAdd.forEach(compact => {
-                    if (!state.players.some(p => p.i === compact.i)) {
-                        const N = state.tournament.n;
-                        if (state.players.length < N) {
-                            state.players.push(compact);
-                            added++;
-                        }
-                    }
-                });
-                renderPlayers();
-                syncParticipantsToN();
-                document.getElementById("bulkAddModal").classList.add("hidden");
-                toast(`${added} robots agregados del equipo.`, "ok");
-            });
-
-            /* ═══ Check-in: marcar presencia de participantes ═══ */
-            const checkedIn = new Set();
-            T$("btnCheckInAll").onclick = () => {
-                if (!state.players.length) { toast("No hay participantes.", "warn"); return; }
-                // Toggle: if all checked in, reset; otherwise check all
-                const allChecked = state.players.every(p => checkedIn.has(p.i));
-                if (allChecked) {
-                    checkedIn.clear();
-                    toast("Check-in reiniciado.", "info");
-                } else {
-                    state.players.forEach(p => checkedIn.add(p.i));
-                    toast("✅ Todos los participantes con check-in.", "ok");
-                }
-                renderPlayersWithCheckIn();
-            };
-
-            // Enhanced renderPlayers with check-in badges
-            function renderPlayersWithCheckIn() {
-                const list = T$("playersList");
-                if (!state.players.length) {
-                    list.innerHTML = `<div class="row"><div class="left"><b>Vacío</b><span>Agrega robots desde la búsqueda.</span></div></div>`;
-                    return;
-                }
-                list.innerHTML = state.players.map((p, idx) => {
-                    const info = robotLabel(p);
-                    const checked = checkedIn.has(p.i);
-                    return `
-                        <div class="row">
-                            <div class="left">
-                                <b>${checked ? '<span class="checkin-badge">✅</span>' : '<span class="checkin-badge" style="opacity:.3">⬜</span>'} ${tEsc((idx + 1) + ". " + info.name)}</b>
-                                <span>${tEsc(info.sub)}</span>
-                            </div>
-                            <div class="right">
-                                <button class="btn small" data-checkin="${tEsc(p.i)}">${checked ? "Quitar ✅" : "Check-in"}</button>
-                                <button class="btn" data-up="${tEsc(p.i)}">↑</button>
-                                <button class="btn" data-down="${tEsc(p.i)}">↓</button>
-                                <button class="btn hot" data-remove="${tEsc(p.i)}">Quitar</button>
-                            </div>
-                        </div>
-                    `;
-                }).join("");
-                // Rebind events
-                list.querySelectorAll("[data-remove]").forEach(b => {
-                    b.addEventListener("click", () => { removePlayer(b.getAttribute("data-remove")); renderPlayersWithCheckIn(); });
-                });
-                list.querySelectorAll("[data-up]").forEach(b => {
-                    b.addEventListener("click", () => {
-                        const id = b.getAttribute("data-up");
-                        const i = state.players.findIndex(x => x.i === id);
-                        if (i > 0) { [state.players[i - 1], state.players[i]] = [state.players[i], state.players[i - 1]]; renderPlayersWithCheckIn(); }
-                    });
-                });
-                list.querySelectorAll("[data-down]").forEach(b => {
-                    b.addEventListener("click", () => {
-                        const id = b.getAttribute("data-down");
-                        const i = state.players.findIndex(x => x.i === id);
-                        if (i >= 0 && i < state.players.length - 1) { [state.players[i + 1], state.players[i]] = [state.players[i], state.players[i + 1]]; renderPlayersWithCheckIn(); }
-                    });
-                });
-                list.querySelectorAll("[data-checkin]").forEach(b => {
-                    b.addEventListener("click", () => {
-                        const id = b.getAttribute("data-checkin");
-                        if (checkedIn.has(id)) checkedIn.delete(id);
-                        else checkedIn.add(id);
-                        renderPlayersWithCheckIn();
-                    });
-                });
-            }
-
-            // Override original renderPlayers to use check-in version
-            renderPlayers = renderPlayersWithCheckIn;
 
             // Boot torneos
             syncTournamentFromForm();
@@ -4752,91 +3608,6 @@ async function route() {
             clearView();
         }
     </script>
-
-    <!-- Toast container -->
-    <div class="toast-container" id="toastContainer"></div>
-
-    <!-- Report modal -->
-    <div class="modal-overlay hidden" id="reportModal">
-        <div class="modal-box">
-            <h3>🚩 Reportar robot</h3>
-            <div class="modal-body">
-                <label>Motivo del reporte</label>
-                <select id="reportReason">
-                    <option value="">Selecciona…</option>
-                    <option value="contenido_ofensivo">Contenido ofensivo</option>
-                    <option value="informacion_falsa">Información falsa</option>
-                    <option value="duplicado">Robot duplicado</option>
-                    <option value="spam">Spam</option>
-                    <option value="otro">Otro</option>
-                </select>
-                <div style="height:10px"></div>
-                <label>Comentario (opcional)</label>
-                <textarea id="reportComment" placeholder="Describe el problema…" maxlength="300"></textarea>
-            </div>
-            <div class="modal-actions">
-                <button class="btn" id="reportCancel">Cancelar</button>
-                <button class="btn hot" id="reportSubmit">Enviar reporte</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tournament share modal -->
-    <div class="modal-overlay hidden" id="shareModal">
-        <div class="modal-box">
-            <h3>🔗 Compartir torneo</h3>
-            <div class="modal-body">
-                <label>Link público (modo espectador)</label>
-                <div class="share-box">
-                    <input id="shareLink" readonly />
-                    <button class="btn small primary" id="shareCopy">Copiar</button>
-                </div>
-                <div style="height:10px"></div>
-                <label>Clave organizador (no compartir)</label>
-                <div class="share-box">
-                    <input id="shareOrgKey" readonly />
-                    <button class="btn small" id="shareOrgCopy">Copiar</button>
-                </div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn" id="shareClose">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tournament loader modal -->
-    <div class="modal-overlay hidden" id="loadTournamentModal">
-        <div class="modal-box">
-            <h3>📂 Cargar torneo de Supabase</h3>
-            <div class="modal-body">
-                <div id="tournamentDBList" class="list">
-                    <div class="row"><div class="left"><b>Cargando…</b></div></div>
-                </div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn" id="loadTournamentCancel">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bulk add team modal -->
-    <div class="modal-overlay hidden" id="bulkAddModal">
-        <div class="modal-box">
-            <h3>Agregar equipo completo</h3>
-            <div class="modal-body">
-                <label>Selecciona equipo</label>
-                <select id="bulkTeamSelect">
-                    <option value="">Cargando equipos…</option>
-                </select>
-                <div style="height:8px"></div>
-                <div id="bulkPreview" class="muted">Selecciona un equipo para ver sus robots.</div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn" id="bulkCancel">Cancelar</button>
-                <button class="btn primary" id="bulkConfirm">Agregar todos</button>
-            </div>
-        </div>
-    </div>
 </body>
 
 </html>
